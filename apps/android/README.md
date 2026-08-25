@@ -30,4 +30,6 @@ $env:JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'
 
 현재 골격의 임시 application ID는 `kr.co.ninetyseconds.recommendation`이다. 출시 식별자가 달라져야 한다면 배포 전에 ADR로 변경한다.
 
+빌드는 Compose 애플리케이션과 플랫폼 독립적인 [`core/domain`](core/domain/) 순수 Kotlin 모듈로 나눈다. 데이터베이스와 통신 구현은 도메인 포트 뒤에 별도 Adapter 모듈로 추가한다.
+
 기존 태안 Android 프로젝트를 이 디렉터리에 그대로 복사하지 않는다. 분석 모델과 알고리즘은 특성화 테스트 후 Adapter로 선별 이식한다.

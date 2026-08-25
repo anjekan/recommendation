@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "RecommendationAndroid"
 include(":app")
+include(":core:domain")
