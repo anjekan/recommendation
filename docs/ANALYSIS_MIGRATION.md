@@ -37,9 +37,10 @@ CameraX frame source
    - 랜드마크 123 주변 ROI가 이미지 경계를 넘지 않게 검증
    - 결과 timestamp와 CameraX frame timestamp를 연결
 3. 측정 coordinator
-   - 얼굴 미검출, calibration, measuring, completed 상태를 명시
-   - Activity와 WebView 콜백 제거
-   - session reset 시 모든 버퍼와 모델 상태 초기화
+   - `WAITING_FOR_FACE`, `MEASURING`, `CALIBRATING`, `COMPLETED` 상태를 순수 Kotlin으로 분리
+   - 얼굴이 감지된 시간만 측정 시간에 반영
+   - 생체 신호가 준비되지 않으면 보정 구간을 연장
+   - 감정 누적, 스트레스 계산, session reset을 단위 테스트로 고정
 
 ## ONNX 계약 검증 결과
 
@@ -60,6 +61,7 @@ ONNX Runtime 1.23.2의 Windows DLL은 현재 개발 PC에서 초기화되지 않
 - 감정 추론은 30프레임마다 수행
 - CameraX `ImageProxy`는 모든 성공/실패 경로에서 `finally`로 해제
 - analyzer reset/close 시 신호 버퍼와 native detector/classifier 자원 해제
+- Activity는 카메라 snapshot을 coordinator에 전달하고 완료 결과만 추천 use case로 전달
 
 기존 `LIVE_STREAM` 구현처럼 이전 랜드마크와 현재 Bitmap이 섞이는 경쟁 조건을 피하기 위해 첫 버전은 동기 검출을 사용한다. 실기기 FPS가 부족할 때만 timestamp 기반 비동기 queue로 교체한다.
 

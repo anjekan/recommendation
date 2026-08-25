@@ -25,8 +25,8 @@ import androidx.core.content.ContextCompat
 import java.util.concurrent.Executors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kr.co.ninetyseconds.recommendation.analysis.LegacyEmotionAccumulator
-import kr.co.ninetyseconds.recommendation.analysis.LegacyStressCalculator
+import kr.co.ninetyseconds.recommendation.analysis.MeasurementCoordinator
+import kr.co.ninetyseconds.recommendation.analysis.MeasurementPhase
 import kr.co.ninetyseconds.recommendation.analysis.android.*
 import kr.co.ninetyseconds.recommendation.domain.*
 import kr.co.ninetyseconds.recommendation.ui.theme.RecommendationTheme
@@ -104,23 +104,21 @@ private fun MeasurementScreen(config: ProjectConfiguration, onComplete: (String,
         return
     }
 
-    val accumulator = remember { LegacyEmotionAccumulator() }
+    val coordinator = remember { MeasurementCoordinator() }
     var snapshot by remember { mutableStateOf<MeasurementSnapshot?>(null) }
     var cameraError by remember { mutableStateOf<String?>(null) }
-    var secondsLeft by remember { mutableIntStateOf(MEASUREMENT_SECONDS) }
-    LaunchedEffect(snapshot?.emotion) { snapshot?.emotion?.label?.let(accumulator::add) }
+    var progress by remember { mutableStateOf(coordinator.reset()) }
     LaunchedEffect(Unit) {
         while (true) {
-            while (secondsLeft > 0) {
-                delay(1_000)
-                if (snapshot?.faceDetected == true) secondsLeft--
-            }
-            val vital = snapshot?.vital
-            if (vital == null) {
-                secondsLeft = RETRY_SECONDS
-            } else {
-                val label = accumulator.result()
-                onComplete(label, LegacyStressCalculator.calculate(vital.heartRateBpm, vital.respiratoryRateRpm, label))
+            delay(1_000)
+            val current = snapshot
+            progress = coordinator.tick(
+                faceDetected = current?.faceDetected == true,
+                vital = current?.vital,
+                emotionLabel = current?.emotion?.label,
+            )
+            progress.result?.let {
+                onComplete(it.emotionLabel, it.stressScore)
                 break
             }
         }
@@ -143,8 +141,8 @@ private fun MeasurementScreen(config: ProjectConfiguration, onComplete: (String,
                 onError = { cameraError = it },
             )
             Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(if (snapshot?.faceDetected == true) "측정 중 · 움직이지 마세요" else "측정 일시 정지 · 화면 중앙에 얼굴을 맞춰주세요")
-                Text("${secondsLeft}초", style = MaterialTheme.typography.headlineLarge)
+                Text(progress.phase.message)
+                Text("${progress.secondsRemaining}초", style = MaterialTheme.typography.headlineLarge)
                 snapshot?.vital?.let { Text("심박 ${it.heartRateBpm} · 호흡 ${it.respiratoryRateRpm}") }
                 Text(config.theme.name)
                 Button(onClick = onCancel) { Text("측정 취소") }
@@ -226,5 +224,10 @@ private fun Centered(content: @Composable ColumnScope.() -> Unit) {
     Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, content = content)
 }
 
-private const val MEASUREMENT_SECONDS = 20
-private const val RETRY_SECONDS = 5
+private val MeasurementPhase.message: String
+    get() = when (this) {
+        MeasurementPhase.WAITING_FOR_FACE -> "측정 일시 정지 · 화면 중앙에 얼굴을 맞춰주세요"
+        MeasurementPhase.MEASURING -> "측정 중 · 움직이지 마세요"
+        MeasurementPhase.CALIBRATING -> "신호 보정 중 · 잠시만 기다려주세요"
+        MeasurementPhase.COMPLETED -> "측정 완료"
+    }
