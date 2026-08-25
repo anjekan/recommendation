@@ -43,6 +43,10 @@ android {
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
+
+    sourceSets {
+        getByName("main").assets.directories.add("../../../contracts/examples")
+    }
 }
 
 dependencies {
@@ -53,6 +57,11 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(project(":core:application"))
+    implementation(project(":core:data-config"))
+    implementation(project(":core:data-local"))
+    implementation(project(":core:domain"))
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

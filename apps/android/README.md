@@ -33,3 +33,5 @@ $env:JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'
 빌드는 Compose 애플리케이션과 플랫폼 독립적인 [`core/domain`](core/domain/) 순수 Kotlin 모듈로 나눈다. 데이터베이스와 통신 구현은 도메인 포트 뒤에 별도 Adapter 모듈로 추가한다.
 
 기존 태안 Android 프로젝트를 이 디렉터리에 그대로 복사하지 않는다. 분석 모델과 알고리즘은 특성화 테스트 후 Adapter로 선별 이식한다.
+
+현재 앱은 저장소의 `contracts/examples/project-config.json`을 기본 Asset으로 패키징한다. 최초 실행 시 설정을 검증한 뒤 Room 카탈로그를 교체하고 `LOCAL` 추천 테스트를 수행할 수 있으므로 서버 설정 없이 기동된다.
