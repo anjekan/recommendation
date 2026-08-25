@@ -41,10 +41,19 @@ CameraX frame source
    - Activity와 WebView 콜백 제거
    - session reset 시 모든 버퍼와 모델 상태 초기화
 
+## ONNX 계약 검증 결과
+
+- Runtime: 1.16.0(기존 앱과 동일)
+- input: `Input3`, float tensor `[1, 1, 64, 64]`
+- output: 단일 float tensor `[1, 8]`
+- 원본 SHA-256과 LFS 자산 해시 일치
+- 상수 0~255 grayscale 입력으로 desktop inference 성공
+
+ONNX Runtime 1.23.2의 Windows DLL은 현재 개발 PC에서 초기화되지 않아, 검증된 1.16.0을 재현성 기준으로 고정했다.
+
 ## 아직 검증되지 않은 항목
 
 - FER+ 모델이 0~255 grayscale과 0~1 정규화 중 어느 입력을 기대하는지
-- 실제 모델 input/output node 이름과 shape
 - 운영 태블릿에서 MediaPipe/ONNX 지연, 발열과 메모리
 - 실제 장비 대비 rPPG 정확도
 
