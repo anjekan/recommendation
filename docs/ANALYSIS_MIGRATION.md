@@ -51,6 +51,18 @@ CameraX frame source
 
 ONNX Runtime 1.23.2의 Windows DLL은 현재 개발 PC에서 초기화되지 않아, 검증된 1.16.0을 재현성 기준으로 고정했다.
 
+## MediaPipe/CameraX Adapter 결과
+
+- MediaPipe `IMAGE` 모드에서 프레임과 랜드마크 결과를 동기화
+- 최대 두 얼굴 중 normalized bounding box가 가장 큰 얼굴 선택
+- 랜드마크 123 주변 10×10 ROI의 RGB 평균 추출
+- ROI 경계 이탈 시 해당 샘플만 폐기
+- 감정 추론은 30프레임마다 수행
+- CameraX `ImageProxy`는 모든 성공/실패 경로에서 `finally`로 해제
+- analyzer reset/close 시 신호 버퍼와 native detector/classifier 자원 해제
+
+기존 `LIVE_STREAM` 구현처럼 이전 랜드마크와 현재 Bitmap이 섞이는 경쟁 조건을 피하기 위해 첫 버전은 동기 검출을 사용한다. 실기기 FPS가 부족할 때만 timestamp 기반 비동기 queue로 교체한다.
+
 ## 아직 검증되지 않은 항목
 
 - FER+ 모델이 0~255 grayscale과 0~1 정규화 중 어느 입력을 기대하는지

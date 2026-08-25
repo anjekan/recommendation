@@ -14,5 +14,7 @@ android {
 
 dependencies {
     implementation(project(":core:analysis"))
+    implementation(libs.androidx.camera.core)
+    implementation(libs.mediapipe.tasks.vision)
     implementation(libs.onnxruntime.android)
 }
