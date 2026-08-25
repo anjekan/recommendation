@@ -9,7 +9,7 @@ if (-not (Test-Path -LiteralPath $ConfigPath)) {
     throw "Project configuration not found: $ConfigPath"
 }
 
-$config = Get-Content -Raw -LiteralPath $ConfigPath | ConvertFrom-Json
+$config = Get-Content -Raw -Encoding UTF8 -LiteralPath $ConfigPath | ConvertFrom-Json
 $errors = New-Object System.Collections.Generic.List[string]
 
 if ($config.schema_version -ne 1) {
@@ -23,6 +23,13 @@ if ($config.supported_languages -notcontains $config.default_language) {
 $emotionCodes = @($config.emotion_profiles | ForEach-Object { $_.code })
 $locationIds = @($config.locations | ForEach-Object { $_.id })
 $itemIds = @($config.items | ForEach-Object { $_.id })
+$sourceLabels = @($config.analysis_mappings | ForEach-Object { $_.source_label })
+
+foreach ($mapping in $config.analysis_mappings) {
+    if ($emotionCodes -notcontains $mapping.emotion_code) {
+        $errors.Add("analysis mapping $($mapping.source_label) references unknown emotion $($mapping.emotion_code)")
+    }
+}
 
 foreach ($item in $config.items) {
     if ($locationIds -notcontains $item.location_id) {
@@ -76,6 +83,10 @@ if (($locationIds | Select-Object -Unique).Count -ne $locationIds.Count) {
 
 if (($itemIds | Select-Object -Unique).Count -ne $itemIds.Count) {
     $errors.Add('item ids must be unique')
+}
+
+if (($sourceLabels | Select-Object -Unique).Count -ne $sourceLabels.Count) {
+    $errors.Add('analysis mapping source labels must be unique')
 }
 
 if ($errors.Count -gt 0) {

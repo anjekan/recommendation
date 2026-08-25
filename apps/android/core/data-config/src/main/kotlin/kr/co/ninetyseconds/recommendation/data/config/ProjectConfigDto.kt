@@ -14,9 +14,16 @@ internal data class ProjectConfigDto(
     @SerialName("supported_languages") val supportedLanguages: List<String>,
     val theme: ThemeDto,
     @SerialName("emotion_profiles") val emotionProfiles: List<EmotionDto>,
+    @SerialName("analysis_mappings") val analysisMappings: List<AnalysisMappingDto>,
     val locations: List<LocationDto>,
     val items: List<ItemDto>,
     val rules: List<RuleDto>,
+)
+
+@Serializable
+internal data class AnalysisMappingDto(
+    @SerialName("source_label") val sourceLabel: String,
+    @SerialName("emotion_code") val emotionCode: String,
 )
 
 @Serializable

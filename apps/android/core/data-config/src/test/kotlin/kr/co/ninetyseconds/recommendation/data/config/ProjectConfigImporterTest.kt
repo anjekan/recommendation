@@ -13,6 +13,7 @@ class ProjectConfigImporterTest {
         assertEquals("Generic Expo", config.theme.name)
         assertEquals("Rest Zone", config.catalog.locations.single().title)
         assertEquals(setOf("SERENITY"), config.catalog.items.single().supportedEmotions.map { it.value }.toSet())
+        assertEquals("SERENITY", config.mapAnalysisLabel("Neutral").value)
     }
 
     @Test
@@ -65,6 +66,10 @@ class ProjectConfigImporterTest {
             "icon": "serenity",
             "active": true
           }],
+          "analysis_mappings": [
+            {"source_label": "Neutral", "emotion_code": "SERENITY"},
+            {"source_label": "Happy", "emotion_code": "SERENITY"}
+          ],
           "locations": [{
             "id": "location-1",
             "code": "ZONE-1",

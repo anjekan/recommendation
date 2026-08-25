@@ -39,6 +39,16 @@
       "active": true
     }
   ],
+  "analysis_mappings": [
+    { "source_label": "Neutral", "emotion_code": "SERENITY" },
+    { "source_label": "Happy", "emotion_code": "VITALITY" },
+    { "source_label": "Surprise", "emotion_code": "VITALITY" },
+    { "source_label": "Sad", "emotion_code": "SERENITY" },
+    { "source_label": "Anger", "emotion_code": "SERENITY" },
+    { "source_label": "Disgust", "emotion_code": "SERENITY" },
+    { "source_label": "Fear", "emotion_code": "SERENITY" },
+    { "source_label": "Contempt", "emotion_code": "SERENITY" }
+  ],
   "locations": [
     {
       "id": "10000000-0000-4000-8000-000000000001",

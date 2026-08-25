@@ -88,6 +88,7 @@ class ProjectConfigImporter(
                     iconRef = emotion.icon,
                 )
             },
+            analysisEmotionMappings = dto.analysisMappings.associate { it.sourceLabel to EmotionCode(it.emotionCode) },
             selectedLanguage = language,
         )
     }
@@ -98,9 +99,11 @@ class ProjectConfigImporter(
         unique(config.locations.map(LocationDto::id), "location id")
         unique(config.items.map(ItemDto::id), "item id")
         unique(config.emotionProfiles.map(EmotionDto::code), "emotion code")
+        unique(config.analysisMappings.map(AnalysisMappingDto::sourceLabel), "analysis mapping source label")
         val locationIds = config.locations.map(LocationDto::id).toSet()
         val itemIds = config.items.map(ItemDto::id).toSet()
         val emotionCodes = config.emotionProfiles.map(EmotionDto::code).toSet()
+        if (config.analysisMappings.any { it.emotionCode !in emotionCodes }) invalid("Analysis mapping references an unknown emotion")
         if (config.items.any { it.locationId !in locationIds }) invalid("Item references an unknown location")
         if (config.rules.any { it.itemId !in itemIds }) invalid("Rule references an unknown item")
         if (config.rules.any { it.emotionCode !in emotionCodes }) invalid("Rule references an unknown emotion")

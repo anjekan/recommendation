@@ -36,7 +36,7 @@ class AppContainer(
         return imported
     }
 
-    suspend fun recommend(emotion: EmotionCode): RecommendationDecision {
+    suspend fun recommend(emotion: EmotionCode, stressScore: Int = 0): RecommendationDecision {
         val config = configuration ?: start()
         return recommendUseCase(
             RecommendationRequest(
@@ -46,6 +46,7 @@ class AppContainer(
                 emotionProfile = EmotionProfile(listOf(EmotionScore(emotion, 1.0))),
                 requestedAt = Instant.now(clock),
                 kioskId = DEFAULT_KIOSK_ID,
+                stressScore = stressScore,
                 language = config.selectedLanguage,
             ),
         )
