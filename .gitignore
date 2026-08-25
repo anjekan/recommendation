@@ -38,9 +38,9 @@ __pycache__/
 .mypy_cache/
 
 # Runtime data
-data/
-uploads/
-backups/
+/data/
+/uploads/
+/backups/
 *.db
 *.sqlite
 *.sqlite3

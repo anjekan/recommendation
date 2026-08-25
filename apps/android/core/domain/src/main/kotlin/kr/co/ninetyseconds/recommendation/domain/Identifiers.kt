@@ -1,6 +1,6 @@
 package kr.co.ninetyseconds.recommendation.domain
 
-private val CODE_PATTERN = Regex("[a-z][a-z0-9_-]*")
+private val CODE_PATTERN = Regex("[A-Za-z][A-Za-z0-9_-]*")
 
 @JvmInline
 value class ProjectId(val value: String) {
@@ -9,7 +9,7 @@ value class ProjectId(val value: String) {
 
 @JvmInline
 value class EmotionCode(val value: String) {
-    init { require(value.matches(CODE_PATTERN)) { "EmotionCode must be a lowercase identifier" } }
+    init { require(value.matches(CODE_PATTERN)) { "EmotionCode must be an identifier" } }
 }
 
 @JvmInline
