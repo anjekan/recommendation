@@ -23,11 +23,19 @@ data class RecommendationRequest(
     val emotionProfile: EmotionProfile,
     val excludedLocationIds: Set<LocationId> = emptySet(),
     val requestedAt: Instant,
+    val kioskId: String = "UNASSIGNED",
+    val stressScore: Int = 0,
+    val language: String = "ko",
 ) {
-    init { require(requestId.isNotBlank()) { "Request id cannot be blank" } }
+    init {
+        require(requestId.isNotBlank()) { "Request id cannot be blank" }
+        require(kioskId.isNotBlank()) { "Kiosk id cannot be blank" }
+        require(stressScore in 0..100) { "Stress score must be between 0 and 100" }
+        require(language.isNotBlank()) { "Language cannot be blank" }
+    }
 }
 
-enum class DecisionSource { LOCAL, REMOTE }
+enum class DecisionSource { LOCAL, REMOTE, LOCAL_FALLBACK }
 
 data class RecommendationDecision(
     val requestId: String,
