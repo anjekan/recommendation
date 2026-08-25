@@ -23,6 +23,8 @@
 - [구현 순서와 완료 기준](docs/IMPLEMENTATION_ROADMAP.md)
 - [기존 Android 클라이언트 해체 분석](docs/LEGACY_CLIENT_ASSESSMENT.md)
 - [기존 Android 빌드·분석 기준선](docs/BASELINE.md)
+- [도메인 용어 사전](docs/DOMAIN_GLOSSARY.md)
+- [Architecture Decision Records](docs/adr/README.md)
 - [기술 및 아키텍처 결정](docs/DECISIONS.md)
 
 ## 현재 기준선

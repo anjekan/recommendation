@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "config_version": 1,
+  "minimum_app_version": 1,
+  "project_code": "EXAMPLE_EXPO_2026",
+  "default_language": "ko",
+  "supported_languages": ["ko", "en"],
+  "theme": {
+    "name": {
+      "ko": "범용 추천 박람회",
+      "en": "Generic Recommendation Expo"
+    },
+    "logo_url": "/assets/projects/example/branding/logo.webp",
+    "primary_color": "#6A5ACD",
+    "background_image_url": "/assets/projects/example/branding/background.webp",
+    "map_image_url": "/assets/projects/example/maps/main.webp"
+  },
+  "emotion_profiles": [
+    {
+      "code": "SERENITY",
+      "name": { "ko": "평안함", "en": "Serenity" },
+      "message": {
+        "ko": "차분하고 안정적인 상태입니다.",
+        "en": "You are in a calm and stable state."
+      },
+      "color": "#4CAF50",
+      "icon": "serenity",
+      "active": true
+    },
+    {
+      "code": "VITALITY",
+      "name": { "ko": "활력", "en": "Vitality" },
+      "message": {
+        "ko": "밝은 에너지가 넘치는 상태입니다.",
+        "en": "You are full of bright energy."
+      },
+      "color": "#FFA726",
+      "icon": "vitality",
+      "active": true
+    }
+  ],
+  "locations": [
+    {
+      "id": "10000000-0000-4000-8000-000000000001",
+      "code": "ZONE-01",
+      "name": { "ko": "휴식 공간", "en": "Rest Zone" },
+      "description": { "ko": "조용히 쉬는 공간", "en": "A quiet place to rest" },
+      "image_url": "/assets/projects/example/locations/rest-zone.webp",
+      "capacity": 100,
+      "status": "NORMAL",
+      "marker": { "x_percent": 25.5, "y_percent": 40.0 },
+      "active": true
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000002",
+      "code": "ZONE-02",
+      "name": { "ko": "체험 공간", "en": "Experience Zone" },
+      "description": { "ko": "활동적인 체험 공간", "en": "An active experience area" },
+      "image_url": "/assets/projects/example/locations/experience-zone.webp",
+      "capacity": 150,
+      "status": "NORMAL",
+      "marker": { "x_percent": 70.0, "y_percent": 55.5 },
+      "active": true
+    }
+  ],
+  "items": [
+    {
+      "id": "20000000-0000-4000-8000-000000000001",
+      "type": "program",
+      "location_id": "10000000-0000-4000-8000-000000000001",
+      "name": { "ko": "마음 쉼 프로그램", "en": "Mindful Rest Program" },
+      "description": { "ko": "차분한 휴식을 위한 콘텐츠", "en": "Content for a calm rest" },
+      "image_url": "/assets/projects/example/items/mindful-rest.webp",
+      "attributes": { "duration_minutes": 20, "indoor": true },
+      "active": true
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000002",
+      "type": "program",
+      "location_id": "10000000-0000-4000-8000-000000000002",
+      "name": { "ko": "활력 체험", "en": "Vitality Experience" },
+      "description": { "ko": "에너지를 활용하는 체험 콘텐츠", "en": "An energetic experience" },
+      "image_url": "/assets/projects/example/items/vitality-experience.webp",
+      "attributes": { "duration_minutes": 30, "indoor": false },
+      "active": true
+    }
+  ],
+  "rules": [
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "20000000-0000-4000-8000-000000000001",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "20000000-0000-4000-8000-000000000002",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    }
+  ]
+}

@@ -15,3 +15,9 @@ contracts/
 2. 예제 요청·응답을 갱신한다.
 3. 하위 호환성을 확인한다.
 4. Android·서버 계약 테스트를 함께 갱신한다.
+
+초기 프로젝트 설정 예제 검증:
+
+```powershell
+.\scripts\validate-project-config.ps1
+```
