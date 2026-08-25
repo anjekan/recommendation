@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Recommendation Platform</string>
+    <string name="platform_title">Recommendation Platform</string>
+    <string name="platform_subtitle">Architecture baseline is ready.</string>
+</resources>
