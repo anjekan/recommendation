@@ -23,4 +23,5 @@ dependencyResolutionManagement {
 rootProject.name = "RecommendationAndroid"
 include(":app")
 include(":core:domain")
+include(":core:application")
 include(":core:data-local")
