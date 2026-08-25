@@ -24,6 +24,7 @@ rootProject.name = "RecommendationAndroid"
 include(":app")
 include(":core:domain")
 include(":core:application")
+include(":core:analysis")
 include(":core:data-local")
 include(":core:data-config")
 include(":core:data-remote")
