@@ -1,0 +1,352 @@
+openapi: 3.1.0
+info:
+  title: Recommendation Platform API
+  version: 0.1.0
+  description: 범용 감정 분석 기반 콘텐츠·장소 추천 플랫폼의 초기 계약
+servers:
+  - url: http://localhost:8080
+    description: Local development
+paths:
+  /api/v1/health:
+    get:
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/v1/projects/{projectCode}/config:
+    get:
+      operationId: getProjectConfig
+      parameters:
+        - name: projectCode
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project configuration
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/project-config.schema.json'
+        '304':
+          description: Cached configuration is current
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/recommendations:
+    post:
+      operationId: createRecommendation
+      parameters:
+        - name: X-Kiosk-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecommendationRequest'
+      responses:
+        '200':
+          description: Recommendation decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationResult'
+        '409':
+          description: No eligible candidate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/events/sync:
+    post:
+      operationId: syncEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [events]
+              properties:
+                events:
+                  type: array
+                  maxItems: 500
+                  items:
+                    $ref: '#/components/schemas/RecommendationEvent'
+      responses:
+        '200':
+          description: Event synchronization result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accepted_event_ids]
+                properties:
+                  accepted_event_ids:
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+  /api/v1/kiosks/heartbeat:
+    post:
+      operationId: recordHeartbeat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [project_code, kiosk_id, app_version, occurred_at]
+              properties:
+                project_code:
+                  type: string
+                kiosk_id:
+                  type: string
+                app_version:
+                  type: string
+                config_version:
+                  type: integer
+                occurred_at:
+                  type: string
+                  format: date-time
+      responses:
+        '204':
+          description: Heartbeat accepted
+components:
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    LocalizedText:
+      type: object
+      additionalProperties:
+        type: string
+      minProperties: 1
+    HealthResponse:
+      type: object
+      required: [status, time]
+      properties:
+        status:
+          type: string
+          enum: [UP, DEGRADED]
+        time:
+          type: string
+          format: date-time
+    RecommendationRequest:
+      type: object
+      required:
+        - schema_version
+        - project_code
+        - kiosk_id
+        - session_id
+        - request_id
+        - emotion_code
+        - stress_score
+        - language
+        - requested_at
+      properties:
+        schema_version:
+          type: integer
+          const: 1
+        project_code:
+          type: string
+        kiosk_id:
+          type: string
+        session_id:
+          type: string
+          format: uuid
+        request_id:
+          type: string
+          format: uuid
+        emotion_code:
+          type: string
+        stress_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        language:
+          type: string
+        previous_location_id:
+          type: [string, 'null']
+          format: uuid
+        requested_at:
+          type: string
+          format: date-time
+    RecommendationResult:
+      type: object
+      required:
+        - schema_version
+        - recommendation_id
+        - request_id
+        - emotion_profile
+        - item
+        - location
+        - display
+        - source
+        - policy_version
+        - reasons
+        - created_at
+      properties:
+        schema_version:
+          type: integer
+          const: 1
+        recommendation_id:
+          type: string
+          format: uuid
+        request_id:
+          type: string
+          format: uuid
+        emotion_profile:
+          $ref: '#/components/schemas/EmotionProfile'
+        item:
+          $ref: '#/components/schemas/RecommendationItem'
+        location:
+          $ref: '#/components/schemas/Location'
+        display:
+          $ref: '#/components/schemas/DisplayConfig'
+        source:
+          type: string
+          enum: [LOCAL, REMOTE, LOCAL_FALLBACK]
+        policy_version:
+          type: string
+        reasons:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+    RecommendationEvent:
+      type: object
+      required:
+        - event_id
+        - project_code
+        - kiosk_id
+        - session_id
+        - emotion_code
+        - item_id
+        - location_id
+        - source
+        - policy_version
+        - occurred_at
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        project_code:
+          type: string
+        kiosk_id:
+          type: string
+        session_id:
+          type: string
+          format: uuid
+        emotion_code:
+          type: string
+        item_id:
+          type: string
+          format: uuid
+        location_id:
+          type: string
+          format: uuid
+        source:
+          type: string
+          enum: [LOCAL, REMOTE, LOCAL_FALLBACK]
+        policy_version:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+    EmotionProfile:
+      type: object
+      required: [code, name, message, color]
+      properties:
+        code:
+          type: string
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        message:
+          $ref: '#/components/schemas/LocalizedText'
+        color:
+          type: string
+        icon:
+          type: [string, 'null']
+    RecommendationItem:
+      type: object
+      required: [id, type, name, description, image_url]
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        description:
+          $ref: '#/components/schemas/LocalizedText'
+        image_url:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+    Location:
+      type: object
+      required: [id, code, name, status, marker]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        status:
+          type: string
+          enum: [NORMAL, CONGESTED, PAUSED]
+        marker:
+          type: object
+          required: [x_percent, y_percent]
+          properties:
+            x_percent:
+              type: number
+              minimum: 0
+              maximum: 100
+            y_percent:
+              type: number
+              minimum: 0
+              maximum: 100
+    DisplayConfig:
+      type: object
+      required: [recommendation_text, display_seconds]
+      properties:
+        recommendation_text:
+          $ref: '#/components/schemas/LocalizedText'
+        display_seconds:
+          type: integer
+          minimum: 1
+    ErrorResponse:
+      type: object
+      required: [code, message, request_id]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        request_id:
+          type: string

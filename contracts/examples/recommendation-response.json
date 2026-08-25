@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "recommendation_id": "33333333-3333-4333-8333-333333333333",
+  "request_id": "22222222-2222-4222-8222-222222222222",
+  "emotion_profile": {
+    "code": "VITALITY",
+    "name": { "ko": "활력", "en": "Vitality" },
+    "message": { "ko": "밝은 에너지가 넘치는 상태입니다.", "en": "You are full of bright energy." },
+    "color": "#FFA726",
+    "icon": "energy"
+  },
+  "item": {
+    "id": "44444444-4444-4444-8444-444444444444",
+    "type": "place",
+    "name": { "ko": "숲속 체험장", "en": "Forest Experience Zone" },
+    "description": { "ko": "활동적인 체험을 즐길 수 있는 공간입니다.", "en": "A place for active experiences." },
+    "image_url": "/assets/projects/taean/items/forest-zone.webp",
+    "attributes": {}
+  },
+  "location": {
+    "id": "55555555-5555-4555-8555-555555555555",
+    "code": "ZONE-03",
+    "name": { "ko": "숲속 체험장", "en": "Forest Experience Zone" },
+    "status": "NORMAL",
+    "marker": { "x_percent": 62.4, "y_percent": 38.7 }
+  },
+  "display": {
+    "recommendation_text": {
+      "ko": "지금의 당신에게 숲속 체험장을 추천합니다.",
+      "en": "We recommend the Forest Experience Zone for you."
+    },
+    "display_seconds": 10
+  },
+  "source": "REMOTE",
+  "policy_version": "balanced-v1",
+  "reasons": ["PREVIOUS_EXCLUDED", "LOW_RECENT_COUNT"],
+  "created_at": "2026-08-25T14:30:00+09:00"
+}

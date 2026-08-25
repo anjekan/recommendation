@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.example.invalid/recommendation/project-config.schema.json",
+  "title": "ProjectConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "config_version",
+    "minimum_app_version",
+    "project_code",
+    "default_language",
+    "supported_languages",
+    "theme",
+    "emotion_profiles",
+    "locations",
+    "items",
+    "rules"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "config_version": { "type": "integer", "minimum": 1 },
+    "minimum_app_version": { "type": "integer", "minimum": 1 },
+    "project_code": { "type": "string", "minLength": 1 },
+    "default_language": { "type": "string", "minLength": 2 },
+    "supported_languages": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    },
+    "theme": { "$ref": "#/$defs/theme" },
+    "emotion_profiles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/emotionProfile" }
+    },
+    "locations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/location" }
+    },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/item" }
+    },
+    "rules": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rule" }
+    }
+  },
+  "$defs": {
+    "localizedText": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string" }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "primary_color", "background_image_url", "map_image_url"],
+      "properties": {
+        "name": { "$ref": "#/$defs/localizedText" },
+        "logo_url": { "type": ["string", "null"] },
+        "primary_color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "background_image_url": { "type": "string" },
+        "map_image_url": { "type": "string" }
+      }
+    },
+    "emotionProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "name", "message", "color", "active"],
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "$ref": "#/$defs/localizedText" },
+        "message": { "$ref": "#/$defs/localizedText" },
+        "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "icon": { "type": ["string", "null"] },
+        "active": { "type": "boolean" }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name", "status", "marker", "active"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "code": { "type": "string" },
+        "name": { "$ref": "#/$defs/localizedText" },
+        "description": { "$ref": "#/$defs/localizedText" },
+        "image_url": { "type": ["string", "null"] },
+        "capacity": { "type": ["integer", "null"], "minimum": 0 },
+        "status": { "enum": ["NORMAL", "CONGESTED", "PAUSED"] },
+        "marker": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x_percent", "y_percent"],
+          "properties": {
+            "x_percent": { "type": "number", "minimum": 0, "maximum": 100 },
+            "y_percent": { "type": "number", "minimum": 0, "maximum": 100 }
+          }
+        },
+        "active": { "type": "boolean" }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "location_id", "name", "description", "image_url", "active"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "type": { "type": "string" },
+        "location_id": { "type": "string", "format": "uuid" },
+        "name": { "$ref": "#/$defs/localizedText" },
+        "description": { "$ref": "#/$defs/localizedText" },
+        "image_url": { "type": "string" },
+        "attributes": { "type": "object", "additionalProperties": true },
+        "active": { "type": "boolean" }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["emotion_code", "item_id", "weight", "priority", "active"],
+      "properties": {
+        "emotion_code": { "type": "string" },
+        "item_id": { "type": "string", "format": "uuid" },
+        "weight": { "type": "integer", "minimum": 0 },
+        "priority": { "type": "integer", "minimum": 0 },
+        "active": { "type": "boolean" }
+      }
+    }
+  }
+}

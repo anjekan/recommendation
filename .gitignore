@@ -1,0 +1,52 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+local.properties
+
+# IDE and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Android / Gradle
+.gradle/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# JavaScript
+node_modules/
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Server
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Runtime data
+data/
+uploads/
+backups/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Temporary files
+.tmp/
+tmp/
+*.tmp
