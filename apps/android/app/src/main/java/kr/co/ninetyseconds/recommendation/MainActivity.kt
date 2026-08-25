@@ -106,11 +106,15 @@ private fun MeasurementScreen(config: ProjectConfiguration, onComplete: (String,
 
     val accumulator = remember { LegacyEmotionAccumulator() }
     var snapshot by remember { mutableStateOf<MeasurementSnapshot?>(null) }
+    var cameraError by remember { mutableStateOf<String?>(null) }
     var secondsLeft by remember { mutableIntStateOf(MEASUREMENT_SECONDS) }
     LaunchedEffect(snapshot?.emotion) { snapshot?.emotion?.label?.let(accumulator::add) }
     LaunchedEffect(Unit) {
         while (true) {
-            while (secondsLeft > 0) { delay(1_000); secondsLeft-- }
+            while (secondsLeft > 0) {
+                delay(1_000)
+                if (snapshot?.faceDetected == true) secondsLeft--
+            }
             val vital = snapshot?.vital
             if (vital == null) {
                 secondsLeft = RETRY_SECONDS
@@ -122,11 +126,24 @@ private fun MeasurementScreen(config: ProjectConfiguration, onComplete: (String,
         }
     }
 
+    cameraError?.let { message ->
+        Centered {
+            Text("카메라를 시작하지 못했습니다.", style = MaterialTheme.typography.headlineSmall)
+            Text(message, color = MaterialTheme.colorScheme.error)
+            Button(onClick = onCancel) { Text("처음으로") }
+        }
+        return
+    }
+
     Scaffold { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
-            CameraMeasurementPreview(Modifier.fillMaxSize()) { snapshot = it }
+            CameraMeasurementPreview(
+                modifier = Modifier.fillMaxSize(),
+                onSnapshot = { snapshot = it },
+                onError = { cameraError = it },
+            )
             Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(if (snapshot?.faceDetected == true) "얼굴 감지됨" else "화면 중앙에 얼굴을 맞춰주세요")
+                Text(if (snapshot?.faceDetected == true) "측정 중 · 움직이지 마세요" else "측정 일시 정지 · 화면 중앙에 얼굴을 맞춰주세요")
                 Text("${secondsLeft}초", style = MaterialTheme.typography.headlineLarge)
                 snapshot?.vital?.let { Text("심박 ${it.heartRateBpm} · 호흡 ${it.respiratoryRateRpm}") }
                 Text(config.theme.name)
@@ -137,37 +154,54 @@ private fun MeasurementScreen(config: ProjectConfiguration, onComplete: (String,
 }
 
 @Composable
-private fun CameraMeasurementPreview(modifier: Modifier, onSnapshot: (MeasurementSnapshot) -> Unit) {
+private fun CameraMeasurementPreview(
+    modifier: Modifier,
+    onSnapshot: (MeasurementSnapshot) -> Unit,
+    onError: (String) -> Unit,
+) {
     val context = LocalContext.current
     val owner = LocalLifecycleOwner.current
     val mainExecutor = remember(context) { ContextCompat.getMainExecutor(context) }
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
     val previewView = remember { PreviewView(context).apply { scaleType = PreviewView.ScaleType.FILL_CENTER } }
-    val analyzer = remember {
-        MeasurementFrameAnalyzer(
-            faceDetector = MediaPipeFaceDetector.create(context),
-            emotionClassifier = OnnxEmotionClassifier.create(context),
-            listener = { value -> mainExecutor.execute { onSnapshot(value) } },
-        )
+    val currentSnapshotListener by rememberUpdatedState(onSnapshot)
+    val currentErrorListener by rememberUpdatedState(onError)
+    val analyzerResult = remember {
+        runCatching {
+            MeasurementFrameAnalyzer(
+                faceDetector = MediaPipeFaceDetector.create(context),
+                emotionClassifier = OnnxEmotionClassifier.create(context),
+                listener = { value -> mainExecutor.execute { currentSnapshotListener(value) } },
+            )
+        }
     }
+    val analyzer = analyzerResult.getOrNull()
+    LaunchedEffect(analyzerResult) {
+        analyzerResult.exceptionOrNull()?.let { currentErrorListener(it.message ?: "분석 모델 초기화 오류") }
+    }
+    if (analyzer == null) return
     DisposableEffect(owner) {
         val future = ProcessCameraProvider.getInstance(context)
         var disposed = false
         future.addListener({
-            val provider = future.get()
-            if (disposed) {
+            runCatching {
+                val provider = future.get()
+                if (disposed) {
+                    provider.unbindAll()
+                    return@runCatching
+                }
+                val preview = Preview.Builder().build().also { it.surfaceProvider = previewView.surfaceProvider }
+                val analysis = ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
+                    .also { it.setAnalyzer(analysisExecutor, analyzer) }
                 provider.unbindAll()
-                return@addListener
+                provider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, preview, analysis)
+            }.onFailure {
+                if (!disposed) currentErrorListener(it.message ?: "전면 카메라 연결 오류")
             }
-            val preview = Preview.Builder().build().also { it.surfaceProvider = previewView.surfaceProvider }
-            val analysis = ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
-                .also { it.setAnalyzer(analysisExecutor, analyzer) }
-            provider.unbindAll()
-            provider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, preview, analysis)
         }, mainExecutor)
         onDispose {
             disposed = true
-            if (future.isDone) future.get().unbindAll()
+            if (future.isDone) runCatching { future.get().unbindAll() }
             analyzer.close()
             analysisExecutor.shutdown()
         }
