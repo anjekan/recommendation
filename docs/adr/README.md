@@ -18,4 +18,4 @@ ADR은 이미 결정된 아키텍처 선택과 이유, 결과를 기록한다.
 - [ADR-0003: LOCAL, REMOTE, HYBRID 실행 모드](0003-runtime-modes.md)
 - [ADR-0004: Room, PostgreSQL, Redis 역할 분리](0004-data-storage-and-realtime-state.md)
 - [ADR-0005: OpenAPI와 JSON Schema를 계약 원본으로 사용](0005-contract-first-versioning.md)
-
+- [ADR-0006: Spring Boot 모듈형 서버와 단계적 인프라](0006-spring-boot-modular-server.md)

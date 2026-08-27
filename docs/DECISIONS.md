@@ -111,6 +111,6 @@ UI는 코드 빌드만으로 완료 처리하지 않는다.
 
 분석 엔진보다 공통 계약, 범용 모델, 로컬 추천과 가짜 분석 기반 UI를 먼저 구현한다. 구조가 분석 코드에 끌려가지 않게 하기 위함이다.
 
-## D-018 서버 기술 세부 선택 유보
+## D-018 서버 기술 선택
 
-API 서버 언어와 프레임워크는 공통 계약과 운영 요구가 확정된 후 선택한다. PostgreSQL, Redis, Docker 기반 운영 원칙은 유지하되 프레임워크 선택이 도메인에 영향을 주지 않게 한다.
+Kotlin, Java 17, Spring Boot 4.1과 Spring Modulith를 서버 기준으로 사용한다. embedded server와 Docker image로 배포하며 별도 JBoss/WildFly는 사용하지 않는다. PostgreSQL, Redis, Docker 기반 운영 원칙과 Ports and Adapters 경계는 유지한다. 상세 근거는 ADR-0006에 기록한다.

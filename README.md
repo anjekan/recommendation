@@ -27,6 +27,16 @@
 - [Architecture Decision Records](docs/adr/README.md)
 - [기술 및 아키텍처 결정](docs/DECISIONS.md)
 
+## 서버
+
+서버는 `services/server`에 있으며 Kotlin, Spring Boot, Spring Modulith와 PostgreSQL을 사용한다. 로컬·사무실 실행 구성은 `infrastructure/compose.yaml`에 있다.
+
+```powershell
+docker compose -f infrastructure/compose.yaml up --build -d
+```
+
+초기 API는 health check, 프로젝트 설정 조회, 오프라인 추천 이벤트 동기화를 제공한다. Redis와 관리자 웹은 후속 단계에서 모듈 경계를 유지하며 추가한다.
+
 ## 현재 기준선
 
 기존 소스 위치:
