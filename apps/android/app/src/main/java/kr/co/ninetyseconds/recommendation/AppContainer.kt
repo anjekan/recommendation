@@ -12,6 +12,7 @@ import kr.co.ninetyseconds.recommendation.data.config.ProjectConfigImporter
 import kr.co.ninetyseconds.recommendation.data.local.LocalDataStore
 import kr.co.ninetyseconds.recommendation.data.remote.HttpRecommendationEngine
 import kr.co.ninetyseconds.recommendation.domain.EmotionCode
+import kr.co.ninetyseconds.recommendation.domain.ConsentStatus
 import kr.co.ninetyseconds.recommendation.domain.EmotionProfile
 import kr.co.ninetyseconds.recommendation.domain.EmotionScore
 import kr.co.ninetyseconds.recommendation.domain.ProjectConfiguration
