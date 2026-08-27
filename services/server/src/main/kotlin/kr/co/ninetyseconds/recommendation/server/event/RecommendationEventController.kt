@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 
 data class SyncEventsRequest(
     @field:Size(max = 500)
-    @field:Valid
-    val events: List<RecommendationEventRequest>,
+    val events: List<@Valid RecommendationEventRequest>,
 )
 
 data class RecommendationEventRequest(

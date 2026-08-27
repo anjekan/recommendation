@@ -1,7 +1,8 @@
 package kr.co.ninetyseconds.recommendation.server.event
 
 import java.time.Clock
-import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.stereotype.Repository
 
@@ -26,7 +27,7 @@ class RecommendationEventPersistenceAdapter(private val jdbc: JdbcClient, privat
         .param("locationId", event.locationId)
         .param("source", event.source.name)
         .param("policyVersion", event.policyVersion)
-        .param("occurredAt", event.occurredAt)
-        .param("receivedAt", Instant.now(clock))
+        .param("occurredAt", event.occurredAt.atOffset(ZoneOffset.UTC))
+        .param("receivedAt", OffsetDateTime.now(clock).withOffsetSameInstant(ZoneOffset.UTC))
         .update() == 1
 }

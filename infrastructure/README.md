@@ -19,6 +19,18 @@ Postgres  127.0.0.1:5432
 
 서버는 `contracts/examples/project-config.json`을 읽고 데이터베이스에 프로젝트가 없거나 더 높은 설정 버전일 때만 반영한다.
 
+## 검증 기준
+
+2026-08-27 Docker Desktop 환경에서 다음 항목을 실제 컨테이너로 확인했다.
+
+- PostgreSQL 17 health check 통과 및 Flyway V1~V2 적용
+- Spring Boot API 시작 및 `/api/v1/health`의 `UP` 응답
+- 예제 프로젝트 설정 조회와 `If-None-Match` 요청의 `304 Not Modified` 응답
+- 동일 `event_id`를 두 번 동기화해도 `recommendation_events`에는 한 행만 저장
+- Java 17 기준 `clean test bootJar` 성공
+
+Windows 터미널이 Java 8을 기본으로 사용하면 Gradle 실행 전에 `JAVA_HOME`을 Java 17 이상으로 지정한다. Docker 자체 빌드는 Temurin 17 이미지를 사용하므로 호스트 Java 설정과 무관하다.
+
 ## 사무실 배포
 
 - 서버 PC 내부 IP를 고정한다.

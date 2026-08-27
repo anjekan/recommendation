@@ -3,7 +3,8 @@ package kr.co.ninetyseconds.recommendation.server.project
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Clock
-import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationArguments
@@ -31,7 +32,7 @@ class ProjectConfigurationSeeder(
         val configVersion = root.path("config_version").asInt().also {
             require(it > 0) { "Seed config_version must be positive" }
         }
-        val now = Instant.now(clock)
+        val now = OffsetDateTime.now(clock).withOffsetSameInstant(ZoneOffset.UTC)
         jdbc.sql(
             """
             insert into projects (id, project_code, config_version, config_json, active, created_at, updated_at)
