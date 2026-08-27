@@ -36,6 +36,7 @@ class HttpRecommendationEngine(
 
     override suspend fun recommend(request: RecommendationRequest): RecommendationDecision = withContext(Dispatchers.IO) {
         val payload = ApiRecommendationRequest(
+            schemaVersion = 1,
             projectCode = request.projectId.value,
             kioskId = request.kioskId,
             sessionId = request.sessionId.value,
@@ -45,6 +46,7 @@ class HttpRecommendationEngine(
             language = request.language,
             previousLocationId = request.excludedLocationIds.map { it.value }.sorted().firstOrNull(),
             consentStatus = request.consentStatus.name,
+            participant = request.participant?.let { ApiParticipant(it.name, it.phone, it.birthDate, it.gender) },
             requestedAt = request.requestedAt.toString(),
         )
         val httpRequest = Request.Builder()

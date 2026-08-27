@@ -25,6 +25,7 @@ data class RecommendationRequest(
     val language: String,
     val previousLocationId: UUID?,
     val consentStatus: ConsentStatus,
+    val participant: ParticipantRequestBody? = null,
     val requestedAt: OffsetDateTime,
 )
 
@@ -57,6 +58,9 @@ class CreateRecommendation(
     operator fun invoke(request: RecommendationRequest): RecommendationResult {
         require(request.schemaVersion == 1) { "Unsupported schema version: ${request.schemaVersion}" }
         require(request.stressScore in 0..100) { "stress_score must be between 0 and 100" }
+        require(request.participant == null || request.consentStatus == ConsentStatus.CONSENTED) {
+            "participant requires CONSENTED status"
+        }
 
         val config = projects.findActiveByCode(request.projectCode)
             ?: throw ProjectNotFoundException(request.projectCode)
@@ -117,6 +121,10 @@ class CreateRecommendation(
                 source = RecommendationSource.REMOTE,
                 consentStatus = request.consentStatus,
                 stressScore = request.stressScore,
+                participantName = request.participant?.name,
+                participantPhone = request.participant?.phone,
+                participantBirthDate = request.participant?.birthDate,
+                participantGender = request.participant?.gender,
                 policyVersion = result.policyVersion,
                 occurredAt = request.requestedAt.toInstant(),
             ),

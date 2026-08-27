@@ -27,16 +27,21 @@ data class RecommendationRequest(
     val stressScore: Int = 0,
     val language: String = "ko",
     val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
+    val participant: ParticipantProfile? = null,
 ) {
     init {
         require(requestId.isNotBlank()) { "Request id cannot be blank" }
         require(kioskId.isNotBlank()) { "Kiosk id cannot be blank" }
         require(stressScore in 0..100) { "Stress score must be between 0 and 100" }
         require(language.isNotBlank()) { "Language cannot be blank" }
+        require(participant == null || consentStatus == ConsentStatus.CONSENTED) {
+            "Participant information requires consent"
+        }
     }
 }
 
 enum class ConsentStatus { CONSENTED, DECLINED, NOT_ASKED }
+data class ParticipantProfile(val name: String, val phone: String, val birthDate: String, val gender: String)
 enum class DecisionSource { LOCAL, REMOTE, LOCAL_FALLBACK }
 
 data class RecommendationDecision(

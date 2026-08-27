@@ -20,6 +20,7 @@ import kr.co.ninetyseconds.recommendation.domain.RecommendationDecision
 import kr.co.ninetyseconds.recommendation.domain.RecommendationRequest
 import kr.co.ninetyseconds.recommendation.domain.SessionId
 import kr.co.ninetyseconds.recommendation.domain.RuntimeMode
+import kr.co.ninetyseconds.recommendation.domain.ParticipantProfile
 
 class AppContainer(
     private val context: Context,
@@ -47,6 +48,7 @@ class AppContainer(
         emotion: EmotionCode,
         stressScore: Int = 0,
         consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
+        participant: ParticipantProfile? = null,
     ): RecommendationDecision {
         val config = configuration ?: start()
         return recommendUseCase(
@@ -60,6 +62,7 @@ class AppContainer(
                 stressScore = stressScore,
                 language = config.selectedLanguage,
                 consentStatus = consentStatus,
+                participant = participant,
             ),
         )
     }

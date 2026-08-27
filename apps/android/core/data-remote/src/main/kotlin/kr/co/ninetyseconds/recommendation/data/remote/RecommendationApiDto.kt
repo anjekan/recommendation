@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonObject
 
 @Serializable
 internal data class ApiRecommendationRequest(
-    @SerialName("schema_version") val schemaVersion: Int = 1,
+    @SerialName("schema_version") val schemaVersion: Int,
     @SerialName("project_code") val projectCode: String,
     @SerialName("kiosk_id") val kioskId: String,
     @SerialName("session_id") val sessionId: String,
@@ -16,7 +16,16 @@ internal data class ApiRecommendationRequest(
     val language: String,
     @SerialName("previous_location_id") val previousLocationId: String?,
     @SerialName("consent_status") val consentStatus: String,
+    val participant: ApiParticipant? = null,
     @SerialName("requested_at") val requestedAt: String,
+)
+
+@Serializable
+internal data class ApiParticipant(
+    val name: String,
+    val phone: String,
+    @SerialName("birth_date") val birthDate: String,
+    val gender: String,
 )
 
 @Serializable

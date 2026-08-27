@@ -6,12 +6,15 @@ data class Location(
     val title: String,
     val imageRef: String?,
     val capacity: Int?,
+    val markerXPercent: Double,
+    val markerYPercent: Double,
     val enabled: Boolean = true,
 ) {
     init {
         require(code.isNotBlank()) { "Location code cannot be blank" }
         require(title.isNotBlank()) { "Location title cannot be blank" }
         require(capacity == null || capacity >= 0) { "Location capacity cannot be negative" }
+        require(markerXPercent in 0.0..100.0 && markerYPercent in 0.0..100.0) { "Map marker must be inside the map" }
     }
 }
 

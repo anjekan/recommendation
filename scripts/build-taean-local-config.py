@@ -14,6 +14,36 @@ COLORS = {
     "PASSION": "#EF5350",
 }
 
+GARDENS = [
+    ("butterfly", "나비 정원", 24.1, 80.4),
+    ("mirror", "마음을 비추는 정원", 48.0, 66.2),
+    ("greeting", "꽃의 인사", 31.0, 62.7),
+    ("emotion", "감정의 정원", 28.6, 45.4),
+    ("scent", "향기 정원", 22.1, 32.6),
+    ("rest", "안식의 정원", 40.9, 21.6),
+    ("herb", "약초 정원", 52.0, 25.5),
+    ("harmony", "AI 하모니 가든", 65.2, 38.7),
+    ("connect", "이음 정원", 60.5, 53.9),
+    ("sunlight", "햇살파동 정원", 73.2, 57.0),
+    ("future", "희망미래 정원", 65.6, 80.9),
+    ("healing", "꽃잠의 정원", 16.5, 50.7),
+    ("wave", "물결정원", 16.5, 28.0),
+    ("square", "광장정원", 46.9, 44.0),
+]
+
+EMOTION_GARDENS = {
+    "SERENITY": ["connect", "herb"],
+    "STABILITY": ["butterfly", "healing", "rest"],
+    "RELAXED": ["emotion", "healing", "rest"],
+    "JOY": ["square", "future", "greeting", "sunlight"],
+    "CALM": ["butterfly", "connect", "rest", "greeting"],
+    "VITALITY": ["scent", "sunlight", "wave"],
+    "FOCUS": ["mirror", "healing", "harmony", "connect"],
+    "IMMERSION": ["harmony", "greeting", "wave"],
+    "ELEVATION": ["scent", "greeting", "wave"],
+    "PASSION": ["rest", "herb", "sunlight"],
+}
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -26,24 +56,25 @@ def main() -> None:
     for recommendation in recommendations:
         by_emotion.setdefault(recommendation["emotion_code"], recommendation)
 
-    locations = []
+    namespace = uuid.uuid5(uuid.NAMESPACE_DNS, "recommendation.projects.taean")
+    location_ids = {code: str(uuid.uuid5(namespace, f"location:{code}")) for code, _, _, _ in GARDENS}
+    locations = [
+        {
+            "id": location_ids[code], "code": code.upper(), "name": {"ko": name},
+            "description": {"ko": "태안 프로젝트 추천 장소"}, "image_url": None,
+            "capacity": None, "status": "NORMAL",
+            "marker": {"x_percent": x, "y_percent": y}, "active": True,
+        }
+        for code, name, x, y in GARDENS
+    ]
     items = []
     rules = []
     for recommendation in recommendations:
-        location_id = str(uuid.uuid5(uuid.UUID(recommendation["id"]), "local-result"))
+        candidates = EMOTION_GARDENS[recommendation["emotion_code"]]
+        garden_code = candidates[(recommendation["display_order"] - 1) % len(candidates)]
+        location_id = location_ids[garden_code]
         name = recommendation["flower_name"]["ko"]
         meaning = recommendation["flower_meaning"]["ko"]
-        locations.append({
-            "id": location_id,
-            "code": f"FLOWER-{recommendation['display_order']:03d}",
-            "name": {"ko": name},
-            "description": {"ko": "클라이언트 단독 꽃 추천 결과"},
-            "image_url": None,
-            "capacity": None,
-            "status": "NORMAL",
-            "marker": {"x_percent": 50.0, "y_percent": 50.0},
-            "active": recommendation["active"],
-        })
         items.append({
             "id": recommendation["id"],
             "type": "flower",
@@ -68,9 +99,9 @@ def main() -> None:
 
     config = {
         "schema_version": 1,
-        "config_version": 2,
+        "config_version": 3,
         "minimum_app_version": 1,
-        "project_code": catalog["project_code"],
+        "project_code": "taean",
         "default_language": "ko",
         "supported_languages": ["ko"],
         "theme": {
@@ -78,7 +109,7 @@ def main() -> None:
             "logo_url": None,
             "primary_color": "#6A5ACD",
             "background_image_url": "",
-            "map_image_url": "",
+            "map_image_url": "android.resource://kr.co.ninetyseconds.recommendation/drawable/taean_garden_map",
         },
         "emotion_profiles": [
             {

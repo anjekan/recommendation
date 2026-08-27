@@ -4,6 +4,8 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 import java.time.OffsetDateTime
 import java.util.UUID
 import kr.co.ninetyseconds.recommendation.server.event.ConsentStatus
@@ -17,6 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
+data class ParticipantRequestBody(
+    @field:NotBlank @field:Size(max = 50) val name: String,
+    @field:Pattern(regexp = "^[0-9]{10,11}$") val phone: String,
+    @field:Pattern(regexp = "^[0-9]{8}$") val birthDate: String,
+    @field:NotBlank @field:Size(max = 20) val gender: String,
+)
+
 data class RecommendationRequestBody(
     val schemaVersion: Int,
     @field:NotBlank val projectCode: String,
@@ -28,11 +37,12 @@ data class RecommendationRequestBody(
     @field:NotBlank val language: String,
     val previousLocationId: UUID?,
     val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
+    @field:Valid val participant: ParticipantRequestBody? = null,
     val requestedAt: OffsetDateTime,
 ) {
     fun toCommand() = RecommendationRequest(
         schemaVersion, projectCode, kioskId, sessionId, requestId, emotionCode,
-        stressScore, language, previousLocationId, consentStatus, requestedAt,
+        stressScore, language, previousLocationId, consentStatus, participant, requestedAt,
     )
 }
 

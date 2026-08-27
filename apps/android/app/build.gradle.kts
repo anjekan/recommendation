@@ -17,7 +17,7 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "RECOMMENDATION_BASE_URL", "\"http://10.0.2.2:8080\"")
+        buildConfigField("String", "RECOMMENDATION_BASE_URL", "\"http://192.168.45.18:8080\"")
         buildConfigField("String", "KIOSK_KEY", "\"LOCAL-DEVELOPMENT\"")
     }
 

@@ -53,6 +53,8 @@ class ProjectConfigImporter(
                     title = location.name.resolve(language, dto.defaultLanguage),
                     imageRef = location.imageUrl,
                     capacity = location.capacity,
+                    markerXPercent = location.marker.xPercent,
+                    markerYPercent = location.marker.yPercent,
                 )
             },
             items = activeItems.mapNotNull { item ->

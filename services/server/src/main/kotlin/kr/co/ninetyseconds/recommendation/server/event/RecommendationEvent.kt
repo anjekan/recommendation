@@ -17,6 +17,10 @@ data class RecommendationEvent(
     val source: RecommendationSource,
     val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
     val stressScore: Int = 0,
+    val participantName: String? = null,
+    val participantPhone: String? = null,
+    val participantBirthDate: String? = null,
+    val participantGender: String? = null,
     val policyVersion: String,
     val occurredAt: Instant,
 )
