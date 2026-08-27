@@ -46,6 +46,7 @@ android {
 
     sourceSets {
         getByName("main").assets.directories.add("../../../contracts/examples")
+        getByName("main").assets.directories.add("../../../projects/taean-flower")
     }
 }
 

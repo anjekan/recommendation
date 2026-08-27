@@ -63,7 +63,7 @@ fun RecommendationApp(container: AppContainer) {
                 current.config,
                 onComplete = { label, stress -> scope.launch {
                     state = runCatching {
-                        val emotion = current.config.mapAnalysisLabel(label)
+                        val emotion = current.config.mapAnalysisLabel(label, stress)
                         AppState.Result(current.config, label, stress, container.recommend(emotion, stress))
                     }.getOrElse { AppState.Failed(it.message ?: "추천에 실패했습니다.", current.config) }
                 } },
@@ -84,7 +84,7 @@ private fun HomeScreen(config: ProjectConfiguration, onStart: () -> Unit) = Cent
     Text(config.theme.name, style = MaterialTheme.typography.headlineMedium)
     Text("LOCAL · config v${config.catalog.configVersion}")
     Spacer(Modifier.height(28.dp))
-    Text("카메라로 현재 상태를 측정하고\n혼잡을 분산한 장소를 추천합니다.")
+    Text("카메라로 현재 상태를 측정하고\n감정상태에 어울리는 꽃을 추천합니다.")
     Spacer(Modifier.height(28.dp))
     Button(onClick = onStart) { Text("측정 시작") }
 }
@@ -212,9 +212,12 @@ private fun ResultScreen(result: AppState.Result, onRestart: () -> Unit) = Cente
     Text("측정 결과", style = MaterialTheme.typography.headlineMedium)
     Text("분석 감정 ${result.label} · 스트레스 ${result.stress}")
     Spacer(Modifier.height(20.dp))
-    Text("추천 장소", style = MaterialTheme.typography.labelLarge)
+    val emotion = result.decision.item.supportedEmotions.firstOrNull()
+    val emotionDefinition = result.config.emotions.firstOrNull { it.code == emotion }
+    Text("추천 꽃", style = MaterialTheme.typography.labelLarge)
     Text(result.decision.item.title, style = MaterialTheme.typography.headlineSmall)
-    Text("${result.decision.source} · ${result.decision.item.locationId.value}")
+    emotionDefinition?.let { Text("${it.name} · ${it.message}") }
+    Text("${result.decision.source} · 스트레스 ${result.stress}")
     Spacer(Modifier.height(24.dp))
     Button(onClick = onRestart) { Text("다시 측정") }
 }

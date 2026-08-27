@@ -1,0 +1,3750 @@
+{
+  "schema_version": 1,
+  "config_version": 2,
+  "minimum_app_version": 1,
+  "project_code": "TAEAN_FLOWER_2026",
+  "default_language": "ko",
+  "supported_languages": [
+    "ko"
+  ],
+  "theme": {
+    "name": {
+      "ko": "AI 감정상태별 꽃 추천"
+    },
+    "logo_url": null,
+    "primary_color": "#6A5ACD",
+    "background_image_url": "",
+    "map_image_url": ""
+  },
+  "emotion_profiles": [
+    {
+      "code": "SERENITY",
+      "name": {
+        "ko": "평안함"
+      },
+      "message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "color": "#7CB342",
+      "icon": "serenity",
+      "active": true
+    },
+    {
+      "code": "STABILITY",
+      "name": {
+        "ko": "안정"
+      },
+      "message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "color": "#26A69A",
+      "icon": "stability",
+      "active": true
+    },
+    {
+      "code": "RELAXED",
+      "name": {
+        "ko": "느긋함"
+      },
+      "message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "color": "#FFB74D",
+      "icon": "relaxed",
+      "active": true
+    },
+    {
+      "code": "JOY",
+      "name": {
+        "ko": "즐거움"
+      },
+      "message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "color": "#EC407A",
+      "icon": "joy",
+      "active": true
+    },
+    {
+      "code": "CALM",
+      "name": {
+        "ko": "차분함"
+      },
+      "message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "color": "#5C6BC0",
+      "icon": "calm",
+      "active": true
+    },
+    {
+      "code": "VITALITY",
+      "name": {
+        "ko": "활력"
+      },
+      "message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "color": "#FDD835",
+      "icon": "vitality",
+      "active": true
+    },
+    {
+      "code": "FOCUS",
+      "name": {
+        "ko": "집중"
+      },
+      "message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "color": "#29B6F6",
+      "icon": "focus",
+      "active": true
+    },
+    {
+      "code": "IMMERSION",
+      "name": {
+        "ko": "몰입"
+      },
+      "message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "color": "#AB47BC",
+      "icon": "immersion",
+      "active": true
+    },
+    {
+      "code": "ELEVATION",
+      "name": {
+        "ko": "고조"
+      },
+      "message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "color": "#FF7043",
+      "icon": "elevation",
+      "active": true
+    },
+    {
+      "code": "PASSION",
+      "name": {
+        "ko": "열정"
+      },
+      "message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "color": "#EF5350",
+      "icon": "passion",
+      "active": true
+    }
+  ],
+  "analysis_mappings": [
+    {
+      "source_label": "Neutral",
+      "emotion_code": "SERENITY"
+    },
+    {
+      "source_label": "Happy",
+      "emotion_code": "JOY"
+    },
+    {
+      "source_label": "Surprise",
+      "emotion_code": "VITALITY"
+    },
+    {
+      "source_label": "Sad",
+      "emotion_code": "STABILITY"
+    },
+    {
+      "source_label": "Anger",
+      "emotion_code": "ELEVATION"
+    },
+    {
+      "source_label": "Disgust",
+      "emotion_code": "CALM"
+    },
+    {
+      "source_label": "Fear",
+      "emotion_code": "STABILITY"
+    },
+    {
+      "source_label": "Contempt",
+      "emotion_code": "IMMERSION"
+    }
+  ],
+  "locations": [
+    {
+      "id": "8932bbe5-9e50-53df-939f-51fc9c96a1f1",
+      "code": "FLOWER-001",
+      "name": {
+        "ko": "회양목"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "9967e838-7230-5cfe-b5c2-ec493a725fda",
+      "code": "FLOWER-002",
+      "name": {
+        "ko": "세덤"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "cbbcee9e-011b-5542-b725-c189200e74d3",
+      "code": "FLOWER-003",
+      "name": {
+        "ko": "두메부추"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "aa690839-700b-5916-b897-b00374a39760",
+      "code": "FLOWER-004",
+      "name": {
+        "ko": "맥문동"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "45c7535d-4f8d-5830-b11f-3941053d7800",
+      "code": "FLOWER-005",
+      "name": {
+        "ko": "밀사초"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "a4274754-0f3a-5a11-bff4-1be88bf21e86",
+      "code": "FLOWER-006",
+      "name": {
+        "ko": "소스랑남천"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "49ac5078-76a0-5398-b52c-ff9ebd08d3a2",
+      "code": "FLOWER-007",
+      "name": {
+        "ko": "아이스댄스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "4b36b8af-d879-5b45-aec3-aa14cb0ddc9d",
+      "code": "FLOWER-008",
+      "name": {
+        "ko": "에메랄드그린"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "76cb6bfb-dd53-50a4-bcd7-1d6408cc9347",
+      "code": "FLOWER-009",
+      "name": {
+        "ko": "페츄니아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "b5910923-6a53-55d4-a482-443e8dae9d2c",
+      "code": "FLOWER-010",
+      "name": {
+        "ko": "꽃잔디"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "84ded70a-bff1-5237-94a0-bcfa59e6985b",
+      "code": "FLOWER-011",
+      "name": {
+        "ko": "벨라데이지"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "54c228ed-b777-5deb-ba2d-07d491aa7f50",
+      "code": "FLOWER-012",
+      "name": {
+        "ko": "캐모마일"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "bb942b17-4e1e-50cf-a012-93251713fc76",
+      "code": "FLOWER-013",
+      "name": {
+        "ko": "라벤다"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "9fe77592-1a0c-58ff-8026-85f93913cff4",
+      "code": "FLOWER-014",
+      "name": {
+        "ko": "알리섬"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "e43007a1-40d4-5e73-be9b-de2503572948",
+      "code": "FLOWER-015",
+      "name": {
+        "ko": "베들레헴"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "8a8fcdd2-c145-51e1-a584-1b1a6ad77269",
+      "code": "FLOWER-016",
+      "name": {
+        "ko": "잉글리시라벤더"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "95def99c-3ba2-50d6-9332-a42768004554",
+      "code": "FLOWER-017",
+      "name": {
+        "ko": "데이지"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "41f429a8-fdf7-546f-8555-ca8e731d7959",
+      "code": "FLOWER-018",
+      "name": {
+        "ko": "애플민트"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "607b9f35-80f7-5319-b557-85ab166ed5a8",
+      "code": "FLOWER-019",
+      "name": {
+        "ko": "리빙스턴데이지"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "620d847e-ec69-5f28-8fbb-d72c18c49b51",
+      "code": "FLOWER-020",
+      "name": {
+        "ko": "애니시다"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "e00d2348-f532-5f7c-b4c4-afcb0c2dd86a",
+      "code": "FLOWER-021",
+      "name": {
+        "ko": "물망초"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "a8c689de-833f-5f7c-980a-e84a79dfec0f",
+      "code": "FLOWER-022",
+      "name": {
+        "ko": "아르메니아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "993bbad3-bca5-5b1e-9a17-235fe5de406d",
+      "code": "FLOWER-023",
+      "name": {
+        "ko": "단풍제라늄"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "1c2b90da-005e-54d1-9da7-ef30b6ab5c2e",
+      "code": "FLOWER-024",
+      "name": {
+        "ko": "설유화"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "555646c5-d948-57cd-80a5-72bfd8b395d3",
+      "code": "FLOWER-025",
+      "name": {
+        "ko": "꽃담배"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "e3d42705-50e2-5c34-ab84-7ad0a90a8a0a",
+      "code": "FLOWER-026",
+      "name": {
+        "ko": "튤립"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "f0bad42e-830e-56c2-a424-d5388d8c4c02",
+      "code": "FLOWER-027",
+      "name": {
+        "ko": "팬지"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "2dfeb7c8-e07b-5598-8ce7-e31abd554cdc",
+      "code": "FLOWER-028",
+      "name": {
+        "ko": "페르시안데이지"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "dac4c6b2-33fe-555c-a8d6-0fc9da4013ba",
+      "code": "FLOWER-029",
+      "name": {
+        "ko": "마라고데쓰"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "c33e5045-e36d-562e-b88e-59d40747cf40",
+      "code": "FLOWER-030",
+      "name": {
+        "ko": "리나리아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "e31d1321-ff4d-5c95-8937-fe4b5ae2b22d",
+      "code": "FLOWER-031",
+      "name": {
+        "ko": "금어초"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "c0d6e9fe-dc7f-57c2-b986-13569e5515fa",
+      "code": "FLOWER-032",
+      "name": {
+        "ko": "후리지아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "50ac81ed-fbf3-5077-bddd-bd14b3a6a45a",
+      "code": "FLOWER-033",
+      "name": {
+        "ko": "웨이브페츄니아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "46a50236-5914-5d31-af8b-407591fd510b",
+      "code": "FLOWER-034",
+      "name": {
+        "ko": "비올라"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "dd7fc524-dccb-5f91-85e2-fe2652881531",
+      "code": "FLOWER-035",
+      "name": {
+        "ko": "수선화"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "9ad42ad6-8359-56eb-9296-b3ae8f07588f",
+      "code": "FLOWER-036",
+      "name": {
+        "ko": "샤스타데이지"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "0b502b33-1a13-52cd-9dfe-171edab30919",
+      "code": "FLOWER-037",
+      "name": {
+        "ko": "오스테오펄멈"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "ff2555a1-09a5-52b5-ab96-199cb47feb04",
+      "code": "FLOWER-038",
+      "name": {
+        "ko": "캄파눌라"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "2bd50935-2188-533c-9270-9ccea275a8bc",
+      "code": "FLOWER-039",
+      "name": {
+        "ko": "작약"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "c10eba66-fbb8-54ad-8d5a-0d15819f8986",
+      "code": "FLOWER-040",
+      "name": {
+        "ko": "보루니아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "093d9320-9d2c-5204-9aad-fe0bff3f3a1f",
+      "code": "FLOWER-041",
+      "name": {
+        "ko": "이스라지"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "750e85f9-9422-5bd3-8810-d71130ea4fbd",
+      "code": "FLOWER-042",
+      "name": {
+        "ko": "메리골드"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "21c3fee0-f520-5817-bdce-c1f49e37d415",
+      "code": "FLOWER-043",
+      "name": {
+        "ko": "가자니아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "5f1afbad-35bf-560d-996e-f73640790bd1",
+      "code": "FLOWER-044",
+      "name": {
+        "ko": "란타나"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "b135b4e0-f1f5-5e3b-970e-943fc67f625b",
+      "code": "FLOWER-045",
+      "name": {
+        "ko": "백일홍"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "21188241-7165-5481-8977-7853e7d233e9",
+      "code": "FLOWER-046",
+      "name": {
+        "ko": "산파첸스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "d5a96f7b-af4e-5605-9ce8-203ffe4aa259",
+      "code": "FLOWER-047",
+      "name": {
+        "ko": "버베나"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "11724d57-8ab6-5e98-8bbc-49ab0e16e5f6",
+      "code": "FLOWER-048",
+      "name": {
+        "ko": "유리호프스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "6ce0827f-1709-56e2-86cf-9999a347123d",
+      "code": "FLOWER-049",
+      "name": {
+        "ko": "지황"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "4b6187c2-e133-5ef4-abf8-1171db37817c",
+      "code": "FLOWER-050",
+      "name": {
+        "ko": "메리골드(잉카)"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "4fb7120c-ba1b-5437-9f2b-06d963d29dfe",
+      "code": "FLOWER-051",
+      "name": {
+        "ko": "로벨리아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "b991a217-7f78-5d93-bfb8-e2b95c25bee4",
+      "code": "FLOWER-052",
+      "name": {
+        "ko": "무스카리"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "09b93b51-1db3-5b4b-b972-df6f7493e2ff",
+      "code": "FLOWER-053",
+      "name": {
+        "ko": "로즈마리"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "c6cfc625-732b-5aa0-bb37-06c50ac4e79a",
+      "code": "FLOWER-054",
+      "name": {
+        "ko": "백리향"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "414b2efc-50be-5ab6-908d-a63816179435",
+      "code": "FLOWER-055",
+      "name": {
+        "ko": "델피늄"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "83af26f1-a566-5308-b48d-fe8d3d2fc61e",
+      "code": "FLOWER-056",
+      "name": {
+        "ko": "델피늄치어블루"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "3502eade-c53a-551c-95f8-3b033683b91e",
+      "code": "FLOWER-057",
+      "name": {
+        "ko": "천궁"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "3354ad86-8717-5f85-b643-739197b3f8eb",
+      "code": "FLOWER-058",
+      "name": {
+        "ko": "황기"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "aab10fe5-2d0a-5c7d-aaae-5091e3937765",
+      "code": "FLOWER-059",
+      "name": {
+        "ko": "스토크"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "452b0762-101b-58d2-aa9f-98d5289893f5",
+      "code": "FLOWER-060",
+      "name": {
+        "ko": "라넌쿨러스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "eec42475-e911-5504-9670-92ffeaa3c38c",
+      "code": "FLOWER-061",
+      "name": {
+        "ko": "수국"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "5106e5ca-f75b-5f3e-8a98-57a15ce6d388",
+      "code": "FLOWER-062",
+      "name": {
+        "ko": "디기탈리스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "e68924ac-bbd4-558f-8a76-23c07e5d2c2b",
+      "code": "FLOWER-063",
+      "name": {
+        "ko": "금낭화"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "d1ef8049-4e4d-51e3-81cf-ea1ea2ba711b",
+      "code": "FLOWER-064",
+      "name": {
+        "ko": "헬리크리섬"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "8607efc3-169f-5f2d-96f1-5642066f6ff5",
+      "code": "FLOWER-065",
+      "name": {
+        "ko": "라난큐런스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "f36dfe9a-c181-5c12-ae9c-c4552bae7ebc",
+      "code": "FLOWER-066",
+      "name": {
+        "ko": "꽃수국"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "bdd33c57-399b-58ff-af35-6f089b458505",
+      "code": "FLOWER-067",
+      "name": {
+        "ko": "금잔화"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "ea4d58ee-0902-5b40-a432-84bd2a1d4860",
+      "code": "FLOWER-068",
+      "name": {
+        "ko": "꽃양귀비"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "f613782a-69f3-5b4f-b2d5-8082aa42956e",
+      "code": "FLOWER-069",
+      "name": {
+        "ko": "루피너스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "1844e6af-54f8-5063-8df9-aecee665cec0",
+      "code": "FLOWER-070",
+      "name": {
+        "ko": "다알리아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "cd32de97-057a-51d0-b2d8-3e5d3fb364f3",
+      "code": "FLOWER-071",
+      "name": {
+        "ko": "만데빌라"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "8768e978-4d23-5cec-adb4-1539d9d6b47c",
+      "code": "FLOWER-072",
+      "name": {
+        "ko": "알리움"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "cf441fbe-f294-5d3d-9f3f-b309e6005b5b",
+      "code": "FLOWER-073",
+      "name": {
+        "ko": "아네모네"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "3d59b630-c4dc-502c-a51d-af6b1d8bbaa5",
+      "code": "FLOWER-074",
+      "name": {
+        "ko": "이탈리아사이프러스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "bc9e4a10-f67a-5883-8573-2664088af795",
+      "code": "FLOWER-075",
+      "name": {
+        "ko": "마가렛"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "44d32c3d-cb52-55ec-9bef-7e2eccff26d6",
+      "code": "FLOWER-076",
+      "name": {
+        "ko": "숙근사루비아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "dcfc4777-f577-5e41-bc4f-cdc7350e5133",
+      "code": "FLOWER-077",
+      "name": {
+        "ko": "안젤로니아"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "5d3a4ebd-0d37-5024-8de6-cc4c834b78e1",
+      "code": "FLOWER-078",
+      "name": {
+        "ko": "매발톱"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "4bd5b662-fdd4-5e82-a853-9fbac73e37ff",
+      "code": "FLOWER-079",
+      "name": {
+        "ko": "아이리스"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "2c9eb6c8-d964-5db6-a7fd-f860ffd2564f",
+      "code": "FLOWER-080",
+      "name": {
+        "ko": "왁스프라워"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "e005fdbb-3ee7-57a4-8e99-9fe96e77540a",
+      "code": "FLOWER-081",
+      "name": {
+        "ko": "쟈스민"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "df2370be-89a6-51ce-8751-e26856da9cfc",
+      "code": "FLOWER-082",
+      "name": {
+        "ko": "수수꽃다리"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    },
+    {
+      "id": "29a17047-bad1-5b07-abfd-d76632024b70",
+      "code": "FLOWER-083",
+      "name": {
+        "ko": "참당귀"
+      },
+      "description": {
+        "ko": "클라이언트 단독 꽃 추천 결과"
+      },
+      "image_url": null,
+      "capacity": null,
+      "status": "NORMAL",
+      "marker": {
+        "x_percent": 50.0,
+        "y_percent": 50.0
+      },
+      "active": true
+    }
+  ],
+  "items": [
+    {
+      "id": "b713ba5d-6f72-59c3-ad90-3739949e017d",
+      "type": "flower",
+      "location_id": "8932bbe5-9e50-53df-939f-51fc9c96a1f1",
+      "name": {
+        "ko": "회양목 · 참을성, 금욕"
+      },
+      "description": {
+        "ko": "흔들림 없는 상록수로 평온한 안정감과 일맥상통"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "active": true
+    },
+    {
+      "id": "b2d6f0e5-e440-5da7-a3db-eacc36e4ba61",
+      "type": "flower",
+      "location_id": "9967e838-7230-5cfe-b5c2-ec493a725fda",
+      "name": {
+        "ko": "세덤 · 고요한 사랑"
+      },
+      "description": {
+        "ko": "고요하고 차분한 꽃말이 평안함의 정서와 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "active": true
+    },
+    {
+      "id": "bca83c01-8272-5aca-a71c-48b20252c7cd",
+      "type": "flower",
+      "location_id": "cbbcee9e-011b-5542-b725-c189200e74d3",
+      "name": {
+        "ko": "두메부추 · 소박한 아름다움"
+      },
+      "description": {
+        "ko": "산지 자생의 소박한 아름다움이 내면의 평온과 어울림"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "active": true
+    },
+    {
+      "id": "2518ae87-f749-5636-a316-f57c8d219ced",
+      "type": "flower",
+      "location_id": "aa690839-700b-5916-b897-b00374a39760",
+      "name": {
+        "ko": "맥문동 · 인내, 겸허"
+      },
+      "description": {
+        "ko": "사계절 푸른 인내의 식물로 깊은 평안함을 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "active": true
+    },
+    {
+      "id": "2e475f0b-9558-507b-acdc-3bfa25e29329",
+      "type": "flower",
+      "location_id": "45c7535d-4f8d-5830-b11f-3941053d7800",
+      "name": {
+        "ko": "밀사초 · 소박한 아름다움"
+      },
+      "description": {
+        "ko": "바람에 자연스럽게 흔들리는 모습이 평온한 상태를 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "active": true
+    },
+    {
+      "id": "c7b90512-2574-5a39-8a13-9d10bb0636cd",
+      "type": "flower",
+      "location_id": "a4274754-0f3a-5a11-bff4-1be88bf21e86",
+      "name": {
+        "ko": "소스랑남천 · 축복, 행운"
+      },
+      "description": {
+        "ko": "사계절 변화하는 상록 관목으로 깊은 뿌리의 안정감 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "active": true
+    },
+    {
+      "id": "2ac450ae-0393-54d9-96d2-f234731089a4",
+      "type": "flower",
+      "location_id": "49ac5078-76a0-5398-b52c-ff9ebd08d3a2",
+      "name": {
+        "ko": "아이스댄스 · 은은한 매력"
+      },
+      "description": {
+        "ko": "은은하고 차분한 매력이 흔들림 없는 평온함과 조화"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "active": true
+    },
+    {
+      "id": "1e687cae-dbe4-5cdb-8c1c-43d3b80d1eac",
+      "type": "flower",
+      "location_id": "4b36b8af-d879-5b45-aec3-aa14cb0ddc9d",
+      "name": {
+        "ko": "에메랄드그린 · 변치 않는 우정"
+      },
+      "description": {
+        "ko": "사계절 변치 않는 초록빛이 항구적 평안함을 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "active": true
+    },
+    {
+      "id": "40e0e109-791d-5812-87f7-3eb622546703",
+      "type": "flower",
+      "location_id": "76cb6bfb-dd53-50a4-bcd7-1d6408cc9347",
+      "name": {
+        "ko": "페츄니아 · 당신과 함께라면 마음이 편합니다"
+      },
+      "description": {
+        "ko": "꽃말 자체가 마음의 편안함·안정감을 직접 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "active": true
+    },
+    {
+      "id": "0fb55ffd-eec4-56c5-b65e-9cfa201915da",
+      "type": "flower",
+      "location_id": "b5910923-6a53-55d4-a482-443e8dae9d2c",
+      "name": {
+        "ko": "꽃잔디 · 합의, 온화"
+      },
+      "description": {
+        "ko": "온화한 꽃말이 포근한 안정감과 직접적으로 연결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "active": true
+    },
+    {
+      "id": "9d06f9f9-3726-505b-89f7-b487628b2cb3",
+      "type": "flower",
+      "location_id": "84ded70a-bff1-5237-94a0-bcfa59e6985b",
+      "name": {
+        "ko": "벨라데이지 · 평화, 순수한 아름다움"
+      },
+      "description": {
+        "ko": "평화로운 꽃말이 안정적 감정 상태와 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "active": true
+    },
+    {
+      "id": "53646033-05e9-54c8-b948-ff23527db227",
+      "type": "flower",
+      "location_id": "54c228ed-b777-5deb-ba2d-07d491aa7f50",
+      "name": {
+        "ko": "캐모마일 · 역경 속의 힘, 인내"
+      },
+      "description": {
+        "ko": "마음을 차분하게 하는 대표 허브로 안정감 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "active": true
+    },
+    {
+      "id": "a5cd6d47-d3c8-5e83-98c6-6ea19bb42132",
+      "type": "flower",
+      "location_id": "bb942b17-4e1e-50cf-a012-93251713fc76",
+      "name": {
+        "ko": "라벤다 · 나에게 대답하세요"
+      },
+      "description": {
+        "ko": "심신 안정 효과로 유명한 허브, 안정 감정과 직결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "active": true
+    },
+    {
+      "id": "42556631-e185-5ff8-9245-799bf0fa3e41",
+      "type": "flower",
+      "location_id": "9fe77592-1a0c-58ff-8026-85f93913cff4",
+      "name": {
+        "ko": "알리섬 · 뛰어난 아름다움"
+      },
+      "description": {
+        "ko": "달콤한 꿀향의 소박한 꽃이 포근한 안정감을 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "active": true
+    },
+    {
+      "id": "95e0563a-7c72-5f68-8f0a-791f40346812",
+      "type": "flower",
+      "location_id": "e43007a1-40d4-5e73-be9b-de2503572948",
+      "name": {
+        "ko": "베들레헴 · 순수, 화해"
+      },
+      "description": {
+        "ko": "순수하고 청초한 별 모양 꽃이 마음의 안정을 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "active": true
+    },
+    {
+      "id": "a5c76e91-588f-5db5-83ee-e184bd98ea4c",
+      "type": "flower",
+      "location_id": "8a8fcdd2-c145-51e1-a584-1b1a6ad77269",
+      "name": {
+        "ko": "잉글리시라벤더 · 침묵, 기다림"
+      },
+      "description": {
+        "ko": "깊은 향의 라벤더로 고요한 안정감을 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "active": true
+    },
+    {
+      "id": "53f4ecce-ae34-53cd-9434-ea45e86a9156",
+      "type": "flower",
+      "location_id": "95def99c-3ba2-50d6-9332-a42768004554",
+      "name": {
+        "ko": "데이지 · 순수, 희망"
+      },
+      "description": {
+        "ko": "소박하고 밝은 꽃이 여유로운 편안함을 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "cecd1ebd-3266-5b1a-a3fe-b384dce84089",
+      "type": "flower",
+      "location_id": "41f429a8-fdf7-546f-8555-ca8e731d7959",
+      "name": {
+        "ko": "애플민트 · 미덕"
+      },
+      "description": {
+        "ko": "상쾌한 사과 향이 여유로운 기분을 선사"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "35b27463-e911-531c-ba5f-9b25db1913c7",
+      "type": "flower",
+      "location_id": "607b9f35-80f7-5319-b557-85ab166ed5a8",
+      "name": {
+        "ko": "리빙스턴데이지 · 나태, 게으름"
+      },
+      "description": {
+        "ko": "꽃말이 느긋한 여유로움과 직접적으로 연결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "40113ff4-be42-504b-a4c5-8c58becdf629",
+      "type": "flower",
+      "location_id": "620d847e-ec69-5f28-8fbb-d72c18c49b51",
+      "name": {
+        "ko": "애니시다 · 겸손, 청초"
+      },
+      "description": {
+        "ko": "봄에 피어나는 밝은 꽃이 편안한 여유와 조화"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "8bd71b53-8bd8-5e15-a5ce-0ad5dc26a22e",
+      "type": "flower",
+      "location_id": "e00d2348-f532-5f7c-b4c4-afcb0c2dd86a",
+      "name": {
+        "ko": "물망초 · 나를 잊지 마세요"
+      },
+      "description": {
+        "ko": "서정적이고 잔잔한 분위기가 느긋한 상태와 어울림"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "bf63d621-da0b-5e2f-bacb-b185e5b2a63e",
+      "type": "flower",
+      "location_id": "a8c689de-833f-5f7c-980a-e84a79dfec0f",
+      "name": {
+        "ko": "아르메니아 · 공감, 동정"
+      },
+      "description": {
+        "ko": "따뜻한 공감의 꽃말이 여유로운 마음과 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "7e3b4fce-972f-55c3-8f89-69c738471810",
+      "type": "flower",
+      "location_id": "993bbad3-bca5-5b1e-9a17-235fe5de406d",
+      "name": {
+        "ko": "단풍제라늄 · 위안, 진정한 우정"
+      },
+      "description": {
+        "ko": "위안을 주는 꽃말이 편안하고 느긋한 상태를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "cd86eaf8-a7cb-5021-a183-52d3a3c1b26e",
+      "type": "flower",
+      "location_id": "1c2b90da-005e-54d1-9da7-ef30b6ab5c2e",
+      "name": {
+        "ko": "설유화 · 애교, 청순"
+      },
+      "description": {
+        "ko": "소복하게 피어나는 가벼운 느낌이 여유로움과 조화"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "7386eed6-7e90-552b-b444-cbe3f4d7a923",
+      "type": "flower",
+      "location_id": "555646c5-d948-57cd-80a5-72bfd8b395d3",
+      "name": {
+        "ko": "꽃담배 · 당신이 있어 외롭지 않습니다"
+      },
+      "description": {
+        "ko": "저녁에 피는 향기로운 꽃이 편안한 느긋함을 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 0,
+        "stress_max": 35,
+        "output_message": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "active": true
+    },
+    {
+      "id": "e1b9665e-9383-5deb-986a-c3572461919d",
+      "type": "flower",
+      "location_id": "e3d42705-50e2-5c34-ab84-7ad0a90a8a0a",
+      "name": {
+        "ko": "튤립 · 사랑의 고백"
+      },
+      "description": {
+        "ko": "화사하고 다채로운 색상이 기분 좋은 에너지를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "f88749b2-9ae3-5fdc-968a-5ab279bfaaad",
+      "type": "flower",
+      "location_id": "f0bad42e-830e-56c2-a424-d5388d8c4c02",
+      "name": {
+        "ko": "팬지 · 나를 생각해 주세요"
+      },
+      "description": {
+        "ko": "알록달록한 색감이 생기와 즐거움을 전달"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "6795f85a-fd05-5e7c-a258-38b7947ba8a1",
+      "type": "flower",
+      "location_id": "2dfeb7c8-e07b-5598-8ce7-e31abd554cdc",
+      "name": {
+        "ko": "페르시안데이지 · 즐거운 추억"
+      },
+      "description": {
+        "ko": "꽃말 자체가 즐거움의 감정과 직접 연결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "c5c9ad62-bb2d-5394-8995-dbd1af431428",
+      "type": "flower",
+      "location_id": "dac4c6b2-33fe-555c-a8d6-0fc9da4013ba",
+      "name": {
+        "ko": "마라고데쓰 · 운명을 여는 열쇠"
+      },
+      "description": {
+        "ko": "환상적인 분위기의 꽃이 설레는 즐거움을 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "783c6845-06d5-5e37-ba0f-641bdbdeedd5",
+      "type": "flower",
+      "location_id": "c33e5045-e36d-562e-b88e-59d40747cf40",
+      "name": {
+        "ko": "리나리아 · 환상, 이 사랑을 알아 주세요"
+      },
+      "description": {
+        "ko": "앙증맞은 파스텔톤 꽃이 밝은 기분을 연출"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "94af5e08-ab1b-5e50-961a-51687a3b6599",
+      "type": "flower",
+      "location_id": "e31d1321-ff4d-5c95-8937-fe4b5ae2b22d",
+      "name": {
+        "ko": "금어초 · 욕망, 참견"
+      },
+      "description": {
+        "ko": "알록달록한 색상이 풍성해 즐거운 분위기 연출"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "a0ee9211-4e8f-5924-bf68-914844ba5c76",
+      "type": "flower",
+      "location_id": "c0d6e9fe-dc7f-57c2-b986-13569e5515fa",
+      "name": {
+        "ko": "후리지아 · 순결, 천진난만"
+      },
+      "description": {
+        "ko": "천진난만한 꽃말과 달콤한 향이 즐거움과 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "b1893dc7-e2c6-5be3-845a-4f1e7f4e1607",
+      "type": "flower",
+      "location_id": "50ac81ed-fbf3-5077-bddd-bd14b3a6a45a",
+      "name": {
+        "ko": "웨이브페츄니아 · 당신의 곁에 있고 싶습니다"
+      },
+      "description": {
+        "ko": "폭포처럼 쏟아지는 화려한 꽃이 기쁨의 에너지를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "61e39f1d-48b9-5c76-8afe-ecdf8a254c5b",
+      "type": "flower",
+      "location_id": "46a50236-5914-5d31-af8b-407591fd510b",
+      "name": {
+        "ko": "비올라 · 나를 잊지 마세요"
+      },
+      "description": {
+        "ko": "작고 촘촘한 꽃이 차분하면서도 풍성한 조화를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "80783bde-2a27-58fe-8aac-1bcb0449bbc2",
+      "type": "flower",
+      "location_id": "dd7fc524-dccb-5f91-85e2-fe2652881531",
+      "name": {
+        "ko": "수선화 · 자기 사랑, 신비"
+      },
+      "description": {
+        "ko": "맑은 향기의 신비로운 꽃이 차분한 내면을 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "22a23430-a2f0-5d35-8d4e-bc6cd7351361",
+      "type": "flower",
+      "location_id": "9ad42ad6-8359-56eb-9296-b3ae8f07588f",
+      "name": {
+        "ko": "샤스타데이지 · 인내"
+      },
+      "description": {
+        "ko": "크고 깨끗한 흰 꽃이 차분한 인내의 아름다움을 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "ff01a782-7be7-59fb-be56-1e306a79d64d",
+      "type": "flower",
+      "location_id": "0b502b33-1a13-52cd-9dfe-171edab30919",
+      "name": {
+        "ko": "오스테오펄멈 · 무구, 순수"
+      },
+      "description": {
+        "ko": "선명하면서도 깔끔한 꽃이 활기와 차분함의 조화를 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "8266ea5d-b1f2-53ff-8b7e-bde76a7e6f5e",
+      "type": "flower",
+      "location_id": "ff2555a1-09a5-52b5-ab96-199cb47feb04",
+      "name": {
+        "ko": "캄파눌라 · 감사, 성실"
+      },
+      "description": {
+        "ko": "종 모양의 우아한 꽃이 성실하고 차분한 에너지를 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "48f85280-bd76-596e-909a-e428ee234fb3",
+      "type": "flower",
+      "location_id": "2bd50935-2188-533c-9270-9ccea275a8bc",
+      "name": {
+        "ko": "작약 · 부끄러움, 수줍음"
+      },
+      "description": {
+        "ko": "풍성하지만 수줍은 매력이 차분한 감정 상태와 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "5db4fa3d-49d8-5d11-9aaa-ae29a572a93d",
+      "type": "flower",
+      "location_id": "c10eba66-fbb8-54ad-8d5a-0d15819f8986",
+      "name": {
+        "ko": "보루니아 · 단아한 아름다움"
+      },
+      "description": {
+        "ko": "단아한 꽃말이 차분함의 정서와 직접적으로 연결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "f34d6385-c99f-56a2-ab98-cfc8cbffdc38",
+      "type": "flower",
+      "location_id": "093d9320-9d2c-5204-9aad-fe0bff3f3a1f",
+      "name": {
+        "ko": "이스라지 · 고독"
+      },
+      "description": {
+        "ko": "소박하고 정겨운 봄꽃이 고요한 차분함을 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 36,
+        "stress_max": 55,
+        "output_message": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "244694d4-e1f1-5514-928e-317229a381a3",
+      "type": "flower",
+      "location_id": "750e85f9-9422-5bd3-8810-d71130ea4fbd",
+      "name": {
+        "ko": "메리골드 · 반드시 오고야 말 행복"
+      },
+      "description": {
+        "ko": "강렬한 주황·노랑 꽃이 밝은 에너지와 직결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "7347f1b0-6ea6-5035-a790-20041f37a7a8",
+      "type": "flower",
+      "location_id": "21c3fee0-f520-5817-bdce-c1f49e37d415",
+      "name": {
+        "ko": "가자니아 · 당신을 자랑스럽게 여깁니다"
+      },
+      "description": {
+        "ko": "햇빛에 활짝 피는 꽃이 활력 넘치는 에너지를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "8d4a7fab-6023-51e7-af5d-79f8f578704f",
+      "type": "flower",
+      "location_id": "5f1afbad-35bf-560d-996e-f73640790bd1",
+      "name": {
+        "ko": "란타나 · 엄격, 확고한 마음"
+      },
+      "description": {
+        "ko": "여러 색이 동시에 피어나는 활기찬 생명력 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "3a858f1f-d674-5aa4-b468-999dc05e6352",
+      "type": "flower",
+      "location_id": "b135b4e0-f1f5-5e3b-970e-943fc67f625b",
+      "name": {
+        "ko": "백일홍 · 인연"
+      },
+      "description": {
+        "ko": "100일간 지치지 않고 피는 화려한 꽃이 넘치는 생기를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "ee693c87-a90c-5a75-93ad-1975967be1d0",
+      "type": "flower",
+      "location_id": "21188241-7165-5481-8977-7853e7d233e9",
+      "name": {
+        "ko": "산파첸스 · 나를 건드리지 마세요"
+      },
+      "description": {
+        "ko": "크고 화려한 꽃이 여름 내내 풍성하게 피어 활력 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "439e7b11-29cb-5f23-8827-c8e70181829f",
+      "type": "flower",
+      "location_id": "d5a96f7b-af4e-5605-9ce8-203ffe4aa259",
+      "name": {
+        "ko": "버베나 · 가족의 화합, 단결"
+      },
+      "description": {
+        "ko": "옹기종기 모인 꽃이 활기찬 에너지와 단결력을 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "30950794-4d37-5659-8a15-60bbf5d6a69b",
+      "type": "flower",
+      "location_id": "11724d57-8ab6-5e98-8bbc-49ab0e16e5f6",
+      "name": {
+        "ko": "유리호프스 · 희망"
+      },
+      "description": {
+        "ko": "사계절 피어나는 밝은 노란 꽃이 생기와 희망을 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "a1da3539-46fc-5ba2-aae0-b0fe45e0df8d",
+      "type": "flower",
+      "location_id": "6ce0827f-1709-56e2-86cf-9999a347123d",
+      "name": {
+        "ko": "지황 · 건강, 장수"
+      },
+      "description": {
+        "ko": "건강과 장수의 꽃말이 넘치는 생명력과 활력에 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "632ceb40-df48-5915-9988-80aa356f217b",
+      "type": "flower",
+      "location_id": "4b6187c2-e133-5ef4-abf8-1171db37817c",
+      "name": {
+        "ko": "메리골드(잉카) · 건강, 장수"
+      },
+      "description": {
+        "ko": "크고 풍성한 황금빛 겹꽃이 당당한 활력을 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "48cbcfdf-8a41-5151-973a-8add55509995",
+      "type": "flower",
+      "location_id": "4fb7120c-ba1b-5437-9f2b-06d963d29dfe",
+      "name": {
+        "ko": "로벨리아 · 악의, 겸손"
+      },
+      "description": {
+        "ko": "시원한 파란빛이 맑고 선명한 정신 상태를 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "정신이 아주 맑고 선명해요."
+      },
+      "active": true
+    },
+    {
+      "id": "58ada40f-5d52-563f-a473-0a9b17a8b47a",
+      "type": "flower",
+      "location_id": "b991a217-7f78-5d93-bfb8-e2b95c25bee4",
+      "name": {
+        "ko": "무스카리 · 실망, 절망 속의 희망"
+      },
+      "description": {
+        "ko": "보라빛 꽃의 집중된 형태가 선명한 정신을 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "정신이 아주 맑고 선명해요."
+      },
+      "active": true
+    },
+    {
+      "id": "3f10e6f2-c3eb-5f6e-a83b-02816dd1c9d7",
+      "type": "flower",
+      "location_id": "09b93b51-1db3-5b4b-b972-df6f7493e2ff",
+      "name": {
+        "ko": "로즈마리 · 나를 기억해 주세요"
+      },
+      "description": {
+        "ko": "집중력·기억력 향상 효과로 유명한 허브, 집중과 직결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "정신이 아주 맑고 선명해요."
+      },
+      "active": true
+    },
+    {
+      "id": "42d41870-be6a-5084-a8fe-13be2b2814e1",
+      "type": "flower",
+      "location_id": "c6cfc625-732b-5aa0-bb37-06c50ac4e79a",
+      "name": {
+        "ko": "백리향 · 용기, 활동력"
+      },
+      "description": {
+        "ko": "깊은 향이 정신을 맑게 하여 집중력 향상과 연결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "정신이 아주 맑고 선명해요."
+      },
+      "active": true
+    },
+    {
+      "id": "f9946043-d4a6-57c6-9e09-c8c48a390c10",
+      "type": "flower",
+      "location_id": "414b2efc-50be-5ab6-908d-a63816179435",
+      "name": {
+        "ko": "델피늄 · 청명, 자유"
+      },
+      "description": {
+        "ko": "청명한 꽃말이 맑고 선명한 정신 상태를 직접 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "정신이 아주 맑고 선명해요."
+      },
+      "active": true
+    },
+    {
+      "id": "f66a442b-cc7a-5bcc-aad7-c1635727a6ba",
+      "type": "flower",
+      "location_id": "83af26f1-a566-5308-b48d-fe8d3d2fc61e",
+      "name": {
+        "ko": "델피늄치어블루 · 청명, 행복한 마음"
+      },
+      "description": {
+        "ko": "선명한 파란색이 맑은 정신과 집중력을 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "정신이 아주 맑고 선명해요."
+      },
+      "active": true
+    },
+    {
+      "id": "c851eb6a-6476-5c60-b42e-44095a6f125a",
+      "type": "flower",
+      "location_id": "3502eade-c53a-551c-95f8-3b033683b91e",
+      "name": {
+        "ko": "천궁 · 건강, 치유"
+      },
+      "description": {
+        "ko": "한방 약용식물의 집중적 효능이 맑은 정신과 연결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "정신이 아주 맑고 선명해요."
+      },
+      "active": true
+    },
+    {
+      "id": "55929326-4ffa-5ccf-ba6f-75dcae5dee86",
+      "type": "flower",
+      "location_id": "3354ad86-8717-5f85-b643-739197b3f8eb",
+      "name": {
+        "ko": "황기 · 건강, 생명력"
+      },
+      "description": {
+        "ko": "면역력 강화 약재로서 정신의 선명함·활력과 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "정신이 아주 맑고 선명해요."
+      },
+      "active": true
+    },
+    {
+      "id": "6b765856-ca59-5344-a342-c0b8e7fd234c",
+      "type": "flower",
+      "location_id": "aab10fe5-2d0a-5c7d-aaae-5091e3937765",
+      "name": {
+        "ko": "스토크 · 영원한 아름다움"
+      },
+      "description": {
+        "ko": "겹겹이 피어나는 꽃이 깊이 빠져드는 아름다운 세계를 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "44b988c7-b055-5300-9871-54c18ba968fa",
+      "type": "flower",
+      "location_id": "452b0762-101b-58d2-aa9f-98d5289893f5",
+      "name": {
+        "ko": "라넌쿨러스 · 매력적, 빛나는 매력"
+      },
+      "description": {
+        "ko": "겹겹이 쌓인 꽃잎이 빠져드는 매력을 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "21627e1b-e3c4-5fb7-9e0e-e6901352aca5",
+      "type": "flower",
+      "location_id": "eec42475-e911-5504-9670-92ffeaa3c38c",
+      "name": {
+        "ko": "수국 · 변덕, 진심"
+      },
+      "description": {
+        "ko": "풍성한 꽃송이로 가득 채우는 모습이 몰입의 세계를 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "d3f12c80-1dad-5d33-a121-8073af59df5d",
+      "type": "flower",
+      "location_id": "5106e5ca-f75b-5f3e-8a98-57a15ce6d388",
+      "name": {
+        "ko": "디기탈리스 · 열애, 불성실"
+      },
+      "description": {
+        "ko": "동화 속 풍경 같은 꽃이 깊이 빠져드는 몰입감을 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "7f06dabb-eb19-5826-8a8b-7fd3bf6d4849",
+      "type": "flower",
+      "location_id": "e68924ac-bbd4-558f-8a76-23c07e5d2c2b",
+      "name": {
+        "ko": "금낭화 · 당신을 따르겠습니다"
+      },
+      "description": {
+        "ko": "하트 모양 꽃이 사랑스러운 몰입의 세계를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "7fecd3b2-27c0-5652-81f9-82632ae0a1d8",
+      "type": "flower",
+      "location_id": "d1ef8049-4e4d-51e3-81cf-ea1ea2ba711b",
+      "name": {
+        "ko": "헬리크리섬 · 영원한 기억, 불멸의 사랑"
+      },
+      "description": {
+        "ko": "영원히 보존되는 꽃이 깊은 몰입의 영속성을 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "ad37f35f-c35b-5743-a3f1-ddc9906342c4",
+      "type": "flower",
+      "location_id": "8607efc3-169f-5f2d-96f1-5642066f6ff5",
+      "name": {
+        "ko": "라난큐런스 · 매우 매력적"
+      },
+      "description": {
+        "ko": "화려한 겹꽃이 빠져드는 아름다운 세계를 연출"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "490118bc-9721-5006-a8f0-f1b7d288d0e7",
+      "type": "flower",
+      "location_id": "f36dfe9a-c181-5c12-ae9c-c4552bae7ebc",
+      "name": {
+        "ko": "꽃수국 · 변덕, 처녀의 꿈"
+      },
+      "description": {
+        "ko": "풍성한 장식꽃이 꿈같은 몰입의 세계를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 56,
+        "stress_max": 70,
+        "output_message": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "active": true
+    },
+    {
+      "id": "7347449a-d36a-5d06-aaa2-6518ee03df1d",
+      "type": "flower",
+      "location_id": "bdd33c57-399b-58ff-af35-6f089b458505",
+      "name": {
+        "ko": "금잔화 · 이별의 슬픔"
+      },
+      "description": {
+        "ko": "밝은 주황빛이 강렬한 감정의 고조를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "active": true
+    },
+    {
+      "id": "f1c0ac30-3f69-5a01-a61a-dfe1b95beba9",
+      "type": "flower",
+      "location_id": "ea4d58ee-0902-5b40-a432-84bd2a1d4860",
+      "name": {
+        "ko": "꽃양귀비 · 위안, 망각"
+      },
+      "description": {
+        "ko": "선명하고 강렬한 색감이 고조된 감정의 에너지를 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "active": true
+    },
+    {
+      "id": "91e6ccbc-a99a-55f7-a54b-aebae6afc6ca",
+      "type": "flower",
+      "location_id": "f613782a-69f3-5b4f-b2d5-8082aa42956e",
+      "name": {
+        "ko": "루피너스 · 모성애, 탐욕"
+      },
+      "description": {
+        "ko": "탑처럼 층층이 피어오르는 형태가 고조되는 에너지를 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "active": true
+    },
+    {
+      "id": "bc7995b1-bae7-5bce-a51d-f6754cb1a67a",
+      "type": "flower",
+      "location_id": "1844e6af-54f8-5063-8df9-aecee665cec0",
+      "name": {
+        "ko": "다알리아 · 우아함, 감사"
+      },
+      "description": {
+        "ko": "크고 화려한 꽃의 여왕이 절정의 에너지를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "active": true
+    },
+    {
+      "id": "d4664640-0182-5ce5-bdb7-8a34ecdc2032",
+      "type": "flower",
+      "location_id": "cd32de97-057a-51d0-b2d8-3e5d3fb364f3",
+      "name": {
+        "ko": "만데빌라 · 위험한 매력"
+      },
+      "description": {
+        "ko": "열대 덩굴꽃의 화려함이 넘치는 에너지를 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "active": true
+    },
+    {
+      "id": "d1ae6fed-441d-50dd-a162-c482e22bfbe4",
+      "type": "flower",
+      "location_id": "8768e978-4d23-5cec-adb4-1539d9d6b47c",
+      "name": {
+        "ko": "알리움 · 무한한 슬픔, 번영"
+      },
+      "description": {
+        "ko": "둥근 공 모양의 독특한 꽃이 번영·고조를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "active": true
+    },
+    {
+      "id": "1a2e4265-5f5b-5dff-b6c0-85b45293d8a9",
+      "type": "flower",
+      "location_id": "cf441fbe-f294-5d3d-9f3f-b309e6005b5b",
+      "name": {
+        "ko": "아네모네 · 기대, 사라져 가는 희망"
+      },
+      "description": {
+        "ko": "바람에 흔들리는 강렬한 꽃이 고조된 감정을 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "active": true
+    },
+    {
+      "id": "6bfb43ea-00fc-54b8-b4b1-a7cde517a89e",
+      "type": "flower",
+      "location_id": "3d59b630-c4dc-502c-a51d-af6b1d8bbaa5",
+      "name": {
+        "ko": "이탈리아사이프러스 · 죽음과 애도, 영원"
+      },
+      "description": {
+        "ko": "수직으로 솟아오르는 형태가 고조되는 에너지를 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "active": true
+    },
+    {
+      "id": "e832f1cb-f2f0-5120-b86f-609a9e2ae7f8",
+      "type": "flower",
+      "location_id": "bc9e4a10-f67a-5883-8573-2664088af795",
+      "name": {
+        "ko": "마가렛 · 진실한 사랑"
+      },
+      "description": {
+        "ko": "진실한 사랑의 꽃말이 강인한 열정과 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    },
+    {
+      "id": "fe319d84-b688-514f-b200-42b1e7204b55",
+      "type": "flower",
+      "location_id": "44d32c3d-cb52-55ec-9bef-7e2eccff26d6",
+      "name": {
+        "ko": "숙근사루비아 · 가족애, 정열"
+      },
+      "description": {
+        "ko": "정열의 꽃말이 열정의 감정과 직접적으로 연결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    },
+    {
+      "id": "0af16830-b807-5c7c-9b7c-51bac4af1b13",
+      "type": "flower",
+      "location_id": "dcfc4777-f577-5e41-bc4f-cdc7350e5133",
+      "name": {
+        "ko": "안젤로니아 · 사랑을 고합니다"
+      },
+      "description": {
+        "ko": "사랑을 고백하는 열정적 꽃말이 감정 상태와 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    },
+    {
+      "id": "7713710f-2fb3-5770-a6b9-c945ce134094",
+      "type": "flower",
+      "location_id": "5d3a4ebd-0d37-5024-8de6-cc4c834b78e1",
+      "name": {
+        "ko": "매발톱 · 승리의 맹세"
+      },
+      "description": {
+        "ko": "승리를 향한 맹세가 강인한 열정을 직접 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    },
+    {
+      "id": "b5187a70-1db9-5ccc-b027-1510368481ba",
+      "type": "flower",
+      "location_id": "4bd5b662-fdd4-5e82-a853-9fbac73e37ff",
+      "name": {
+        "ko": "아이리스 · 희망, 지혜, 용기"
+      },
+      "description": {
+        "ko": "용기의 꽃말이 강인한 열정과 직결"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    },
+    {
+      "id": "bcd52398-14db-5a55-be47-7314ae06e72c",
+      "type": "flower",
+      "location_id": "2c9eb6c8-d964-5db6-a7fd-f860ffd2564f",
+      "name": {
+        "ko": "왁스프라워 · 나만 바라봐 주세요"
+      },
+      "description": {
+        "ko": "간절한 꽃말이 열정적 감정 에너지를 표현"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    },
+    {
+      "id": "325841d8-20b7-5b0b-9ef1-0c74dcbb7c9e",
+      "type": "flower",
+      "location_id": "e005fdbb-3ee7-57a4-8e99-9fe96e77540a",
+      "name": {
+        "ko": "쟈스민 · 사랑스러움, 우아함"
+      },
+      "description": {
+        "ko": "밤에 더 강한 향을 내뿜는 매혹적 열정을 상징"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    },
+    {
+      "id": "f978fd3d-dcf8-5cac-b5e2-6f5e44dd3973",
+      "type": "flower",
+      "location_id": "df2370be-89a6-51ce-8751-e26856da9cfc",
+      "name": {
+        "ko": "수수꽃다리 · 젊은 날의 추억"
+      },
+      "description": {
+        "ko": "봄의 달콤한 향기가 젊은 열정을 연상"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    },
+    {
+      "id": "80899876-a35c-5b8c-a3f6-f22121bbe274",
+      "type": "flower",
+      "location_id": "29a17047-bad1-5b07-abfd-d76632024b70",
+      "name": {
+        "ko": "참당귀 · 건강한 회복"
+      },
+      "description": {
+        "ko": "강인한 약용식물의 회복력이 열정적 에너지와 부합"
+      },
+      "image_url": "",
+      "attributes": {
+        "stress_min": 71,
+        "stress_max": 100,
+        "output_message": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "active": true
+    }
+  ],
+  "rules": [
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "b713ba5d-6f72-59c3-ad90-3739949e017d",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "b2d6f0e5-e440-5da7-a3db-eacc36e4ba61",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "bca83c01-8272-5aca-a71c-48b20252c7cd",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "2518ae87-f749-5636-a316-f57c8d219ced",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "2e475f0b-9558-507b-acdc-3bfa25e29329",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "c7b90512-2574-5a39-8a13-9d10bb0636cd",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "2ac450ae-0393-54d9-96d2-f234731089a4",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "SERENITY",
+      "item_id": "1e687cae-dbe4-5cdb-8c1c-43d3b80d1eac",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "STABILITY",
+      "item_id": "40e0e109-791d-5812-87f7-3eb622546703",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "STABILITY",
+      "item_id": "0fb55ffd-eec4-56c5-b65e-9cfa201915da",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "STABILITY",
+      "item_id": "9d06f9f9-3726-505b-89f7-b487628b2cb3",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "STABILITY",
+      "item_id": "53646033-05e9-54c8-b948-ff23527db227",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "STABILITY",
+      "item_id": "a5cd6d47-d3c8-5e83-98c6-6ea19bb42132",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "STABILITY",
+      "item_id": "42556631-e185-5ff8-9245-799bf0fa3e41",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "STABILITY",
+      "item_id": "95e0563a-7c72-5f68-8f0a-791f40346812",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "STABILITY",
+      "item_id": "a5c76e91-588f-5db5-83ee-e184bd98ea4c",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "53f4ecce-ae34-53cd-9434-ea45e86a9156",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "cecd1ebd-3266-5b1a-a3fe-b384dce84089",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "35b27463-e911-531c-ba5f-9b25db1913c7",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "40113ff4-be42-504b-a4c5-8c58becdf629",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "8bd71b53-8bd8-5e15-a5ce-0ad5dc26a22e",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "bf63d621-da0b-5e2f-bacb-b185e5b2a63e",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "7e3b4fce-972f-55c3-8f89-69c738471810",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "cd86eaf8-a7cb-5021-a183-52d3a3c1b26e",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "RELAXED",
+      "item_id": "7386eed6-7e90-552b-b444-cbe3f4d7a923",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "JOY",
+      "item_id": "e1b9665e-9383-5deb-986a-c3572461919d",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "JOY",
+      "item_id": "f88749b2-9ae3-5fdc-968a-5ab279bfaaad",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "JOY",
+      "item_id": "6795f85a-fd05-5e7c-a258-38b7947ba8a1",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "JOY",
+      "item_id": "c5c9ad62-bb2d-5394-8995-dbd1af431428",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "JOY",
+      "item_id": "783c6845-06d5-5e37-ba0f-641bdbdeedd5",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "JOY",
+      "item_id": "94af5e08-ab1b-5e50-961a-51687a3b6599",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "JOY",
+      "item_id": "a0ee9211-4e8f-5924-bf68-914844ba5c76",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "JOY",
+      "item_id": "b1893dc7-e2c6-5be3-845a-4f1e7f4e1607",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "CALM",
+      "item_id": "61e39f1d-48b9-5c76-8afe-ecdf8a254c5b",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "CALM",
+      "item_id": "80783bde-2a27-58fe-8aac-1bcb0449bbc2",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "CALM",
+      "item_id": "22a23430-a2f0-5d35-8d4e-bc6cd7351361",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "CALM",
+      "item_id": "ff01a782-7be7-59fb-be56-1e306a79d64d",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "CALM",
+      "item_id": "8266ea5d-b1f2-53ff-8b7e-bde76a7e6f5e",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "CALM",
+      "item_id": "48f85280-bd76-596e-909a-e428ee234fb3",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "CALM",
+      "item_id": "5db4fa3d-49d8-5d11-9aaa-ae29a572a93d",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "CALM",
+      "item_id": "f34d6385-c99f-56a2-ab98-cfc8cbffdc38",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "244694d4-e1f1-5514-928e-317229a381a3",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "7347f1b0-6ea6-5035-a790-20041f37a7a8",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "8d4a7fab-6023-51e7-af5d-79f8f578704f",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "3a858f1f-d674-5aa4-b468-999dc05e6352",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "ee693c87-a90c-5a75-93ad-1975967be1d0",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "439e7b11-29cb-5f23-8827-c8e70181829f",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "30950794-4d37-5659-8a15-60bbf5d6a69b",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "a1da3539-46fc-5ba2-aae0-b0fe45e0df8d",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "VITALITY",
+      "item_id": "632ceb40-df48-5915-9988-80aa356f217b",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "FOCUS",
+      "item_id": "48cbcfdf-8a41-5151-973a-8add55509995",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "FOCUS",
+      "item_id": "58ada40f-5d52-563f-a473-0a9b17a8b47a",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "FOCUS",
+      "item_id": "3f10e6f2-c3eb-5f6e-a83b-02816dd1c9d7",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "FOCUS",
+      "item_id": "42d41870-be6a-5084-a8fe-13be2b2814e1",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "FOCUS",
+      "item_id": "f9946043-d4a6-57c6-9e09-c8c48a390c10",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "FOCUS",
+      "item_id": "f66a442b-cc7a-5bcc-aad7-c1635727a6ba",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "FOCUS",
+      "item_id": "c851eb6a-6476-5c60-b42e-44095a6f125a",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "FOCUS",
+      "item_id": "55929326-4ffa-5ccf-ba6f-75dcae5dee86",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "IMMERSION",
+      "item_id": "6b765856-ca59-5344-a342-c0b8e7fd234c",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "IMMERSION",
+      "item_id": "44b988c7-b055-5300-9871-54c18ba968fa",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "IMMERSION",
+      "item_id": "21627e1b-e3c4-5fb7-9e0e-e6901352aca5",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "IMMERSION",
+      "item_id": "d3f12c80-1dad-5d33-a121-8073af59df5d",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "IMMERSION",
+      "item_id": "7f06dabb-eb19-5826-8a8b-7fd3bf6d4849",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "IMMERSION",
+      "item_id": "7fecd3b2-27c0-5652-81f9-82632ae0a1d8",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "IMMERSION",
+      "item_id": "ad37f35f-c35b-5743-a3f1-ddc9906342c4",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "IMMERSION",
+      "item_id": "490118bc-9721-5006-a8f0-f1b7d288d0e7",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "ELEVATION",
+      "item_id": "7347449a-d36a-5d06-aaa2-6518ee03df1d",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "ELEVATION",
+      "item_id": "f1c0ac30-3f69-5a01-a61a-dfe1b95beba9",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "ELEVATION",
+      "item_id": "91e6ccbc-a99a-55f7-a54b-aebae6afc6ca",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "ELEVATION",
+      "item_id": "bc7995b1-bae7-5bce-a51d-f6754cb1a67a",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "ELEVATION",
+      "item_id": "d4664640-0182-5ce5-bdb7-8a34ecdc2032",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "ELEVATION",
+      "item_id": "d1ae6fed-441d-50dd-a162-c482e22bfbe4",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "ELEVATION",
+      "item_id": "1a2e4265-5f5b-5dff-b6c0-85b45293d8a9",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "ELEVATION",
+      "item_id": "6bfb43ea-00fc-54b8-b4b1-a7cde517a89e",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "e832f1cb-f2f0-5120-b86f-609a9e2ae7f8",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "fe319d84-b688-514f-b200-42b1e7204b55",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "0af16830-b807-5c7c-9b7c-51bac4af1b13",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "7713710f-2fb3-5770-a6b9-c945ce134094",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "b5187a70-1db9-5ccc-b027-1510368481ba",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "bcd52398-14db-5a55-be47-7314ae06e72c",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "325841d8-20b7-5b0b-9ef1-0c74dcbb7c9e",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "f978fd3d-dcf8-5cac-b5e2-6f5e44dd3973",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    },
+    {
+      "emotion_code": "PASSION",
+      "item_id": "80899876-a35c-5b8c-a3f6-f22121bbe274",
+      "weight": 100,
+      "priority": 10,
+      "active": true
+    }
+  ]
+}

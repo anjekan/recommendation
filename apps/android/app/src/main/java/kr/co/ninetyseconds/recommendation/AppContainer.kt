@@ -53,7 +53,7 @@ class AppContainer(
     }
 
     private companion object {
-        const val DEFAULT_CONFIG_ASSET = "project-config.json"
+        const val DEFAULT_CONFIG_ASSET = "taean-flower-project-config.json"
         const val DEFAULT_KIOSK_ID = "LOCAL-KIOSK"
     }
 }
