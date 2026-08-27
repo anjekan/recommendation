@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.jdbc.core.simple.JdbcClient
+import javax.sql.DataSource
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
@@ -19,6 +20,7 @@ class ProjectConfigurationSeeder(
     @Value("\${platform.seed.config-path:}") private val configPath: String,
     private val objectMapper: ObjectMapper,
     private val jdbc: JdbcClient,
+    private val dataSource: DataSource,
     private val clock: Clock,
 ) : ApplicationRunner {
     @Transactional
@@ -33,7 +35,14 @@ class ProjectConfigurationSeeder(
             require(it > 0) { "Seed config_version must be positive" }
         }
         val now = OffsetDateTime.now(clock).withOffsetSameInstant(ZoneOffset.UTC)
-        jdbc.sql(
+        val isH2 = dataSource.connection.use { it.metaData.databaseProductName == "H2" }
+        val seedSql = if (isH2) {
+            """
+            merge into projects (id, project_code, config_version, config_json, active, created_at, updated_at)
+            key (project_code)
+            values (:id, :projectCode, :configVersion, :configJson, true, :now, :now)
+            """.trimIndent()
+        } else {
             """
             insert into projects (id, project_code, config_version, config_json, active, created_at, updated_at)
             values (:id, :projectCode, :configVersion, cast(:configJson as jsonb), true, :now, :now)
@@ -43,8 +52,9 @@ class ProjectConfigurationSeeder(
                 active = true,
                 updated_at = excluded.updated_at
             where excluded.config_version > projects.config_version
-            """.trimIndent(),
-        ).param("id", UUID.randomUUID())
+            """.trimIndent()
+        }
+        jdbc.sql(seedSql).param("id", UUID.randomUUID())
             .param("projectCode", projectCode)
             .param("configVersion", configVersion)
             .param("configJson", json)

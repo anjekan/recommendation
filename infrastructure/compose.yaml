@@ -25,7 +25,7 @@ services:
       DATABASE_PASSWORD: recommendation-local
       SEED_CONFIG_PATH: /config/project-config.json
     volumes:
-      - ../contracts/examples/project-config.json:/config/project-config.json:ro
+      - ../projects/taean-flower/taean-flower-project-config.json:/config/project-config.json:ro
     ports:
       - "8080:8080"
     depends_on:

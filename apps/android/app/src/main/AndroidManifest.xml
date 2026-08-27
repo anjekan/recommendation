@@ -8,6 +8,7 @@
     <application
         android:name=".RecommendationApplication"
         android:allowBackup="false"
+        android:usesCleartextTraffic="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Recommendation">

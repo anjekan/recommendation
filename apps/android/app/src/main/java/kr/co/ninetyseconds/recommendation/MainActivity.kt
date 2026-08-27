@@ -82,7 +82,7 @@ fun RecommendationApp(container: AppContainer) {
 @Composable
 private fun HomeScreen(config: ProjectConfiguration, onStart: () -> Unit) = Centered {
     Text(config.theme.name, style = MaterialTheme.typography.headlineMedium)
-    Text("LOCAL · config v${config.catalog.configVersion}")
+    Text("HYBRID · config v${config.catalog.configVersion}")
     Spacer(Modifier.height(28.dp))
     Text("카메라로 현재 상태를 측정하고\n감정상태에 어울리는 꽃을 추천합니다.")
     Spacer(Modifier.height(28.dp))

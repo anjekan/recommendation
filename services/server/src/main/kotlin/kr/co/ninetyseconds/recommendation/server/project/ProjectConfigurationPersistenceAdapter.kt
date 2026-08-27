@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 class ProjectConfigurationPersistenceAdapter(private val jdbc: JdbcClient) : ProjectConfigurationStore {
     override fun findActiveByCode(projectCode: String): ProjectConfiguration? = jdbc.sql(
         """
-        select project_code, config_version, config_json::text
+        select project_code, config_version, cast(config_json as varchar) as config_json
         from projects
         where project_code = :projectCode and active = true
         """.trimIndent(),

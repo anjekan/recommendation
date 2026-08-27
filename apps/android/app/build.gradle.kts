@@ -17,6 +17,8 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "RECOMMENDATION_BASE_URL", "\"http://10.0.2.2:8080\"")
+        buildConfigField("String", "KIOSK_KEY", "\"LOCAL-DEVELOPMENT\"")
     }
 
     buildTypes {
@@ -67,6 +69,7 @@ dependencies {
     implementation(project(":core:application"))
     implementation(project(":core:data-config"))
     implementation(project(":core:data-local"))
+    implementation(project(":core:data-remote"))
     implementation(project(":core:domain"))
 
     debugImplementation(libs.androidx.compose.ui.tooling)
