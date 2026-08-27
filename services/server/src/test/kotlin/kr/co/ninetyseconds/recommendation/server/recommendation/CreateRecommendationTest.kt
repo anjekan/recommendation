@@ -10,6 +10,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kr.co.ninetyseconds.recommendation.server.project.ProjectConfiguration
 import kr.co.ninetyseconds.recommendation.server.project.ProjectConfigurationStore
+import kr.co.ninetyseconds.recommendation.server.event.RecommendationEventStore
+import kr.co.ninetyseconds.recommendation.server.event.ConsentStatus
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.kotlinModule
 
@@ -35,6 +37,7 @@ class CreateRecommendationTest {
     private val service = CreateRecommendation(
         ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, config) },
         JsonMapper.builder().addModule(kotlinModule()).build(),
+        RecommendationEventStore { true },
         Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
     )
 
@@ -68,6 +71,7 @@ class CreateRecommendationTest {
         stressScore = 63,
         language = "ko",
         previousLocationId = previousLocationId,
+        consentStatus = ConsentStatus.CONSENTED,
         requestedAt = OffsetDateTime.parse("2026-08-27T09:00:00+09:00"),
     )
 }

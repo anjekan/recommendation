@@ -42,7 +42,11 @@ class AppContainer(
         return imported
     }
 
-    suspend fun recommend(emotion: EmotionCode, stressScore: Int = 0): RecommendationDecision {
+    suspend fun recommend(
+        emotion: EmotionCode,
+        stressScore: Int = 0,
+        consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
+    ): RecommendationDecision {
         val config = configuration ?: start()
         return recommendUseCase(
             RecommendationRequest(
@@ -54,6 +58,7 @@ class AppContainer(
                 kioskId = DEFAULT_KIOSK_ID,
                 stressScore = stressScore,
                 language = config.selectedLanguage,
+                consentStatus = consentStatus,
             ),
         )
     }

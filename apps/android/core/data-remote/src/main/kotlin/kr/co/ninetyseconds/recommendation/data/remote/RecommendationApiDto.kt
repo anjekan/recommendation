@@ -15,6 +15,7 @@ internal data class ApiRecommendationRequest(
     @SerialName("stress_score") val stressScore: Int,
     val language: String,
     @SerialName("previous_location_id") val previousLocationId: String?,
+    @SerialName("consent_status") val consentStatus: String,
     @SerialName("requested_at") val requestedAt: String,
 )
 

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import java.time.OffsetDateTime
 import java.util.UUID
+import kr.co.ninetyseconds.recommendation.server.event.ConsentStatus
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -26,11 +27,12 @@ data class RecommendationRequestBody(
     @field:Min(0) @field:Max(100) val stressScore: Int,
     @field:NotBlank val language: String,
     val previousLocationId: UUID?,
+    val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
     val requestedAt: OffsetDateTime,
 ) {
     fun toCommand() = RecommendationRequest(
         schemaVersion, projectCode, kioskId, sessionId, requestId, emotionCode,
-        stressScore, language, previousLocationId, requestedAt,
+        stressScore, language, previousLocationId, consentStatus, requestedAt,
     )
 }
 

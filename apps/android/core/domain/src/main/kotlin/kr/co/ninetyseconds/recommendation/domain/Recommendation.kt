@@ -26,6 +26,7 @@ data class RecommendationRequest(
     val kioskId: String = "UNASSIGNED",
     val stressScore: Int = 0,
     val language: String = "ko",
+    val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
 ) {
     init {
         require(requestId.isNotBlank()) { "Request id cannot be blank" }
@@ -35,6 +36,7 @@ data class RecommendationRequest(
     }
 }
 
+enum class ConsentStatus { CONSENTED, DECLINED, NOT_ASKED }
 enum class DecisionSource { LOCAL, REMOTE, LOCAL_FALLBACK }
 
 data class RecommendationDecision(

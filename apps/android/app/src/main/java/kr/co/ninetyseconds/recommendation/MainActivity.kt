@@ -42,7 +42,8 @@ class MainActivity : ComponentActivity() {
 private sealed interface AppState {
     data object Loading : AppState
     data class Home(val config: ProjectConfiguration) : AppState
-    data class Measuring(val config: ProjectConfiguration) : AppState
+    data class Consent(val config: ProjectConfiguration) : AppState
+    data class Measuring(val config: ProjectConfiguration, val consentStatus: ConsentStatus) : AppState
     data class Result(val config: ProjectConfiguration, val label: String, val stress: Int, val decision: RecommendationDecision) : AppState
     data class Failed(val message: String, val config: ProjectConfiguration? = null) : AppState
 }
@@ -58,13 +59,17 @@ fun RecommendationApp(container: AppContainer) {
     RecommendationTheme {
         when (val current = state) {
             AppState.Loading -> Centered { CircularProgressIndicator() }
-            is AppState.Home -> HomeScreen(current.config) { state = AppState.Measuring(current.config) }
+            is AppState.Home -> HomeScreen(current.config) { state = AppState.Consent(current.config) }
+            is AppState.Consent -> ConsentScreen(
+                onSelect = { state = AppState.Measuring(current.config, it) },
+                onCancel = { state = AppState.Home(current.config) },
+            )
             is AppState.Measuring -> MeasurementScreen(
                 current.config,
                 onComplete = { label, stress -> scope.launch {
                     state = runCatching {
                         val emotion = current.config.mapAnalysisLabel(label, stress)
-                        AppState.Result(current.config, label, stress, container.recommend(emotion, stress))
+                        AppState.Result(current.config, label, stress, container.recommend(emotion, stress, current.consentStatus))
                     }.getOrElse { AppState.Failed(it.message ?: "추천에 실패했습니다.", current.config) }
                 } },
                 onCancel = { state = AppState.Home(current.config) },
@@ -77,6 +82,17 @@ fun RecommendationApp(container: AppContainer) {
             }
         }
     }
+}
+
+@Composable
+private fun ConsentScreen(onSelect: (ConsentStatus) -> Unit, onCancel: () -> Unit) = Centered {
+    Text("개인정보 활용 동의", style = MaterialTheme.typography.headlineMedium)
+    Spacer(Modifier.height(16.dp))
+    Text("측정 결과의 익명 통계 활용 여부를 선택해 주세요.\n이름·전화번호·얼굴 사진은 저장하지 않습니다.")
+    Spacer(Modifier.height(24.dp))
+    Button(onClick = { onSelect(ConsentStatus.CONSENTED) }) { Text("동의하고 측정") }
+    OutlinedButton(onClick = { onSelect(ConsentStatus.DECLINED) }) { Text("동의하지 않고 측정") }
+    TextButton(onClick = onCancel) { Text("취소") }
 }
 
 @Composable

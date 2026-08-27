@@ -6,6 +6,10 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kr.co.ninetyseconds.recommendation.server.project.ProjectConfigurationStore
 import kr.co.ninetyseconds.recommendation.server.project.ProjectNotFoundException
+import kr.co.ninetyseconds.recommendation.server.event.ConsentStatus
+import kr.co.ninetyseconds.recommendation.server.event.RecommendationEvent
+import kr.co.ninetyseconds.recommendation.server.event.RecommendationEventStore
+import kr.co.ninetyseconds.recommendation.server.event.RecommendationSource
 import org.springframework.stereotype.Service
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
@@ -20,6 +24,7 @@ data class RecommendationRequest(
     val stressScore: Int,
     val language: String,
     val previousLocationId: UUID?,
+    val consentStatus: ConsentStatus,
     val requestedAt: OffsetDateTime,
 )
 
@@ -46,6 +51,7 @@ class NoEligibleRecommendationException(val requestId: UUID) :
 class CreateRecommendation(
     private val projects: ProjectConfigurationStore,
     private val objectMapper: ObjectMapper,
+    private val events: RecommendationEventStore,
     private val clock: Clock,
 ) {
     operator fun invoke(request: RecommendationRequest): RecommendationResult {
@@ -85,7 +91,7 @@ class CreateRecommendation(
             .entries.associate { it.key.toString() to it.value.toString() }
         val recommendationText = names.mapValues { (_, name) -> "지금의 당신에게 $name 추천합니다." }
 
-        return RecommendationResult(
+        val result = RecommendationResult(
             recommendationId = UUID.nameUUIDFromBytes("${request.projectCode}:${request.requestId}".toByteArray()),
             requestId = request.requestId,
             emotionProfile = emotion,
@@ -99,6 +105,23 @@ class CreateRecommendation(
             },
             createdAt = OffsetDateTime.now(clock).withOffsetSameInstant(ZoneOffset.UTC),
         )
+        events.appendIfAbsent(
+            RecommendationEvent(
+                eventId = result.recommendationId,
+                projectCode = request.projectCode,
+                kioskId = request.kioskId,
+                sessionId = request.sessionId,
+                emotionCode = request.emotionCode,
+                itemId = UUID.fromString(selected.item.path("id").stringValue()),
+                locationId = UUID.fromString(selected.location.path("id").stringValue()),
+                source = RecommendationSource.REMOTE,
+                consentStatus = request.consentStatus,
+                stressScore = request.stressScore,
+                policyVersion = result.policyVersion,
+                occurredAt = request.requestedAt.toInstant(),
+            ),
+        )
+        return result
     }
 
     private fun selectWeighted(candidates: List<Candidate>, requestId: UUID): Candidate {

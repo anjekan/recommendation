@@ -25,6 +25,10 @@ data class RecommendationEventRequest(
     val itemId: UUID,
     val locationId: UUID,
     val source: RecommendationSource,
+    val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
+    @field:jakarta.validation.constraints.Min(0)
+    @field:jakarta.validation.constraints.Max(100)
+    val stressScore: Int = 0,
     @field:NotBlank val policyVersion: String,
     val occurredAt: Instant,
 ) {
@@ -37,6 +41,8 @@ data class RecommendationEventRequest(
         itemId = itemId,
         locationId = locationId,
         source = source,
+        consentStatus = consentStatus,
+        stressScore = stressScore,
         policyVersion = policyVersion,
         occurredAt = occurredAt,
     )

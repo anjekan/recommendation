@@ -4,6 +4,7 @@ import java.time.Instant
 import java.util.UUID
 
 enum class RecommendationSource { LOCAL, REMOTE, LOCAL_FALLBACK }
+enum class ConsentStatus { CONSENTED, DECLINED, NOT_ASKED }
 
 data class RecommendationEvent(
     val eventId: UUID,
@@ -14,6 +15,8 @@ data class RecommendationEvent(
     val itemId: UUID,
     val locationId: UUID,
     val source: RecommendationSource,
+    val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
+    val stressScore: Int = 0,
     val policyVersion: String,
     val occurredAt: Instant,
 )

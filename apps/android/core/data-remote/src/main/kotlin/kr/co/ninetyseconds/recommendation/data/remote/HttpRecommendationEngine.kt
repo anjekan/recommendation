@@ -44,6 +44,7 @@ class HttpRecommendationEngine(
             stressScore = request.stressScore,
             language = request.language,
             previousLocationId = request.excludedLocationIds.map { it.value }.sorted().firstOrNull(),
+            consentStatus = request.consentStatus.name,
             requestedAt = request.requestedAt.toString(),
         )
         val httpRequest = Request.Builder()
