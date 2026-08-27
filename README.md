@@ -35,7 +35,14 @@
 docker compose -f infrastructure/compose.yaml up --build -d
 ```
 
-초기 API는 health check, 프로젝트 설정 조회, 오프라인 추천 이벤트 동기화를 제공한다. Redis와 관리자 웹은 후속 단계에서 모듈 경계를 유지하며 추가한다.
+API는 health check, 프로젝트 설정 조회, 추천 생성, 오프라인 추천 이벤트 동기화와 관리자 집계를 제공한다. 관리자 대시보드는 서버 정적 리소스로 함께 배포된다.
+
+```text
+관리자 페이지  http://127.0.0.1:8080/admin/index.html
+집계 API       GET /api/v1/admin/dashboard?projectCode=TAEAN_FLOWER_2026
+```
+
+Android는 측정 전에 익명 통계 활용 동의 여부를 선택한다. 서버에는 이름·전화번호·얼굴 사진 같은 개인정보 내용이 아니라 `CONSENTED`, `DECLINED`, `NOT_ASKED` 상태만 추천 이벤트와 함께 저장된다.
 
 ## 현재 기준선
 
@@ -57,5 +64,5 @@ C:\90\TaeAn\Kioskondevice_servering
 6. Android는 Room/SQLite를 설정 캐시와 오프라인 이력에 사용한다.
 7. Redis는 대규모 실시간 추천 상태 계층으로 설계하되 단계적으로 활성화한다.
 8. 모든 추천 결과에는 정책 버전과 판단 근거를 남긴다.
-9. 개인정보를 수집하지 않고 익명 세션과 UUID를 사용한다.
+9. 개인정보 내용은 수집하지 않고 익명 세션과 UUID를 사용하며, 동의 여부는 별도 상태값으로만 집계한다.
 10. UI는 실제 렌더링과 실기기 검증 없이 완료 처리하지 않는다.

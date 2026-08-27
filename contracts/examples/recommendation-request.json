@@ -8,5 +8,6 @@
   "stress_score": 63,
   "language": "ko",
   "previous_location_id": null,
+  "consent_status": "CONSENTED",
   "requested_at": "2026-08-25T14:30:00+09:00"
 }

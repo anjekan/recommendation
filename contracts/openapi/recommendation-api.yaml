@@ -186,6 +186,11 @@ components:
         previous_location_id:
           type: [string, 'null']
           format: uuid
+        consent_status:
+          type: string
+          enum: [CONSENTED, DECLINED, NOT_ASKED]
+          default: NOT_ASKED
+          description: 개인정보 내용이 아닌 익명 통계 활용 동의 상태
         requested_at:
           type: string
           format: date-time

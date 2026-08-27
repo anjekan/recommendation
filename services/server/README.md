@@ -17,6 +17,7 @@
 health   서버 상태
 project  프로젝트 설정 조회와 초기 시드
 event    오프라인 추천 이벤트 멱등 동기화
+admin    익명 추천·동의 상태 집계 조회
 ```
 
 ## 빌드
@@ -42,6 +43,12 @@ GET  /api/v1/health
 GET  /api/v1/projects/{projectCode}/config
 POST /api/v1/events/sync
 POST /api/v1/recommendations
+GET  /api/v1/admin/dashboard?projectCode={projectCode}
+GET  /admin/index.html
 ```
 
 프로젝트 설정 조회는 config version 기반 ETag를 제공한다. 이벤트 동기화는 `event_id`를 PostgreSQL primary key로 사용하며, 재전송된 이벤트도 성공으로 응답해 Android 동기화 대기열이 안전하게 종료되게 한다.
+
+추천 요청의 `consent_status`는 `CONSENTED`, `DECLINED`, `NOT_ASKED` 중 하나다. 원격 추천이 성공하면 감정, 스트레스 점수, 동의 상태와 추천 결과를 익명 이벤트로 저장한다. 개인정보 내용은 저장하지 않는다.
+
+관리자 API와 화면에는 아직 인증이 없으므로 개발망에서만 사용한다.
