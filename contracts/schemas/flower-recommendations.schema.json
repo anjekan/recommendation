@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recommendation.ninetyseconds.co.kr/schemas/flower-recommendations.schema.json",
+  "title": "Flower recommendation catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_code", "source_document", "recommendations"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project_code": { "type": "string", "minLength": 1 },
+    "source_document": { "type": "string", "minLength": 1 },
+    "recommendations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "display_order", "emotion_code", "emotion_name", "stress_min", "stress_max", "flower_name", "flower_meaning", "output_message", "match_rationale", "active"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "display_order": { "type": "integer", "minimum": 1 },
+          "emotion_code": { "enum": ["SERENITY", "STABILITY", "RELAXED", "JOY", "CALM", "VITALITY", "FOCUS", "IMMERSION", "ELEVATION", "PASSION"] },
+          "emotion_name": { "$ref": "project-config.schema.json#/$defs/localizedText" },
+          "stress_min": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "stress_max": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "flower_name": { "$ref": "project-config.schema.json#/$defs/localizedText" },
+          "flower_meaning": { "$ref": "project-config.schema.json#/$defs/localizedText" },
+          "output_message": { "$ref": "project-config.schema.json#/$defs/localizedText" },
+          "match_rationale": { "$ref": "project-config.schema.json#/$defs/localizedText" },
+          "active": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

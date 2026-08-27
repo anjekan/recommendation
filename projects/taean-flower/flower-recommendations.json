@@ -1,0 +1,1916 @@
+{
+  "schema_version": 1,
+  "project_code": "TAEAN_FLOWER_2026",
+  "source_document": "감정상태별 꽃 추천리스트.pdf",
+  "recommendations": [
+    {
+      "id": "b713ba5d-6f72-59c3-ad90-3739949e017d",
+      "display_order": 1,
+      "emotion_code": "SERENITY",
+      "emotion_name": {
+        "ko": "평안함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "회양목"
+      },
+      "flower_meaning": {
+        "ko": "참을성, 금욕"
+      },
+      "output_message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "match_rationale": {
+        "ko": "흔들림 없는 상록수로 평온한 안정감과 일맥상통"
+      },
+      "active": true
+    },
+    {
+      "id": "b2d6f0e5-e440-5da7-a3db-eacc36e4ba61",
+      "display_order": 2,
+      "emotion_code": "SERENITY",
+      "emotion_name": {
+        "ko": "평안함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "세덤"
+      },
+      "flower_meaning": {
+        "ko": "고요한 사랑"
+      },
+      "output_message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "match_rationale": {
+        "ko": "고요하고 차분한 꽃말이 평안함의 정서와 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "bca83c01-8272-5aca-a71c-48b20252c7cd",
+      "display_order": 3,
+      "emotion_code": "SERENITY",
+      "emotion_name": {
+        "ko": "평안함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "두메부추"
+      },
+      "flower_meaning": {
+        "ko": "소박한 아름다움"
+      },
+      "output_message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "match_rationale": {
+        "ko": "산지 자생의 소박한 아름다움이 내면의 평온과 어울림"
+      },
+      "active": true
+    },
+    {
+      "id": "2518ae87-f749-5636-a316-f57c8d219ced",
+      "display_order": 4,
+      "emotion_code": "SERENITY",
+      "emotion_name": {
+        "ko": "평안함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "맥문동"
+      },
+      "flower_meaning": {
+        "ko": "인내, 겸허"
+      },
+      "output_message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "match_rationale": {
+        "ko": "사계절 푸른 인내의 식물로 깊은 평안함을 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "2e475f0b-9558-507b-acdc-3bfa25e29329",
+      "display_order": 5,
+      "emotion_code": "SERENITY",
+      "emotion_name": {
+        "ko": "평안함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "밀사초"
+      },
+      "flower_meaning": {
+        "ko": "소박한 아름다움"
+      },
+      "output_message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "match_rationale": {
+        "ko": "바람에 자연스럽게 흔들리는 모습이 평온한 상태를 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "c7b90512-2574-5a39-8a13-9d10bb0636cd",
+      "display_order": 6,
+      "emotion_code": "SERENITY",
+      "emotion_name": {
+        "ko": "평안함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "소스랑남천"
+      },
+      "flower_meaning": {
+        "ko": "축복, 행운"
+      },
+      "output_message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "match_rationale": {
+        "ko": "사계절 변화하는 상록 관목으로 깊은 뿌리의 안정감 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "2ac450ae-0393-54d9-96d2-f234731089a4",
+      "display_order": 7,
+      "emotion_code": "SERENITY",
+      "emotion_name": {
+        "ko": "평안함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "아이스댄스"
+      },
+      "flower_meaning": {
+        "ko": "은은한 매력"
+      },
+      "output_message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "match_rationale": {
+        "ko": "은은하고 차분한 매력이 흔들림 없는 평온함과 조화"
+      },
+      "active": true
+    },
+    {
+      "id": "1e687cae-dbe4-5cdb-8c1c-43d3b80d1eac",
+      "display_order": 8,
+      "emotion_code": "SERENITY",
+      "emotion_name": {
+        "ko": "평안함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "에메랄드그린"
+      },
+      "flower_meaning": {
+        "ko": "변치 않는 우정"
+      },
+      "output_message": {
+        "ko": "깊게 뿌리 내린 나무처럼 흔들림 없이 평온해요."
+      },
+      "match_rationale": {
+        "ko": "사계절 변치 않는 초록빛이 항구적 평안함을 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "40e0e109-791d-5812-87f7-3eb622546703",
+      "display_order": 9,
+      "emotion_code": "STABILITY",
+      "emotion_name": {
+        "ko": "안정"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "페츄니아"
+      },
+      "flower_meaning": {
+        "ko": "당신과 함께라면 마음이 편합니다"
+      },
+      "output_message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "match_rationale": {
+        "ko": "꽃말 자체가 마음의 편안함·안정감을 직접 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "0fb55ffd-eec4-56c5-b65e-9cfa201915da",
+      "display_order": 10,
+      "emotion_code": "STABILITY",
+      "emotion_name": {
+        "ko": "안정"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "꽃잔디"
+      },
+      "flower_meaning": {
+        "ko": "합의, 온화"
+      },
+      "output_message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "match_rationale": {
+        "ko": "온화한 꽃말이 포근한 안정감과 직접적으로 연결"
+      },
+      "active": true
+    },
+    {
+      "id": "9d06f9f9-3726-505b-89f7-b487628b2cb3",
+      "display_order": 11,
+      "emotion_code": "STABILITY",
+      "emotion_name": {
+        "ko": "안정"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "벨라데이지"
+      },
+      "flower_meaning": {
+        "ko": "평화, 순수한 아름다움"
+      },
+      "output_message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "match_rationale": {
+        "ko": "평화로운 꽃말이 안정적 감정 상태와 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "53646033-05e9-54c8-b948-ff23527db227",
+      "display_order": 12,
+      "emotion_code": "STABILITY",
+      "emotion_name": {
+        "ko": "안정"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "캐모마일"
+      },
+      "flower_meaning": {
+        "ko": "역경 속의 힘, 인내"
+      },
+      "output_message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "match_rationale": {
+        "ko": "마음을 차분하게 하는 대표 허브로 안정감 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "a5cd6d47-d3c8-5e83-98c6-6ea19bb42132",
+      "display_order": 13,
+      "emotion_code": "STABILITY",
+      "emotion_name": {
+        "ko": "안정"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "라벤다"
+      },
+      "flower_meaning": {
+        "ko": "나에게 대답하세요"
+      },
+      "output_message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "match_rationale": {
+        "ko": "심신 안정 효과로 유명한 허브, 안정 감정과 직결"
+      },
+      "active": true
+    },
+    {
+      "id": "42556631-e185-5ff8-9245-799bf0fa3e41",
+      "display_order": 14,
+      "emotion_code": "STABILITY",
+      "emotion_name": {
+        "ko": "안정"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "알리섬"
+      },
+      "flower_meaning": {
+        "ko": "뛰어난 아름다움"
+      },
+      "output_message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "match_rationale": {
+        "ko": "달콤한 꿀향의 소박한 꽃이 포근한 안정감을 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "95e0563a-7c72-5f68-8f0a-791f40346812",
+      "display_order": 15,
+      "emotion_code": "STABILITY",
+      "emotion_name": {
+        "ko": "안정"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "베들레헴"
+      },
+      "flower_meaning": {
+        "ko": "순수, 화해"
+      },
+      "output_message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "match_rationale": {
+        "ko": "순수하고 청초한 별 모양 꽃이 마음의 안정을 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "a5c76e91-588f-5db5-83ee-e184bd98ea4c",
+      "display_order": 16,
+      "emotion_code": "STABILITY",
+      "emotion_name": {
+        "ko": "안정"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "잉글리시라벤더"
+      },
+      "flower_meaning": {
+        "ko": "침묵, 기다림"
+      },
+      "output_message": {
+        "ko": "따뜻한 햇볕 아래 있는 것처럼 마음이 포근하고 안정적이에 요."
+      },
+      "match_rationale": {
+        "ko": "깊은 향의 라벤더로 고요한 안정감을 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "53f4ecce-ae34-53cd-9434-ea45e86a9156",
+      "display_order": 17,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "데이지"
+      },
+      "flower_meaning": {
+        "ko": "순수, 희망"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "소박하고 밝은 꽃이 여유로운 편안함을 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "cecd1ebd-3266-5b1a-a3fe-b384dce84089",
+      "display_order": 18,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "애플민트"
+      },
+      "flower_meaning": {
+        "ko": "미덕"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "상쾌한 사과 향이 여유로운 기분을 선사"
+      },
+      "active": true
+    },
+    {
+      "id": "35b27463-e911-531c-ba5f-9b25db1913c7",
+      "display_order": 19,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "리빙스턴데이지"
+      },
+      "flower_meaning": {
+        "ko": "나태, 게으름"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "꽃말이 느긋한 여유로움과 직접적으로 연결"
+      },
+      "active": true
+    },
+    {
+      "id": "40113ff4-be42-504b-a4c5-8c58becdf629",
+      "display_order": 20,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "애니시다"
+      },
+      "flower_meaning": {
+        "ko": "겸손, 청초"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "봄에 피어나는 밝은 꽃이 편안한 여유와 조화"
+      },
+      "active": true
+    },
+    {
+      "id": "8bd71b53-8bd8-5e15-a5ce-0ad5dc26a22e",
+      "display_order": 21,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "물망초"
+      },
+      "flower_meaning": {
+        "ko": "나를 잊지 마세요"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "서정적이고 잔잔한 분위기가 느긋한 상태와 어울림"
+      },
+      "active": true
+    },
+    {
+      "id": "bf63d621-da0b-5e2f-bacb-b185e5b2a63e",
+      "display_order": 22,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "아르메니아"
+      },
+      "flower_meaning": {
+        "ko": "공감, 동정"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "따뜻한 공감의 꽃말이 여유로운 마음과 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "7e3b4fce-972f-55c3-8f89-69c738471810",
+      "display_order": 23,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "단풍제라늄"
+      },
+      "flower_meaning": {
+        "ko": "위안, 진정한 우정"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "위안을 주는 꽃말이 편안하고 느긋한 상태를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "cd86eaf8-a7cb-5021-a183-52d3a3c1b26e",
+      "display_order": 24,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "설유화"
+      },
+      "flower_meaning": {
+        "ko": "애교, 청순"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "소복하게 피어나는 가벼운 느낌이 여유로움과 조화"
+      },
+      "active": true
+    },
+    {
+      "id": "7386eed6-7e90-552b-b444-cbe3f4d7a923",
+      "display_order": 25,
+      "emotion_code": "RELAXED",
+      "emotion_name": {
+        "ko": "느긋함"
+      },
+      "stress_min": 0,
+      "stress_max": 35,
+      "flower_name": {
+        "ko": "꽃담배"
+      },
+      "flower_meaning": {
+        "ko": "당신이 있어 외롭지 않습니다"
+      },
+      "output_message": {
+        "ko": "바람에 몸을 맡긴 풀잎처럼 여유롭고 편안한 상태에요."
+      },
+      "match_rationale": {
+        "ko": "저녁에 피는 향기로운 꽃이 편안한 느긋함을 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "e1b9665e-9383-5deb-986a-c3572461919d",
+      "display_order": 26,
+      "emotion_code": "JOY",
+      "emotion_name": {
+        "ko": "즐거움"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "튤립"
+      },
+      "flower_meaning": {
+        "ko": "사랑의 고백"
+      },
+      "output_message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "match_rationale": {
+        "ko": "화사하고 다채로운 색상이 기분 좋은 에너지를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "f88749b2-9ae3-5fdc-968a-5ab279bfaaad",
+      "display_order": 27,
+      "emotion_code": "JOY",
+      "emotion_name": {
+        "ko": "즐거움"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "팬지"
+      },
+      "flower_meaning": {
+        "ko": "나를 생각해 주세요"
+      },
+      "output_message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "match_rationale": {
+        "ko": "알록달록한 색감이 생기와 즐거움을 전달"
+      },
+      "active": true
+    },
+    {
+      "id": "6795f85a-fd05-5e7c-a258-38b7947ba8a1",
+      "display_order": 28,
+      "emotion_code": "JOY",
+      "emotion_name": {
+        "ko": "즐거움"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "페르시안데이지"
+      },
+      "flower_meaning": {
+        "ko": "즐거운 추억"
+      },
+      "output_message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "match_rationale": {
+        "ko": "꽃말 자체가 즐거움의 감정과 직접 연결"
+      },
+      "active": true
+    },
+    {
+      "id": "c5c9ad62-bb2d-5394-8995-dbd1af431428",
+      "display_order": 29,
+      "emotion_code": "JOY",
+      "emotion_name": {
+        "ko": "즐거움"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "마라고데쓰"
+      },
+      "flower_meaning": {
+        "ko": "운명을 여는 열쇠"
+      },
+      "output_message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "match_rationale": {
+        "ko": "환상적인 분위기의 꽃이 설레는 즐거움을 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "783c6845-06d5-5e37-ba0f-641bdbdeedd5",
+      "display_order": 30,
+      "emotion_code": "JOY",
+      "emotion_name": {
+        "ko": "즐거움"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "리나리아"
+      },
+      "flower_meaning": {
+        "ko": "환상, 이 사랑을 알아 주세요"
+      },
+      "output_message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "match_rationale": {
+        "ko": "앙증맞은 파스텔톤 꽃이 밝은 기분을 연출"
+      },
+      "active": true
+    },
+    {
+      "id": "94af5e08-ab1b-5e50-961a-51687a3b6599",
+      "display_order": 31,
+      "emotion_code": "JOY",
+      "emotion_name": {
+        "ko": "즐거움"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "금어초"
+      },
+      "flower_meaning": {
+        "ko": "욕망, 참견"
+      },
+      "output_message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "match_rationale": {
+        "ko": "알록달록한 색상이 풍성해 즐거운 분위기 연출"
+      },
+      "active": true
+    },
+    {
+      "id": "a0ee9211-4e8f-5924-bf68-914844ba5c76",
+      "display_order": 32,
+      "emotion_code": "JOY",
+      "emotion_name": {
+        "ko": "즐거움"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "후리지아"
+      },
+      "flower_meaning": {
+        "ko": "순결, 천진난만"
+      },
+      "output_message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "match_rationale": {
+        "ko": "천진난만한 꽃말과 달콤한 향이 즐거움과 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "b1893dc7-e2c6-5be3-845a-4f1e7f4e1607",
+      "display_order": 33,
+      "emotion_code": "JOY",
+      "emotion_name": {
+        "ko": "즐거움"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "웨이브페츄니아"
+      },
+      "flower_meaning": {
+        "ko": "당신의 곁에 있고 싶습니다"
+      },
+      "output_message": {
+        "ko": "마음 속에 기분 좋은 에너지가 있어요."
+      },
+      "match_rationale": {
+        "ko": "폭포처럼 쏟아지는 화려한 꽃이 기쁨의 에너지를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "61e39f1d-48b9-5c76-8afe-ecdf8a254c5b",
+      "display_order": 34,
+      "emotion_code": "CALM",
+      "emotion_name": {
+        "ko": "차분함"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "비올라"
+      },
+      "flower_meaning": {
+        "ko": "나를 잊지 마세요"
+      },
+      "output_message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "match_rationale": {
+        "ko": "작고 촘촘한 꽃이 차분하면서도 풍성한 조화를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "80783bde-2a27-58fe-8aac-1bcb0449bbc2",
+      "display_order": 35,
+      "emotion_code": "CALM",
+      "emotion_name": {
+        "ko": "차분함"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "수선화"
+      },
+      "flower_meaning": {
+        "ko": "자기 사랑, 신비"
+      },
+      "output_message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "match_rationale": {
+        "ko": "맑은 향기의 신비로운 꽃이 차분한 내면을 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "22a23430-a2f0-5d35-8d4e-bc6cd7351361",
+      "display_order": 36,
+      "emotion_code": "CALM",
+      "emotion_name": {
+        "ko": "차분함"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "샤스타데이지"
+      },
+      "flower_meaning": {
+        "ko": "인내"
+      },
+      "output_message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "match_rationale": {
+        "ko": "크고 깨끗한 흰 꽃이 차분한 인내의 아름다움을 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "ff01a782-7be7-59fb-be56-1e306a79d64d",
+      "display_order": 37,
+      "emotion_code": "CALM",
+      "emotion_name": {
+        "ko": "차분함"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "오스테오펄멈"
+      },
+      "flower_meaning": {
+        "ko": "무구, 순수"
+      },
+      "output_message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "match_rationale": {
+        "ko": "선명하면서도 깔끔한 꽃이 활기와 차분함의 조화를 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "8266ea5d-b1f2-53ff-8b7e-bde76a7e6f5e",
+      "display_order": 38,
+      "emotion_code": "CALM",
+      "emotion_name": {
+        "ko": "차분함"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "캄파눌라"
+      },
+      "flower_meaning": {
+        "ko": "감사, 성실"
+      },
+      "output_message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "match_rationale": {
+        "ko": "종 모양의 우아한 꽃이 성실하고 차분한 에너지를 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "48f85280-bd76-596e-909a-e428ee234fb3",
+      "display_order": 39,
+      "emotion_code": "CALM",
+      "emotion_name": {
+        "ko": "차분함"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "작약"
+      },
+      "flower_meaning": {
+        "ko": "부끄러움, 수줍음"
+      },
+      "output_message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "match_rationale": {
+        "ko": "풍성하지만 수줍은 매력이 차분한 감정 상태와 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "5db4fa3d-49d8-5d11-9aaa-ae29a572a93d",
+      "display_order": 40,
+      "emotion_code": "CALM",
+      "emotion_name": {
+        "ko": "차분함"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "보루니아"
+      },
+      "flower_meaning": {
+        "ko": "단아한 아름다움"
+      },
+      "output_message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "match_rationale": {
+        "ko": "단아한 꽃말이 차분함의 정서와 직접적으로 연결"
+      },
+      "active": true
+    },
+    {
+      "id": "f34d6385-c99f-56a2-ab98-cfc8cbffdc38",
+      "display_order": 41,
+      "emotion_code": "CALM",
+      "emotion_name": {
+        "ko": "차분함"
+      },
+      "stress_min": 36,
+      "stress_max": 55,
+      "flower_name": {
+        "ko": "이스라지"
+      },
+      "flower_meaning": {
+        "ko": "고독"
+      },
+      "output_message": {
+        "ko": "활기와 차분함이 조화를 이루고 있어요."
+      },
+      "match_rationale": {
+        "ko": "소박하고 정겨운 봄꽃이 고요한 차분함을 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "244694d4-e1f1-5514-928e-317229a381a3",
+      "display_order": 42,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "메리골드"
+      },
+      "flower_meaning": {
+        "ko": "반드시 오고야 말 행복"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "강렬한 주황·노랑 꽃이 밝은 에너지와 직결"
+      },
+      "active": true
+    },
+    {
+      "id": "7347f1b0-6ea6-5035-a790-20041f37a7a8",
+      "display_order": 43,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "가자니아"
+      },
+      "flower_meaning": {
+        "ko": "당신을 자랑스럽게 여깁니다"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "햇빛에 활짝 피는 꽃이 활력 넘치는 에너지를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "8d4a7fab-6023-51e7-af5d-79f8f578704f",
+      "display_order": 44,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "란타나"
+      },
+      "flower_meaning": {
+        "ko": "엄격, 확고한 마음"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "여러 색이 동시에 피어나는 활기찬 생명력 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "3a858f1f-d674-5aa4-b468-999dc05e6352",
+      "display_order": 45,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "백일홍"
+      },
+      "flower_meaning": {
+        "ko": "인연"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "100일간 지치지 않고 피는 화려한 꽃이 넘치는 생기를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "ee693c87-a90c-5a75-93ad-1975967be1d0",
+      "display_order": 46,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "산파첸스"
+      },
+      "flower_meaning": {
+        "ko": "나를 건드리지 마세요"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "크고 화려한 꽃이 여름 내내 풍성하게 피어 활력 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "439e7b11-29cb-5f23-8827-c8e70181829f",
+      "display_order": 47,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "버베나"
+      },
+      "flower_meaning": {
+        "ko": "가족의 화합, 단결"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "옹기종기 모인 꽃이 활기찬 에너지와 단결력을 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "30950794-4d37-5659-8a15-60bbf5d6a69b",
+      "display_order": 48,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "유리호프스"
+      },
+      "flower_meaning": {
+        "ko": "희망"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "사계절 피어나는 밝은 노란 꽃이 생기와 희망을 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "a1da3539-46fc-5ba2-aae0-b0fe45e0df8d",
+      "display_order": 49,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "지황"
+      },
+      "flower_meaning": {
+        "ko": "건강, 장수"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "건강과 장수의 꽃말이 넘치는 생명력과 활력에 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "632ceb40-df48-5915-9988-80aa356f217b",
+      "display_order": 50,
+      "emotion_code": "VITALITY",
+      "emotion_name": {
+        "ko": "활력"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "메리골드(잉카)"
+      },
+      "flower_meaning": {
+        "ko": "건강, 장수"
+      },
+      "output_message": {
+        "ko": "생기가 넘쳐서 당신의 밝은 에너지가 주변을 밝히고 있어요."
+      },
+      "match_rationale": {
+        "ko": "크고 풍성한 황금빛 겹꽃이 당당한 활력을 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "48cbcfdf-8a41-5151-973a-8add55509995",
+      "display_order": 51,
+      "emotion_code": "FOCUS",
+      "emotion_name": {
+        "ko": "집중"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "로벨리아"
+      },
+      "flower_meaning": {
+        "ko": "악의, 겸손"
+      },
+      "output_message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "match_rationale": {
+        "ko": "시원한 파란빛이 맑고 선명한 정신 상태를 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "58ada40f-5d52-563f-a473-0a9b17a8b47a",
+      "display_order": 52,
+      "emotion_code": "FOCUS",
+      "emotion_name": {
+        "ko": "집중"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "무스카리"
+      },
+      "flower_meaning": {
+        "ko": "실망, 절망 속의 희망"
+      },
+      "output_message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "match_rationale": {
+        "ko": "보라빛 꽃의 집중된 형태가 선명한 정신을 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "3f10e6f2-c3eb-5f6e-a83b-02816dd1c9d7",
+      "display_order": 53,
+      "emotion_code": "FOCUS",
+      "emotion_name": {
+        "ko": "집중"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "로즈마리"
+      },
+      "flower_meaning": {
+        "ko": "나를 기억해 주세요"
+      },
+      "output_message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "match_rationale": {
+        "ko": "집중력·기억력 향상 효과로 유명한 허브, 집중과 직결"
+      },
+      "active": true
+    },
+    {
+      "id": "42d41870-be6a-5084-a8fe-13be2b2814e1",
+      "display_order": 54,
+      "emotion_code": "FOCUS",
+      "emotion_name": {
+        "ko": "집중"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "백리향"
+      },
+      "flower_meaning": {
+        "ko": "용기, 활동력"
+      },
+      "output_message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "match_rationale": {
+        "ko": "깊은 향이 정신을 맑게 하여 집중력 향상과 연결"
+      },
+      "active": true
+    },
+    {
+      "id": "f9946043-d4a6-57c6-9e09-c8c48a390c10",
+      "display_order": 55,
+      "emotion_code": "FOCUS",
+      "emotion_name": {
+        "ko": "집중"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "델피늄"
+      },
+      "flower_meaning": {
+        "ko": "청명, 자유"
+      },
+      "output_message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "match_rationale": {
+        "ko": "청명한 꽃말이 맑고 선명한 정신 상태를 직접 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "f66a442b-cc7a-5bcc-aad7-c1635727a6ba",
+      "display_order": 56,
+      "emotion_code": "FOCUS",
+      "emotion_name": {
+        "ko": "집중"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "델피늄치어블루"
+      },
+      "flower_meaning": {
+        "ko": "청명, 행복한 마음"
+      },
+      "output_message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "match_rationale": {
+        "ko": "선명한 파란색이 맑은 정신과 집중력을 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "c851eb6a-6476-5c60-b42e-44095a6f125a",
+      "display_order": 57,
+      "emotion_code": "FOCUS",
+      "emotion_name": {
+        "ko": "집중"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "천궁"
+      },
+      "flower_meaning": {
+        "ko": "건강, 치유"
+      },
+      "output_message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "match_rationale": {
+        "ko": "한방 약용식물의 집중적 효능이 맑은 정신과 연결"
+      },
+      "active": true
+    },
+    {
+      "id": "55929326-4ffa-5ccf-ba6f-75dcae5dee86",
+      "display_order": 58,
+      "emotion_code": "FOCUS",
+      "emotion_name": {
+        "ko": "집중"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "황기"
+      },
+      "flower_meaning": {
+        "ko": "건강, 생명력"
+      },
+      "output_message": {
+        "ko": "정신이 아주 맑고 선명해요."
+      },
+      "match_rationale": {
+        "ko": "면역력 강화 약재로서 정신의 선명함·활력과 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "6b765856-ca59-5344-a342-c0b8e7fd234c",
+      "display_order": 59,
+      "emotion_code": "IMMERSION",
+      "emotion_name": {
+        "ko": "몰입"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "스토크"
+      },
+      "flower_meaning": {
+        "ko": "영원한 아름다움"
+      },
+      "output_message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "match_rationale": {
+        "ko": "겹겹이 피어나는 꽃이 깊이 빠져드는 아름다운 세계를 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "44b988c7-b055-5300-9871-54c18ba968fa",
+      "display_order": 60,
+      "emotion_code": "IMMERSION",
+      "emotion_name": {
+        "ko": "몰입"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "라넌쿨러스"
+      },
+      "flower_meaning": {
+        "ko": "매력적, 빛나는 매력"
+      },
+      "output_message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "match_rationale": {
+        "ko": "겹겹이 쌓인 꽃잎이 빠져드는 매력을 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "21627e1b-e3c4-5fb7-9e0e-e6901352aca5",
+      "display_order": 61,
+      "emotion_code": "IMMERSION",
+      "emotion_name": {
+        "ko": "몰입"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "수국"
+      },
+      "flower_meaning": {
+        "ko": "변덕, 진심"
+      },
+      "output_message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "match_rationale": {
+        "ko": "풍성한 꽃송이로 가득 채우는 모습이 몰입의 세계를 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "d3f12c80-1dad-5d33-a121-8073af59df5d",
+      "display_order": 62,
+      "emotion_code": "IMMERSION",
+      "emotion_name": {
+        "ko": "몰입"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "디기탈리스"
+      },
+      "flower_meaning": {
+        "ko": "열애, 불성실"
+      },
+      "output_message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "match_rationale": {
+        "ko": "동화 속 풍경 같은 꽃이 깊이 빠져드는 몰입감을 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "7f06dabb-eb19-5826-8a8b-7fd3bf6d4849",
+      "display_order": 63,
+      "emotion_code": "IMMERSION",
+      "emotion_name": {
+        "ko": "몰입"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "금낭화"
+      },
+      "flower_meaning": {
+        "ko": "당신을 따르겠습니다"
+      },
+      "output_message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "match_rationale": {
+        "ko": "하트 모양 꽃이 사랑스러운 몰입의 세계를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "7fecd3b2-27c0-5652-81f9-82632ae0a1d8",
+      "display_order": 64,
+      "emotion_code": "IMMERSION",
+      "emotion_name": {
+        "ko": "몰입"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "헬리크리섬"
+      },
+      "flower_meaning": {
+        "ko": "영원한 기억, 불멸의 사랑"
+      },
+      "output_message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "match_rationale": {
+        "ko": "영원히 보존되는 꽃이 깊은 몰입의 영속성을 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "ad37f35f-c35b-5743-a3f1-ddc9906342c4",
+      "display_order": 65,
+      "emotion_code": "IMMERSION",
+      "emotion_name": {
+        "ko": "몰입"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "라난큐런스"
+      },
+      "flower_meaning": {
+        "ko": "매우 매력적"
+      },
+      "output_message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "match_rationale": {
+        "ko": "화려한 겹꽃이 빠져드는 아름다운 세계를 연출"
+      },
+      "active": true
+    },
+    {
+      "id": "490118bc-9721-5006-a8f0-f1b7d288d0e7",
+      "display_order": 66,
+      "emotion_code": "IMMERSION",
+      "emotion_name": {
+        "ko": "몰입"
+      },
+      "stress_min": 56,
+      "stress_max": 70,
+      "flower_name": {
+        "ko": "꽃수국"
+      },
+      "flower_meaning": {
+        "ko": "변덕, 처녀의 꿈"
+      },
+      "output_message": {
+        "ko": "깊이 빠져 당신만의 아름다운 세계가 피어나고 있어요."
+      },
+      "match_rationale": {
+        "ko": "풍성한 장식꽃이 꿈같은 몰입의 세계를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "7347449a-d36a-5d06-aaa2-6518ee03df1d",
+      "display_order": 67,
+      "emotion_code": "ELEVATION",
+      "emotion_name": {
+        "ko": "고조"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "금잔화"
+      },
+      "flower_meaning": {
+        "ko": "이별의 슬픔"
+      },
+      "output_message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "match_rationale": {
+        "ko": "밝은 주황빛이 강렬한 감정의 고조를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "f1c0ac30-3f69-5a01-a61a-dfe1b95beba9",
+      "display_order": 68,
+      "emotion_code": "ELEVATION",
+      "emotion_name": {
+        "ko": "고조"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "꽃양귀비"
+      },
+      "flower_meaning": {
+        "ko": "위안, 망각"
+      },
+      "output_message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "match_rationale": {
+        "ko": "선명하고 강렬한 색감이 고조된 감정의 에너지를 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "91e6ccbc-a99a-55f7-a54b-aebae6afc6ca",
+      "display_order": 69,
+      "emotion_code": "ELEVATION",
+      "emotion_name": {
+        "ko": "고조"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "루피너스"
+      },
+      "flower_meaning": {
+        "ko": "모성애, 탐욕"
+      },
+      "output_message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "match_rationale": {
+        "ko": "탑처럼 층층이 피어오르는 형태가 고조되는 에너지를 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "bc7995b1-bae7-5bce-a51d-f6754cb1a67a",
+      "display_order": 70,
+      "emotion_code": "ELEVATION",
+      "emotion_name": {
+        "ko": "고조"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "다알리아"
+      },
+      "flower_meaning": {
+        "ko": "우아함, 감사"
+      },
+      "output_message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "match_rationale": {
+        "ko": "크고 화려한 꽃의 여왕이 절정의 에너지를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "d4664640-0182-5ce5-bdb7-8a34ecdc2032",
+      "display_order": 71,
+      "emotion_code": "ELEVATION",
+      "emotion_name": {
+        "ko": "고조"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "만데빌라"
+      },
+      "flower_meaning": {
+        "ko": "위험한 매력"
+      },
+      "output_message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "match_rationale": {
+        "ko": "열대 덩굴꽃의 화려함이 넘치는 에너지를 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "d1ae6fed-441d-50dd-a162-c482e22bfbe4",
+      "display_order": 72,
+      "emotion_code": "ELEVATION",
+      "emotion_name": {
+        "ko": "고조"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "알리움"
+      },
+      "flower_meaning": {
+        "ko": "무한한 슬픔, 번영"
+      },
+      "output_message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "match_rationale": {
+        "ko": "둥근 공 모양의 독특한 꽃이 번영·고조를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "1a2e4265-5f5b-5dff-b6c0-85b45293d8a9",
+      "display_order": 73,
+      "emotion_code": "ELEVATION",
+      "emotion_name": {
+        "ko": "고조"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "아네모네"
+      },
+      "flower_meaning": {
+        "ko": "기대, 사라져 가는 희망"
+      },
+      "output_message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "match_rationale": {
+        "ko": "바람에 흔들리는 강렬한 꽃이 고조된 감정을 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "6bfb43ea-00fc-54b8-b4b1-a7cde517a89e",
+      "display_order": 74,
+      "emotion_code": "ELEVATION",
+      "emotion_name": {
+        "ko": "고조"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "이탈리아사이프러스"
+      },
+      "flower_meaning": {
+        "ko": "죽음과 애도, 영원"
+      },
+      "output_message": {
+        "ko": "꽃들이 일제히 피어난 것처럼 에너지가 흘러 넘쳐요."
+      },
+      "match_rationale": {
+        "ko": "수직으로 솟아오르는 형태가 고조되는 에너지를 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "e832f1cb-f2f0-5120-b86f-609a9e2ae7f8",
+      "display_order": 75,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "마가렛"
+      },
+      "flower_meaning": {
+        "ko": "진실한 사랑"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "진실한 사랑의 꽃말이 강인한 열정과 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "fe319d84-b688-514f-b200-42b1e7204b55",
+      "display_order": 76,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "숙근사루비아"
+      },
+      "flower_meaning": {
+        "ko": "가족애, 정열"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "정열의 꽃말이 열정의 감정과 직접적으로 연결"
+      },
+      "active": true
+    },
+    {
+      "id": "0af16830-b807-5c7c-9b7c-51bac4af1b13",
+      "display_order": 77,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "안젤로니아"
+      },
+      "flower_meaning": {
+        "ko": "사랑을 고합니다"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "사랑을 고백하는 열정적 꽃말이 감정 상태와 부합"
+      },
+      "active": true
+    },
+    {
+      "id": "7713710f-2fb3-5770-a6b9-c945ce134094",
+      "display_order": 78,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "매발톱"
+      },
+      "flower_meaning": {
+        "ko": "승리의 맹세"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "승리를 향한 맹세가 강인한 열정을 직접 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "b5187a70-1db9-5ccc-b027-1510368481ba",
+      "display_order": 79,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "아이리스"
+      },
+      "flower_meaning": {
+        "ko": "희망, 지혜, 용기"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "용기의 꽃말이 강인한 열정과 직결"
+      },
+      "active": true
+    },
+    {
+      "id": "bcd52398-14db-5a55-be47-7314ae06e72c",
+      "display_order": 80,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "왁스프라워"
+      },
+      "flower_meaning": {
+        "ko": "나만 바라봐 주세요"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "간절한 꽃말이 열정적 감정 에너지를 표현"
+      },
+      "active": true
+    },
+    {
+      "id": "325841d8-20b7-5b0b-9ef1-0c74dcbb7c9e",
+      "display_order": 81,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "쟈스민"
+      },
+      "flower_meaning": {
+        "ko": "사랑스러움, 우아함"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "밤에 더 강한 향을 내뿜는 매혹적 열정을 상징"
+      },
+      "active": true
+    },
+    {
+      "id": "f978fd3d-dcf8-5cac-b5e2-6f5e44dd3973",
+      "display_order": 82,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "수수꽃다리"
+      },
+      "flower_meaning": {
+        "ko": "젊은 날의 추억"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "봄의 달콤한 향기가 젊은 열정을 연상"
+      },
+      "active": true
+    },
+    {
+      "id": "80899876-a35c-5b8c-a3f6-f22121bbe274",
+      "display_order": 83,
+      "emotion_code": "PASSION",
+      "emotion_name": {
+        "ko": "열정"
+      },
+      "stress_min": 71,
+      "stress_max": 100,
+      "flower_name": {
+        "ko": "참당귀"
+      },
+      "flower_meaning": {
+        "ko": "건강한 회복"
+      },
+      "output_message": {
+        "ko": "누구보다 강인한 열정으로 가득 찼어요."
+      },
+      "match_rationale": {
+        "ko": "강인한 약용식물의 회복력이 열정적 에너지와 부합"
+      },
+      "active": true
+    }
+  ]
+}
