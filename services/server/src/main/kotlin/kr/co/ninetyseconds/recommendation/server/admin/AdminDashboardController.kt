@@ -1,6 +1,8 @@
 package kr.co.ninetyseconds.recommendation.server.admin
 
+import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.GetMapping
@@ -32,39 +34,37 @@ data class RecentRecommendation(
 
 data class AdminDashboard(
     val projectCode: String,
+    val date: LocalDate,
+    val overallSummary: DashboardSummary,
     val summary: DashboardSummary,
+    val previousSummary: DashboardSummary,
     val emotions: List<NamedCount>,
     val recent: List<RecentRecommendation>,
 )
 
 @Repository
 class AdminDashboardQuery(private val jdbc: JdbcClient) {
-    fun load(projectCode: String): AdminDashboard {
-        val summary = jdbc.sql(
-            """
-            select count(*) as total,
-                   coalesce(sum(case when consent_status = 'CONSENTED' then 1 else 0 end), 0) as consented,
-                   coalesce(sum(case when consent_status = 'DECLINED' then 1 else 0 end), 0) as declined,
-                   coalesce(sum(case when consent_status = 'NOT_ASKED' then 1 else 0 end), 0) as not_asked,
-                   coalesce(avg(stress_score), 0) as average_stress
-            from recommendation_events where project_code = :projectCode
-            """.trimIndent(),
-        ).param("projectCode", projectCode).query { rs, _ ->
-            DashboardSummary(
-                rs.getLong("total"), rs.getLong("consented"), rs.getLong("declined"),
-                rs.getLong("not_asked"), rs.getDouble("average_stress"),
-            )
-        }.single()
+    fun load(projectCode: String, date: LocalDate): AdminDashboard {
+        val zone = ZoneId.of("Asia/Seoul")
+        val start = date.atStartOfDay(zone).toOffsetDateTime()
+        val end = date.plusDays(1).atStartOfDay(zone).toOffsetDateTime()
+        val previousStart = date.minusDays(1).atStartOfDay(zone).toOffsetDateTime()
+        val overallSummary = loadOverallSummary(projectCode)
+        val summary = loadSummary(projectCode, start, end)
+        val previousSummary = loadSummary(projectCode, previousStart, start)
         val emotions = jdbc.sql(
             """select emotion_code, count(*) as count from recommendation_events
-               where project_code = :projectCode group by emotion_code order by count desc, emotion_code""",
-        ).param("projectCode", projectCode).query { rs, _ -> NamedCount(rs.getString(1), rs.getLong(2)) }.list()
+               where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
+               group by emotion_code order by count desc, emotion_code""",
+        ).param("projectCode", projectCode).param("start", start).param("end", end)
+            .query { rs, _ -> NamedCount(rs.getString(1), rs.getLong(2)) }.list()
         val recent = jdbc.sql(
             """select occurred_at, kiosk_id, emotion_code, consent_status, stress_score, source,
                       participant_name, participant_phone, participant_birth_date, participant_gender
-               from recommendation_events where project_code = :projectCode
+               from recommendation_events
+               where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
                order by occurred_at desc limit 20""",
-        ).param("projectCode", projectCode).query { rs, _ ->
+        ).param("projectCode", projectCode).param("start", start).param("end", end).query { rs, _ ->
             RecentRecommendation(
                 rs.getObject("occurred_at", OffsetDateTime::class.java), rs.getString("kiosk_id"),
                 rs.getString("emotion_code"), rs.getString("consent_status"),
@@ -73,7 +73,43 @@ class AdminDashboardQuery(private val jdbc: JdbcClient) {
                 rs.getString("participant_birth_date"), rs.getString("participant_gender"),
             )
         }.list()
-        return AdminDashboard(projectCode, summary, emotions, recent)
+        return AdminDashboard(projectCode, date, overallSummary, summary, previousSummary, emotions, recent)
+    }
+
+    private fun loadOverallSummary(projectCode: String): DashboardSummary = jdbc.sql(
+        """
+        select count(*) as total,
+               coalesce(sum(case when consent_status = 'CONSENTED' then 1 else 0 end), 0) as consented,
+               coalesce(sum(case when consent_status = 'DECLINED' then 1 else 0 end), 0) as declined,
+               coalesce(sum(case when consent_status = 'NOT_ASKED' then 1 else 0 end), 0) as not_asked,
+               coalesce(avg(stress_score), 0) as average_stress
+        from recommendation_events where project_code = :projectCode
+        """.trimIndent(),
+    ).param("projectCode", projectCode).query { rs, _ ->
+        DashboardSummary(
+            rs.getLong("total"), rs.getLong("consented"), rs.getLong("declined"),
+            rs.getLong("not_asked"), rs.getDouble("average_stress"),
+        )
+    }.single()
+
+    private fun loadSummary(projectCode: String, start: OffsetDateTime, end: OffsetDateTime): DashboardSummary {
+        val summary = jdbc.sql(
+            """
+            select count(*) as total,
+                   coalesce(sum(case when consent_status = 'CONSENTED' then 1 else 0 end), 0) as consented,
+                   coalesce(sum(case when consent_status = 'DECLINED' then 1 else 0 end), 0) as declined,
+                   coalesce(sum(case when consent_status = 'NOT_ASKED' then 1 else 0 end), 0) as not_asked,
+                   coalesce(avg(stress_score), 0) as average_stress
+            from recommendation_events
+            where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
+            """.trimIndent(),
+        ).param("projectCode", projectCode).param("start", start).param("end", end).query { rs, _ ->
+            DashboardSummary(
+                rs.getLong("total"), rs.getLong("consented"), rs.getLong("declined"),
+                rs.getLong("not_asked"), rs.getDouble("average_stress"),
+            )
+        }.single()
+        return summary
     }
 
     private fun maskPhone(phone: String?): String? = phone?.let {
@@ -85,5 +121,8 @@ class AdminDashboardQuery(private val jdbc: JdbcClient) {
 @RequestMapping("/api/v1/admin")
 class AdminDashboardController(private val dashboard: AdminDashboardQuery) {
     @GetMapping("/dashboard")
-    fun dashboard(@RequestParam projectCode: String): AdminDashboard = dashboard.load(projectCode)
+    fun dashboard(
+        @RequestParam projectCode: String,
+        @RequestParam(required = false) date: LocalDate?,
+    ): AdminDashboard = dashboard.load(projectCode, date ?: LocalDate.now(ZoneId.of("Asia/Seoul")))
 }

@@ -10,17 +10,18 @@
   <main>
     <header>
       <div><p class="eyebrow">TAEAN FLOWER · OPERATIONS</p><h1>꽃 추천 운영 대시보드</h1></div>
-      <div class="controls"><input id="project" value="taean" aria-label="프로젝트 코드"><button id="refresh">새로고침</button></div>
+      <div class="controls"><input id="project" value="taean" aria-label="프로젝트 코드"><input id="date" type="date" aria-label="집계 기준일"><button id="refresh">새로고침</button></div>
     </header>
     <p class="notice">동의 사용자의 입력 정보만 표시하며 전화번호는 마스킹됩니다. 미동의 사용자는 개인정보를 저장하지 않습니다.</p>
+    <section class="panel" style="margin-top:14px;display:flex;align-items:baseline;gap:12px"><span>박람회 누적 총계</span><strong id="overallTotal" style="font-family:Georgia,serif;font-size:42px">–</strong><small>건</small></section>
     <section class="cards">
-      <article><span>전체 추천</span><strong id="total">–</strong></article>
-      <article class="green"><span>개인정보 동의</span><strong id="consented">–</strong><small id="consentRate">–</small></article>
-      <article class="orange"><span>개인정보 미동의</span><strong id="declined">–</strong></article>
-      <article><span>평균 스트레스</span><strong id="stress">–</strong><small>/ 100</small></article>
+      <article><span>선택일 추천</span><strong id="total">–</strong><small id="totalDelta" class="delta">–</small></article>
+      <article class="green"><span>개인정보 동의</span><strong id="consented">–</strong><small id="consentRate">–</small><small id="consentedDelta" class="delta">–</small></article>
+      <article class="orange"><span>개인정보 미동의</span><strong id="declined">–</strong><small id="declinedDelta" class="delta">–</small></article>
+      <article><span>평균 스트레스</span><strong id="stress">–</strong><small>/ 100</small><small id="stressDelta" class="delta">–</small></article>
     </section>
     <section class="grid">
-      <article class="panel"><div class="panel-title"><h2>감정별 추천</h2><span>누적</span></div><div id="emotions" class="bars"></div></article>
+      <article class="panel"><div class="panel-title"><h2>감정별 추천</h2><span id="summaryDate">–</span></div><div id="emotions" class="bars"></div></article>
       <article class="panel"><div class="panel-title"><h2>동의 상태 구성</h2><span>익명</span></div><div id="consentChart" class="donut-wrap"></div></article>
     </section>
     <section class="panel table-panel"><div class="panel-title"><h2>최근 추천</h2><span id="updated">–</span></div>

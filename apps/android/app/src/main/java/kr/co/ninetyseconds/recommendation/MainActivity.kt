@@ -64,6 +64,7 @@ private sealed interface AppState {
         val consentStatus: ConsentStatus,
         val participant: ParticipantProfile?,
     ) : AppState
+    data class Analyzing(val config: ProjectConfiguration) : AppState
     data class Result(val config: ProjectConfiguration, val label: String, val stress: Int, val decision: RecommendationDecision) : AppState
     data class MapGuide(val config: ProjectConfiguration, val decision: RecommendationDecision) : AppState
     data class Failed(val message: String, val config: ProjectConfiguration? = null) : AppState
@@ -88,6 +89,7 @@ fun RecommendationApp(container: AppContainer) {
             is AppState.Measuring -> MeasurementScreen(
                 current.config,
                 onComplete = { label, stress -> scope.launch {
+                    state = AppState.Analyzing(current.config)
                     state = runCatching {
                         val emotion = current.config.mapAnalysisLabel(label, stress)
                         AppState.Result(current.config, label, stress, container.recommend(emotion, stress, current.consentStatus, current.participant))
@@ -95,6 +97,13 @@ fun RecommendationApp(container: AppContainer) {
                 } },
                 onCancel = { state = AppState.Home(current.config) },
             )
+            is AppState.Analyzing -> Centered {
+                CircularProgressIndicator()
+                Spacer(Modifier.height(20.dp))
+                Text("분석 중입니다", style = MaterialTheme.typography.headlineMedium)
+                Spacer(Modifier.height(8.dp))
+                Text("추천 결과를 불러오고 있습니다.\n잠시만 기다려 주세요.")
+            }
             is AppState.Result -> ResultScreen(
                 current,
                 onShowMap = { state = AppState.MapGuide(current.config, current.decision) },
@@ -318,25 +327,18 @@ private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onResta
 @Composable
 private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
     val location = result.config.catalog.locations.first { it.id == result.decision.item.locationId }
-    var scale by remember { mutableFloatStateOf(1f) }
+    var scale by remember { mutableFloatStateOf(1.2f) }
     var translation by remember { mutableStateOf(Offset.Zero) }
     val dashPhase by rememberInfiniteTransition(label = "route-dashes").animateFloat(
         initialValue = 0f,
-        targetValue = 48f,
+        targetValue = -48f,
         animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing), RepeatMode.Restart),
         label = "route-dash-phase",
     )
-    Scaffold(
-        bottomBar = {
-            Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-                Button(onClick = onFinish) { Text("처음으로") }
-            }
-        },
-    ) { padding ->
-        BoxWithConstraints(
-            Modifier.fillMaxSize().padding(padding).background(Color(0xFFF3ECEF)).clipToBounds(),
-            contentAlignment = Alignment.Center,
-        ) {
+    BoxWithConstraints(
+        Modifier.fillMaxSize().background(Color(0xFFF3ECEF)).clipToBounds(),
+        contentAlignment = Alignment.Center,
+    ) {
             val mapAspect = 1208f / 740f
             val mapWidth = if (maxWidth / maxHeight > mapAspect) maxHeight * mapAspect else maxWidth
             val mapHeight = mapWidth / mapAspect
@@ -350,8 +352,15 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                     }
                     .pointerInput(Unit) {
                         detectTransformGestures { _, pan, zoom, _ ->
-                            scale = (scale * zoom).coerceIn(1f, 4f)
-                            translation += pan
+                            val nextScale = (scale * zoom).coerceIn(1f, 4f)
+                            val maxTranslationX = size.width * (nextScale - 1f) / 2f
+                            val maxTranslationY = size.height * (nextScale - 1f) / 2f
+                            val nextTranslation = translation + pan
+                            scale = nextScale
+                            translation = Offset(
+                                x = nextTranslation.x.coerceIn(-maxTranslationX, maxTranslationX),
+                                y = nextTranslation.y.coerceIn(-maxTranslationY, maxTranslationY),
+                            )
                         }
                     },
             ) {
@@ -395,8 +404,11 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                 "두 손가락으로 확대 · 한 손가락으로 이동",
                 modifier = Modifier.align(Alignment.BottomCenter).background(Color(0xBBFFFFFF)).padding(8.dp),
             )
+            Button(
+                onClick = onFinish,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            ) { Text("처음으로") }
         }
-    }
 }
 
 private fun inferredWalkingRoute(locationCode: String, targetX: Double, targetY: Double): List<Offset> {
