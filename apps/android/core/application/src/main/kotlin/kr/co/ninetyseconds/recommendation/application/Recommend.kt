@@ -19,7 +19,7 @@ class Recommend(
                 ?: request.excludedLocationIds,
         )
         val decision = engine.recommend(enrichedRequest)
-        eventSink.record(decision)
+        eventSink.record(enrichedRequest, decision)
         return decision
     }
 }

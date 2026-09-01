@@ -58,9 +58,18 @@ internal data class ItemEmotionEntity(val itemId: String, val emotionCode: Strin
 )
 internal data class RecommendationEventEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val eventId: String,
     val requestId: String,
+    val projectCode: String,
+    val kioskId: String,
+    val sessionId: String,
+    val emotionCode: String,
     val itemId: String,
     val locationId: String,
     val source: String,
+    val consentStatus: String,
+    val stressScore: Int,
+    val policyVersion: String,
     val decidedAtEpochMillis: Long,
+    val synced: Boolean,
 )

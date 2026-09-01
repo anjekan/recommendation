@@ -35,7 +35,7 @@ class RecommendTest {
                 expected
             },
             eventSink = object : RecommendationEventSink {
-                override suspend fun record(decision: RecommendationDecision) {
+                override suspend fun record(request: RecommendationRequest, decision: RecommendationDecision) {
                     recorded = decision
                 }
             },
@@ -63,7 +63,7 @@ class RecommendTest {
                 expected
             },
             eventSink = object : RecommendationEventSink {
-                override suspend fun record(decision: RecommendationDecision) = Unit
+                override suspend fun record(request: RecommendationRequest, decision: RecommendationDecision) = Unit
             },
             history = object : RecommendationHistory {
                 override suspend fun recentLocationIds(limit: Int) = listOf(LocationId("location-stored")).take(limit)

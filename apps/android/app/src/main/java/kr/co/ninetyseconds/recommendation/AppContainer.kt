@@ -11,6 +11,7 @@ import kr.co.ninetyseconds.recommendation.application.RuntimeRecommendationEngin
 import kr.co.ninetyseconds.recommendation.data.config.ProjectConfigImporter
 import kr.co.ninetyseconds.recommendation.data.local.LocalDataStore
 import kr.co.ninetyseconds.recommendation.data.remote.HttpRecommendationEngine
+import kr.co.ninetyseconds.recommendation.data.remote.HttpRecommendationEventSync
 import kr.co.ninetyseconds.recommendation.domain.EmotionCode
 import kr.co.ninetyseconds.recommendation.domain.ConsentStatus
 import kr.co.ninetyseconds.recommendation.domain.EmotionProfile
@@ -54,6 +55,7 @@ class AppContainer(
         val imported = importer.import(json, preferredLanguage)
         localData.projectCatalog.replace(imported.catalog)
         configuration = imported
+        syncPendingEvents()
         return imported
     }
 
@@ -72,7 +74,7 @@ class AppContainer(
         participant: ParticipantProfile? = null,
     ): RecommendationDecision {
         val config = configuration ?: start()
-        return recommendUseCase(
+        val decision = recommendUseCase(
             RecommendationRequest(
                 requestId = UUID.randomUUID().toString(),
                 projectId = config.catalog.projectId,
@@ -86,5 +88,17 @@ class AppContainer(
                 participant = participant,
             ),
         )
+        syncPendingEvents()
+        return decision
+    }
+
+    private suspend fun syncPendingEvents() {
+        val settings = runtimeSettings.load()
+        if (settings.mode == RuntimeMode.LOCAL) return
+        runCatching {
+            val pending = localData.recommendationEvents.pending(limit = 100)
+            val accepted = HttpRecommendationEventSync(settings.serverBaseUrl, settings.kioskKey).sync(pending)
+            localData.recommendationEvents.markSynced(accepted)
+        }
     }
 }
