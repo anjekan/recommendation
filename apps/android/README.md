@@ -1,5 +1,15 @@
 # Android Client
 
+## 서버 연동 빌드
+
+기본 서버 주소는 `http://183.96.45.33:18080`이다. 다른 서버를 사용할 때는 소스를 수정하지 않고 Gradle 속성이나 환경변수로 덮어쓴다.
+
+```powershell
+.\gradlew.bat assembleDebug -PrecommendationBaseUrl=http://192.168.0.62:8080 -PkioskKey=LOCAL-DEVELOPMENT
+```
+
+환경변수 `RECOMMENDATION_BASE_URL`, `KIOSK_KEY`도 같은 용도로 사용할 수 있다.
+
 현재 우선 구현 대상인 범용 Android 키오스크 클라이언트다.
 
 ## 예정 기술

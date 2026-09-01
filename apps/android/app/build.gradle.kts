@@ -3,6 +3,13 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val recommendationBaseUrl = providers.gradleProperty("recommendationBaseUrl")
+    .orElse(providers.environmentVariable("RECOMMENDATION_BASE_URL"))
+    .orElse("http://183.96.45.33:18080")
+val kioskKey = providers.gradleProperty("kioskKey")
+    .orElse(providers.environmentVariable("KIOSK_KEY"))
+    .orElse("LOCAL-DEVELOPMENT")
+
 android {
     namespace = "kr.co.ninetyseconds.recommendation"
     compileSdk {
@@ -17,8 +24,8 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "RECOMMENDATION_BASE_URL", "\"http://192.168.45.18:8080\"")
-        buildConfigField("String", "KIOSK_KEY", "\"LOCAL-DEVELOPMENT\"")
+        buildConfigField("String", "RECOMMENDATION_BASE_URL", "\"${recommendationBaseUrl.get()}\"")
+        buildConfigField("String", "KIOSK_KEY", "\"${kioskKey.get()}\"")
     }
 
     buildTypes {
