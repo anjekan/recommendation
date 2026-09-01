@@ -19,6 +19,7 @@ data class DashboardSummary(
 )
 
 data class NamedCount(val name: String, val count: Long)
+data class LocationCount(val locationId: String, val count: Long)
 data class RecentRecommendation(
     val occurredAt: OffsetDateTime,
     val kioskId: String,
@@ -39,6 +40,7 @@ data class AdminDashboard(
     val summary: DashboardSummary,
     val previousSummary: DashboardSummary,
     val emotions: List<NamedCount>,
+    val locations: List<LocationCount>,
     val recent: List<RecentRecommendation>,
 )
 
@@ -58,6 +60,12 @@ class AdminDashboardQuery(private val jdbc: JdbcClient) {
                group by emotion_code order by count desc, emotion_code""",
         ).param("projectCode", projectCode).param("start", start).param("end", end)
             .query { rs, _ -> NamedCount(rs.getString(1), rs.getLong(2)) }.list()
+        val locations = jdbc.sql(
+            """select location_id, count(*) as count from recommendation_events
+               where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
+               group by location_id order by count desc, location_id""",
+        ).param("projectCode", projectCode).param("start", start).param("end", end)
+            .query { rs, _ -> LocationCount(rs.getString(1), rs.getLong(2)) }.list()
         val recent = jdbc.sql(
             """select occurred_at, kiosk_id, emotion_code, consent_status, stress_score, source,
                       participant_name, participant_phone, participant_birth_date, participant_gender
@@ -73,7 +81,7 @@ class AdminDashboardQuery(private val jdbc: JdbcClient) {
                 rs.getString("participant_birth_date"), rs.getString("participant_gender"),
             )
         }.list()
-        return AdminDashboard(projectCode, date, overallSummary, summary, previousSummary, emotions, recent)
+        return AdminDashboard(projectCode, date, overallSummary, summary, previousSummary, emotions, locations, recent)
     }
 
     private fun loadOverallSummary(projectCode: String): DashboardSummary = jdbc.sql(
