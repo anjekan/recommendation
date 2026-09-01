@@ -1,6 +1,8 @@
 package kr.co.ninetyseconds.recommendation.server.recommendation
 
 import java.time.Clock
+import java.time.Duration
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -11,6 +13,7 @@ import kr.co.ninetyseconds.recommendation.server.event.RecommendationEvent
 import kr.co.ninetyseconds.recommendation.server.event.RecommendationEventStore
 import kr.co.ninetyseconds.recommendation.server.event.RecommendationSource
 import org.springframework.stereotype.Service
+import org.springframework.beans.factory.annotation.Value
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
 
@@ -40,7 +43,7 @@ data class RecommendationResult(
     val location: JsonNode,
     val display: RecommendationDisplay,
     val source: String = "REMOTE",
-    val policyVersion: String = "balanced-v1",
+    val policyVersion: String = "balanced-v2",
     val reasons: List<String>,
     val createdAt: OffsetDateTime,
 )
@@ -48,12 +51,19 @@ data class RecommendationResult(
 class NoEligibleRecommendationException(val requestId: UUID) :
     RuntimeException("No eligible recommendation candidate")
 
+fun interface RecentRecommendationLoad {
+    fun countByLocation(projectCode: String, locationIds: Set<UUID>, since: Instant): Map<UUID, Long>
+}
+
 @Service
 class CreateRecommendation(
     private val projects: ProjectConfigurationStore,
     private val objectMapper: ObjectMapper,
     private val events: RecommendationEventStore,
     private val clock: Clock,
+    private val recentLoad: RecentRecommendationLoad,
+    @Value("\${recommendation.policy.recent-window:PT15M}")
+    private val recentWindow: Duration,
 ) {
     operator fun invoke(request: RecommendationRequest): RecommendationResult {
         require(request.schemaVersion == 1) { "Unsupported schema version: ${request.schemaVersion}" }
@@ -90,7 +100,17 @@ class CreateRecommendation(
         val highestPriority = candidates.maxOf { it.rule.path("priority").asInt() }
         val prioritized = candidates.filter { it.rule.path("priority").asInt() == highestPriority }
             .sortedBy { it.item.path("id").stringValue() }
-        val selected = selectWeighted(prioritized, request.requestId)
+        val locationIds = prioritized.map { UUID.fromString(it.location.path("id").stringValue()) }.toSet()
+        val recentCounts = recentLoad.countByLocation(
+            request.projectCode,
+            locationIds,
+            Instant.now(clock).minus(recentWindow),
+        )
+        val minimumCount = locationIds.minOf { recentCounts[it] ?: 0L }
+        val leastLoaded = prioritized.filter {
+            (recentCounts[UUID.fromString(it.location.path("id").stringValue())] ?: 0L) == minimumCount
+        }
+        val selected = selectWeighted(leastLoaded, request.requestId)
         val names = objectMapper.convertValue(selected.item.path("name"), Map::class.java)
             .entries.associate { it.key.toString() to it.value.toString() }
         val recommendationText = names.mapValues { (_, name) -> "지금의 당신에게 $name 추천합니다." }
@@ -105,6 +125,7 @@ class CreateRecommendation(
             reasons = buildList {
                 if (previous != null) add("PREVIOUS_EXCLUDED")
                 add("HIGHEST_PRIORITY")
+                add("RECENT_LOAD_BALANCED")
                 add("WEIGHTED_DETERMINISTIC")
             },
             createdAt = OffsetDateTime.now(clock).withOffsetSameInstant(ZoneOffset.UTC),

@@ -31,7 +31,11 @@ class AppContainer(
     private val localEngine = LocalRecommendationEngine(localData.projectCatalog, localData.recommendationEvents, clock)
     private val remoteEngine = HttpRecommendationEngine(BuildConfig.RECOMMENDATION_BASE_URL, BuildConfig.KIOSK_KEY)
     private val runtimeEngine = RuntimeRecommendationEngine(RuntimeModeProvider { RuntimeMode.HYBRID }, localEngine, remoteEngine)
-    private val recommendUseCase = Recommend(runtimeEngine, localData.recommendationEvents)
+    private val recommendUseCase = Recommend(
+        runtimeEngine,
+        localData.recommendationEvents,
+        localData.recommendationEvents,
+    )
     private val sessionId = SessionId(UUID.randomUUID().toString())
     private var configuration: ProjectConfiguration? = null
 

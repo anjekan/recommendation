@@ -44,7 +44,7 @@ class HttpRecommendationEngine(
             emotionCode = request.emotionProfile.dominant.emotion.value,
             stressScore = request.stressScore,
             language = request.language,
-            previousLocationId = request.excludedLocationIds.map { it.value }.sorted().firstOrNull(),
+            previousLocationId = request.previousLocationId?.value,
             consentStatus = request.consentStatus.name,
             participant = request.participant?.let { ApiParticipant(it.name, it.phone, it.birthDate, it.gender) },
             requestedAt = request.requestedAt.toString(),

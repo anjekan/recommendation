@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import kr.co.ninetyseconds.recommendation.domain.EmotionCode
 import kr.co.ninetyseconds.recommendation.domain.EmotionProfile
 import kr.co.ninetyseconds.recommendation.domain.EmotionScore
+import kr.co.ninetyseconds.recommendation.domain.LocationId
 import kr.co.ninetyseconds.recommendation.domain.ProjectId
 import kr.co.ninetyseconds.recommendation.domain.RecommendationRejected
 import kr.co.ninetyseconds.recommendation.domain.RecommendationRequest
@@ -17,8 +18,10 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okio.Buffer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HttpRecommendationEngineTest {
@@ -33,6 +36,17 @@ class HttpRecommendationEngineTest {
         assertEquals("장소", decision.item.title)
         assertEquals("secret", captured.get().header("X-Kiosk-Key"))
         assertEquals("request-1", captured.get().header("X-Request-Id"))
+    }
+
+    @Test
+    fun `sends the explicit previous location in the remote request`() = runBlocking {
+        val captured = AtomicReference<Request>()
+        val engine = engine(200, successBody(), captured)
+
+        engine.recommend(request().copy(previousLocationId = LocationId("location-previous")))
+
+        val body = Buffer().also { requireNotNull(captured.get().body).writeTo(it) }.readUtf8()
+        assertTrue(body.contains("\"previous_location_id\":\"location-previous\""))
     }
 
     @Test

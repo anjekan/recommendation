@@ -1,6 +1,7 @@
 package kr.co.ninetyseconds.recommendation.server.recommendation
 
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -39,6 +40,8 @@ class CreateRecommendationTest {
         JsonMapper.builder().addModule(kotlinModule()).build(),
         RecommendationEventStore { true },
         Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+        RecentRecommendationLoad { _, _, _ -> emptyMap() },
+        Duration.ofMinutes(15),
     )
 
     @Test
@@ -50,7 +53,34 @@ class CreateRecommendationTest {
         assertEquals("10000000-0000-4000-8000-000000000002", first.location.path("id").stringValue())
         assertEquals("REMOTE", first.source)
         assertEquals(first.recommendationId, second.recommendationId)
-        assertEquals(listOf("PREVIOUS_EXCLUDED", "HIGHEST_PRIORITY", "WEIGHTED_DETERMINISTIC"), first.reasons)
+        assertEquals(
+            listOf("PREVIOUS_EXCLUDED", "HIGHEST_PRIORITY", "RECENT_LOAD_BALANCED", "WEIGHTED_DETERMINISTIC"),
+            first.reasons,
+        )
+    }
+
+    @Test
+    fun `selects the location with fewer recommendations in the recent window`() {
+        val locationA = UUID.fromString("10000000-0000-4000-8000-000000000001")
+        val locationB = UUID.fromString("10000000-0000-4000-8000-000000000002")
+        val balanced = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, config) },
+            JsonMapper.builder().addModule(kotlinModule()).build(),
+            RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { projectCode, locationIds, since ->
+                assertEquals("EXPO", projectCode)
+                assertEquals(setOf(locationA, locationB), locationIds)
+                assertEquals(Instant.parse("2026-08-26T23:45:00Z"), since)
+                mapOf(locationA to 9L, locationB to 2L)
+            },
+            Duration.ofMinutes(15),
+        )
+
+        val result = balanced(request())
+
+        assertEquals(locationB.toString(), result.location.path("id").stringValue())
+        assertEquals("balanced-v2", result.policyVersion)
     }
 
     @Test

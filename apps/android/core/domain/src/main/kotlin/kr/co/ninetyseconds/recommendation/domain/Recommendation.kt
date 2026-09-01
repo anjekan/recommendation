@@ -21,6 +21,7 @@ data class RecommendationRequest(
     val projectId: ProjectId,
     val sessionId: SessionId,
     val emotionProfile: EmotionProfile,
+    val previousLocationId: LocationId? = null,
     val excludedLocationIds: Set<LocationId> = emptySet(),
     val requestedAt: Instant,
     val kioskId: String = "UNASSIGNED",
