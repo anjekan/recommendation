@@ -20,6 +20,8 @@ data class DashboardSummary(
 
 data class NamedCount(val name: String, val count: Long)
 data class LocationCount(val locationId: String, val count: Long)
+data class HourCount(val hour: Int, val count: Long)
+data class KioskStatus(val kioskId: String, val count: Long, val lastActivityAt: OffsetDateTime)
 data class RecentRecommendation(
     val occurredAt: OffsetDateTime,
     val kioskId: String,
@@ -41,6 +43,8 @@ data class AdminDashboard(
     val previousSummary: DashboardSummary,
     val emotions: List<NamedCount>,
     val locations: List<LocationCount>,
+    val hourly: List<HourCount>,
+    val kiosks: List<KioskStatus>,
     val recent: List<RecentRecommendation>,
 )
 
@@ -66,6 +70,19 @@ class AdminDashboardQuery(private val jdbc: JdbcClient) {
                group by location_id order by count desc, location_id""",
         ).param("projectCode", projectCode).param("start", start).param("end", end)
             .query { rs, _ -> LocationCount(rs.getString(1), rs.getLong(2)) }.list()
+        val countedHours = jdbc.sql(
+            """select extract(hour from occurred_at at time zone 'Asia/Seoul') as hour_value, count(*) as count
+               from recommendation_events where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
+               group by hour_value order by hour_value""",
+        ).param("projectCode", projectCode).param("start", start).param("end", end)
+            .query { rs, _ -> rs.getInt("hour_value") to rs.getLong("count") }.list().toMap()
+        val hourly = (0..23).map { HourCount(it, countedHours[it] ?: 0L) }
+        val kiosks = jdbc.sql(
+            """select kiosk_id, count(*) as count, max(occurred_at) as last_activity_at
+               from recommendation_events where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
+               group by kiosk_id order by last_activity_at desc""",
+        ).param("projectCode", projectCode).param("start", start).param("end", end)
+            .query { rs, _ -> KioskStatus(rs.getString("kiosk_id"), rs.getLong("count"), rs.getObject("last_activity_at", OffsetDateTime::class.java)) }.list()
         val recent = jdbc.sql(
             """select occurred_at, kiosk_id, emotion_code, consent_status, stress_score, source,
                       participant_name, participant_phone, participant_birth_date, participant_gender
@@ -81,7 +98,7 @@ class AdminDashboardQuery(private val jdbc: JdbcClient) {
                 rs.getString("participant_birth_date"), rs.getString("participant_gender"),
             )
         }.list()
-        return AdminDashboard(projectCode, date, overallSummary, summary, previousSummary, emotions, locations, recent)
+        return AdminDashboard(projectCode, date, overallSummary, summary, previousSummary, emotions, locations, hourly, kiosks, recent)
     }
 
     private fun loadOverallSummary(projectCode: String): DashboardSummary = jdbc.sql(

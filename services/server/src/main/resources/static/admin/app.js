@@ -32,6 +32,13 @@ function renderLocations(config, counts, selectedTotal) {
   }).join('') : '<p>프로젝트에 등록된 추천 장소가 없습니다.</p>';
 }
 
+function renderOperations(data) {
+  const max = Math.max(...data.hourly.map(item => item.count), 1);
+  $('hourly').innerHTML = data.hourly.map(item => `<div class="hour-column" title="${item.hour}시 ${item.count}건"><div class="hour-bar" style="height:${Math.max(item.count / max * 100, item.count ? 5 : 0)}%"></div><span>${item.hour}</span></div>`).join('');
+  $('kioskSummary').textContent = `${data.kiosks.length}대 활동`;
+  $('kiosks').innerHTML = data.kiosks.length ? data.kiosks.map(item => `<div class="kiosk-row"><div><strong>${escapeHtml(item.kiosk_id)}</strong><small>마지막 ${new Date(item.last_activity_at).toLocaleTimeString('ko-KR')}</small></div><span>${item.count.toLocaleString()}건</span></div>`).join('') : '<p>선택일의 키오스크 활동이 없습니다.</p>';
+}
+
 async function load() {
   $('error').textContent = '';
   try {
@@ -61,6 +68,7 @@ async function load() {
     const declined = Math.round(summary.declined / total * 100);
     $('consentChart').innerHTML = `<div><div class="donut" style="background:conic-gradient(#3c7655 0 ${rate}%,#e6a958 ${rate}% ${rate + declined}%,#d9ddd7 ${rate + declined}% 100%)"></div><div class="legend">● 동의 ${summary.consented}　● 미동의 ${summary.declined}<br>● 미선택 ${summary.not_asked}</div></div>`;
     renderLocations(config, data.locations || [], summary.total);
+    renderOperations(data);
     $('recent').innerHTML = data.recent.map(item => `<tr><td>${new Date(item.occurred_at).toLocaleString('ko-KR')}</td><td>${escapeHtml(item.kiosk_id)}</td><td>${escapeHtml(item.participant_name || '–')}</td><td>${escapeHtml(item.participant_phone || '–')}</td><td>${escapeHtml(item.participant_birth_date || '–')}</td><td>${escapeHtml(item.participant_gender || '–')}</td><td>${escapeHtml(item.emotion_code)}</td><td><span class="badge ${item.consent_status === 'CONSENTED' ? 'yes' : item.consent_status === 'DECLINED' ? 'no' : ''}">${escapeHtml(labels[item.consent_status] || item.consent_status)}</span></td><td>${item.stress_score}</td><td>${escapeHtml(item.source)}</td></tr>`).join('');
     $('updated').textContent = `갱신 ${new Date().toLocaleTimeString('ko-KR')}`;
   } catch (error) {

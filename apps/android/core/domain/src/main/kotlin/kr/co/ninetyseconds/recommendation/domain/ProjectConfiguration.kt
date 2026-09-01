@@ -8,6 +8,21 @@ data class ProjectTheme(
     val mapImageRef: String,
 )
 
+data class ProjectContent(
+    val homeIntroduction: String,
+    val resultItemLabel: String,
+    val mapButtonLabel: String,
+    val currentLocationLabel: String,
+    val mapGestureHint: String,
+)
+
+data class MapPoint(val xPercent: Double, val yPercent: Double)
+
+data class ProjectNavigation(
+    val origin: MapPoint,
+    val routesByLocationCode: Map<String, List<MapPoint>>,
+)
+
 data class EmotionDefinition(
     val code: EmotionCode,
     val name: String,
@@ -19,6 +34,8 @@ data class EmotionDefinition(
 data class ProjectConfiguration(
     val catalog: ProjectCatalogSnapshot,
     val theme: ProjectTheme,
+    val content: ProjectContent,
+    val navigation: ProjectNavigation,
     val emotions: List<EmotionDefinition>,
     val analysisEmotionMappings: Map<String, EmotionCode>,
     val selectedLanguage: String,

@@ -12,6 +12,8 @@
     "default_language",
     "supported_languages",
     "theme",
+    "content",
+    "navigation",
     "emotion_profiles",
     "analysis_mappings",
     "locations",
@@ -31,6 +33,8 @@
       "items": { "type": "string" }
     },
     "theme": { "$ref": "#/$defs/theme" },
+    "content": { "$ref": "#/$defs/content" },
+    "navigation": { "$ref": "#/$defs/navigation" },
     "emotion_profiles": {
       "type": "array",
       "items": { "$ref": "#/$defs/emotionProfile" }
@@ -69,6 +73,39 @@
         "primary_color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
         "background_image_url": { "type": "string" },
         "map_image_url": { "type": "string" }
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home_introduction", "result_item_label", "map_button_label", "current_location_label", "map_gesture_hint"],
+      "properties": {
+        "home_introduction": { "$ref": "#/$defs/localizedText" },
+        "result_item_label": { "$ref": "#/$defs/localizedText" },
+        "map_button_label": { "$ref": "#/$defs/localizedText" },
+        "current_location_label": { "$ref": "#/$defs/localizedText" },
+        "map_gesture_hint": { "$ref": "#/$defs/localizedText" }
+      }
+    },
+    "mapPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x_percent", "y_percent"],
+      "properties": {
+        "x_percent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "y_percent": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "navigation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "routes_by_location_code"],
+      "properties": {
+        "origin": { "$ref": "#/$defs/mapPoint" },
+        "routes_by_location_code": {
+          "type": "object",
+          "additionalProperties": { "type": "array", "items": { "$ref": "#/$defs/mapPoint" } }
+        }
       }
     },
     "emotionProfile": {

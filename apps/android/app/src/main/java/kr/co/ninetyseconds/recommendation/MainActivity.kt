@@ -217,7 +217,7 @@ private fun HomeScreen(
     Text(config.theme.name, style = MaterialTheme.typography.headlineMedium)
     Text("${settings.mode} · config v${config.catalog.configVersion}")
     Spacer(Modifier.height(28.dp))
-    Text("카메라로 현재 상태를 측정하고\n감정상태에 어울리는 꽃을 추천합니다.")
+    Text(config.content.homeIntroduction)
     Spacer(Modifier.height(28.dp))
     Button(onClick = onStart) { Text("측정 시작") }
     TextButton(onClick = onSettings) { Text("운영 설정") }
@@ -389,12 +389,12 @@ private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onResta
     Spacer(Modifier.height(20.dp))
     val emotion = result.decision.item.supportedEmotions.firstOrNull()
     val emotionDefinition = result.config.emotions.firstOrNull { it.code == emotion }
-    Text("추천 꽃", style = MaterialTheme.typography.labelLarge)
+    Text(result.config.content.resultItemLabel, style = MaterialTheme.typography.labelLarge)
     Text(result.decision.item.title, style = MaterialTheme.typography.headlineSmall)
     emotionDefinition?.let { Text("${it.name} · ${it.message}") }
     Text("${result.decision.source} · 스트레스 ${result.stress}")
     Spacer(Modifier.height(24.dp))
-    Button(onClick = onShowMap) { Text("지도에서 위치 보기") }
+    Button(onClick = onShowMap) { Text(result.config.content.mapButtonLabel) }
     Button(onClick = onRestart) { Text("다시 측정") }
 }
 
@@ -449,11 +449,13 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                     modifier = Modifier.fillMaxSize(),
                 )
                 Canvas(Modifier.fillMaxSize()) {
-                    val route = inferredWalkingRoute(location.code, location.markerXPercent, location.markerYPercent)
+                    val configured = result.config.navigation.routesByLocationCode[location.code].orEmpty()
+                    val route = listOf(result.config.navigation.origin) + configured +
+                        MapPoint(location.markerXPercent, location.markerYPercent)
                     val path = Path().apply {
                         route.forEachIndexed { index, point ->
-                            val px = point.x * size.width
-                            val py = point.y * size.height
+                            val px = (point.xPercent / 100.0).toFloat() * size.width
+                            val py = (point.yPercent / 100.0).toFloat() * size.height
                             if (index == 0) moveTo(px, py) else lineTo(px, py)
                         }
                     }
@@ -466,7 +468,13 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                         ),
                     )
                 }
-                MapMarker(mapWidth, mapHeight, 30.6, 88.8, "현재 위치", Color(0xFFD32F2F))
+                MapMarker(
+                    mapWidth, mapHeight,
+                    result.config.navigation.origin.xPercent,
+                    result.config.navigation.origin.yPercent,
+                    result.config.content.currentLocationLabel,
+                    Color(0xFFD32F2F),
+                )
                 MapMarker(mapWidth, mapHeight, location.markerXPercent, location.markerYPercent, location.title, Color(0xFFFFC107))
             }
             Text(
@@ -475,7 +483,7 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                 modifier = Modifier.align(Alignment.TopCenter).background(Color(0xDDFFFFFF)).padding(12.dp),
             )
             Text(
-                "두 손가락으로 확대 · 한 손가락으로 이동",
+                result.config.content.mapGestureHint,
                 modifier = Modifier.align(Alignment.BottomCenter).background(Color(0xBBFFFFFF)).padding(8.dp),
             )
             Button(
@@ -483,34 +491,6 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
             ) { Text("처음으로") }
         }
-}
-
-private fun inferredWalkingRoute(locationCode: String, targetX: Double, targetY: Double): List<Offset> {
-    fun p(x: Double, y: Double) = Offset((x / 100.0).toFloat(), (y / 100.0).toFloat())
-    val gate = p(30.6, 88.8)
-    val entry = p(38.0, 82.0)
-    val lowerJunction = p(41.0, 72.0)
-    val centerJunction = p(43.0, 62.0)
-    val center = p(48.0, 55.0)
-    val target = p(targetX, targetY)
-    val middle = when (locationCode.uppercase()) {
-        "BUTTERFLY" -> listOf(p(27.5, 85.0))
-        "MIRROR" -> listOf(entry, lowerJunction)
-        "GREETING" -> listOf(entry, lowerJunction, p(36.0, 67.0))
-        "EMOTION" -> listOf(entry, lowerJunction, p(35.0, 63.0), p(31.0, 54.0))
-        "SCENT" -> listOf(entry, lowerJunction, p(34.0, 62.0), p(28.0, 51.0), p(23.0, 41.0))
-        "REST" -> listOf(entry, lowerJunction, centerJunction, p(43.0, 50.0), p(40.0, 39.0), p(39.0, 29.0))
-        "HERB" -> listOf(entry, lowerJunction, centerJunction, center, p(50.0, 45.0), p(50.0, 34.0))
-        "HARMONY" -> listOf(entry, lowerJunction, centerJunction, center, p(56.0, 49.0), p(61.0, 43.0))
-        "CONNECT" -> listOf(entry, lowerJunction, centerJunction, center, p(55.0, 55.0))
-        "SUNLIGHT" -> listOf(entry, lowerJunction, centerJunction, center, p(58.0, 57.0), p(66.0, 58.0))
-        "FUTURE" -> listOf(entry, p(47.0, 78.0), p(56.0, 79.0), p(62.0, 81.0))
-        "HEALING" -> listOf(entry, lowerJunction, p(34.0, 65.0), p(27.0, 59.0), p(20.0, 54.0))
-        "WAVE" -> listOf(entry, lowerJunction, p(34.0, 62.0), p(27.0, 52.0), p(21.0, 40.0), p(18.0, 32.0))
-        "SQUARE" -> listOf(entry, lowerJunction, centerJunction, center, p(48.0, 49.0))
-        else -> listOf(entry, lowerJunction, centerJunction, center)
-    }
-    return listOf(gate) + middle + target
 }
 
 @Composable

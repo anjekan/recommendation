@@ -58,6 +58,17 @@ class ProjectConfigImporterTest {
             "background_image_url": "/background.webp",
             "map_image_url": "/map.webp"
           },
+          "content": {
+            "home_introduction": {"ko":"추천을 시작합니다","en":"Start recommendation"},
+            "result_item_label": {"ko":"추천 항목","en":"Recommendation"},
+            "map_button_label": {"ko":"지도 보기","en":"View map"},
+            "current_location_label": {"ko":"현재 위치","en":"You are here"},
+            "map_gesture_hint": {"ko":"지도를 이동하세요","en":"Move the map"}
+          },
+          "navigation": {
+            "origin": {"x_percent": 1.0, "y_percent": 2.0},
+            "routes_by_location_code": {"ZONE-1": [{"x_percent": 5.0, "y_percent": 6.0}]}
+          },
           "emotion_profiles": [{
             "code": "SERENITY",
             "name": {"ko": "평안", "en": "Serenity"},

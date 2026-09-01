@@ -13,11 +13,28 @@ internal data class ProjectConfigDto(
     @SerialName("default_language") val defaultLanguage: String,
     @SerialName("supported_languages") val supportedLanguages: List<String>,
     val theme: ThemeDto,
+    val content: ContentDto,
+    val navigation: NavigationDto,
     @SerialName("emotion_profiles") val emotionProfiles: List<EmotionDto>,
     @SerialName("analysis_mappings") val analysisMappings: List<AnalysisMappingDto>,
     val locations: List<LocationDto>,
     val items: List<ItemDto>,
     val rules: List<RuleDto>,
+)
+
+@Serializable
+internal data class ContentDto(
+    @SerialName("home_introduction") val homeIntroduction: Map<String, String>,
+    @SerialName("result_item_label") val resultItemLabel: Map<String, String>,
+    @SerialName("map_button_label") val mapButtonLabel: Map<String, String>,
+    @SerialName("current_location_label") val currentLocationLabel: Map<String, String>,
+    @SerialName("map_gesture_hint") val mapGestureHint: Map<String, String>,
+)
+
+@Serializable
+internal data class NavigationDto(
+    val origin: MarkerDto,
+    @SerialName("routes_by_location_code") val routesByLocationCode: Map<String, List<MarkerDto>>,
 )
 
 @Serializable

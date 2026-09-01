@@ -9,6 +9,9 @@ import kr.co.ninetyseconds.recommendation.domain.ProjectCatalogSnapshot
 import kr.co.ninetyseconds.recommendation.domain.ProjectConfiguration
 import kr.co.ninetyseconds.recommendation.domain.ProjectId
 import kr.co.ninetyseconds.recommendation.domain.ProjectTheme
+import kr.co.ninetyseconds.recommendation.domain.ProjectContent
+import kr.co.ninetyseconds.recommendation.domain.ProjectNavigation
+import kr.co.ninetyseconds.recommendation.domain.MapPoint
 import kr.co.ninetyseconds.recommendation.domain.RecommendationItem
 import kr.co.ninetyseconds.recommendation.domain.RecommendationItemId
 
@@ -80,6 +83,19 @@ class ProjectConfigImporter(
                 primaryColor = dto.theme.primaryColor,
                 backgroundImageRef = dto.theme.backgroundImageUrl,
                 mapImageRef = dto.theme.mapImageUrl,
+            ),
+            content = ProjectContent(
+                homeIntroduction = dto.content.homeIntroduction.resolve(language, dto.defaultLanguage),
+                resultItemLabel = dto.content.resultItemLabel.resolve(language, dto.defaultLanguage),
+                mapButtonLabel = dto.content.mapButtonLabel.resolve(language, dto.defaultLanguage),
+                currentLocationLabel = dto.content.currentLocationLabel.resolve(language, dto.defaultLanguage),
+                mapGestureHint = dto.content.mapGestureHint.resolve(language, dto.defaultLanguage),
+            ),
+            navigation = ProjectNavigation(
+                origin = MapPoint(dto.navigation.origin.xPercent, dto.navigation.origin.yPercent),
+                routesByLocationCode = dto.navigation.routesByLocationCode.mapValues { (_, points) ->
+                    points.map { MapPoint(it.xPercent, it.yPercent) }
+                },
             ),
             emotions = dto.emotionProfiles.filter(EmotionDto::active).map { emotion ->
                 EmotionDefinition(

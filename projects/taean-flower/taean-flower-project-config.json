@@ -16,6 +16,32 @@
     "background_image_url": "",
     "map_image_url": "android.resource://kr.co.ninetyseconds.recommendation/drawable/taean_garden_map"
   },
+  "content": {
+    "home_introduction": {"ko": "카메라로 현재 상태를 측정하고\n감정상태에 어울리는 꽃을 추천합니다."},
+    "result_item_label": {"ko": "추천 꽃"},
+    "map_button_label": {"ko": "지도에서 위치 보기"},
+    "current_location_label": {"ko": "현재 위치"},
+    "map_gesture_hint": {"ko": "두 손가락으로 확대 · 한 손가락으로 이동"}
+  },
+  "navigation": {
+    "origin": {"x_percent": 30.6, "y_percent": 88.8},
+    "routes_by_location_code": {
+      "BUTTERFLY": [{"x_percent": 27.5, "y_percent": 85.0}],
+      "MIRROR": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}],
+      "GREETING": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 36.0, "y_percent": 67.0}],
+      "EMOTION": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 35.0, "y_percent": 63.0}, {"x_percent": 31.0, "y_percent": 54.0}],
+      "SCENT": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 34.0, "y_percent": 62.0}, {"x_percent": 28.0, "y_percent": 51.0}, {"x_percent": 23.0, "y_percent": 41.0}],
+      "REST": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 43.0, "y_percent": 62.0}, {"x_percent": 43.0, "y_percent": 50.0}, {"x_percent": 40.0, "y_percent": 39.0}, {"x_percent": 39.0, "y_percent": 29.0}],
+      "HERB": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 43.0, "y_percent": 62.0}, {"x_percent": 48.0, "y_percent": 55.0}, {"x_percent": 50.0, "y_percent": 45.0}, {"x_percent": 50.0, "y_percent": 34.0}],
+      "HARMONY": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 43.0, "y_percent": 62.0}, {"x_percent": 48.0, "y_percent": 55.0}, {"x_percent": 56.0, "y_percent": 49.0}, {"x_percent": 61.0, "y_percent": 43.0}],
+      "CONNECT": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 43.0, "y_percent": 62.0}, {"x_percent": 48.0, "y_percent": 55.0}, {"x_percent": 55.0, "y_percent": 55.0}],
+      "SUNLIGHT": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 43.0, "y_percent": 62.0}, {"x_percent": 48.0, "y_percent": 55.0}, {"x_percent": 58.0, "y_percent": 57.0}, {"x_percent": 66.0, "y_percent": 58.0}],
+      "FUTURE": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 47.0, "y_percent": 78.0}, {"x_percent": 56.0, "y_percent": 79.0}, {"x_percent": 62.0, "y_percent": 81.0}],
+      "HEALING": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 34.0, "y_percent": 65.0}, {"x_percent": 27.0, "y_percent": 59.0}, {"x_percent": 20.0, "y_percent": 54.0}],
+      "WAVE": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 34.0, "y_percent": 62.0}, {"x_percent": 27.0, "y_percent": 52.0}, {"x_percent": 21.0, "y_percent": 40.0}, {"x_percent": 18.0, "y_percent": 32.0}],
+      "SQUARE": [{"x_percent": 38.0, "y_percent": 82.0}, {"x_percent": 41.0, "y_percent": 72.0}, {"x_percent": 43.0, "y_percent": 62.0}, {"x_percent": 48.0, "y_percent": 55.0}, {"x_percent": 48.0, "y_percent": 49.0}]
+    }
+  },
   "emotion_profiles": [
     {
       "code": "SERENITY",
