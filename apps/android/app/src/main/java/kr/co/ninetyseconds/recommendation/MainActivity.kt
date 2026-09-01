@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
@@ -129,6 +130,10 @@ private fun ConsentScreen(
     var birthDate by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    val inputTextStyle = MaterialTheme.typography.bodyLarge.copy(
+        color = MaterialTheme.colorScheme.onSurface,
+        fontWeight = FontWeight.SemiBold,
+    )
     Column(
         Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -138,11 +143,18 @@ private fun ConsentScreen(
         Spacer(Modifier.height(12.dp))
         Text("본인 확인 및 결과 안내를 위한 선택 입력입니다.\n현재 버전에서는 서버에 개인정보를 저장하지 않습니다.")
         Spacer(Modifier.height(16.dp))
-        OutlinedTextField(name, { name = it.take(10) }, label = { Text("이름") }, singleLine = true)
+        OutlinedTextField(
+            name,
+            { name = it.take(10) },
+            label = { Text("이름") },
+            textStyle = inputTextStyle,
+            singleLine = true,
+        )
         OutlinedTextField(
             phone,
             { phone = it.filter(Char::isDigit).take(11) },
             label = { Text("휴대전화번호") },
+            textStyle = inputTextStyle,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             singleLine = true,
         )
@@ -150,6 +162,7 @@ private fun ConsentScreen(
             birthDate,
             { birthDate = it.filter(Char::isDigit).take(8) },
             label = { Text("생년월일 8자리") },
+            textStyle = inputTextStyle,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
         )
