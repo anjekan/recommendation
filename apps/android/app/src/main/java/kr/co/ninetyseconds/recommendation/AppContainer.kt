@@ -21,16 +21,25 @@ import kr.co.ninetyseconds.recommendation.domain.RecommendationRequest
 import kr.co.ninetyseconds.recommendation.domain.SessionId
 import kr.co.ninetyseconds.recommendation.domain.RuntimeMode
 import kr.co.ninetyseconds.recommendation.domain.ParticipantProfile
+import kr.co.ninetyseconds.recommendation.domain.ports.RecommendationEngine
 
 class AppContainer(
     private val context: Context,
     private val clock: Clock = Clock.systemUTC(),
 ) {
     private val localData = LocalDataStore.create(context)
+    private val runtimeSettings = RuntimeSettingsStore(context)
     private val importer = ProjectConfigImporter(BuildConfig.VERSION_CODE)
     private val localEngine = LocalRecommendationEngine(localData.projectCatalog, localData.recommendationEvents, clock)
-    private val remoteEngine = HttpRecommendationEngine(BuildConfig.RECOMMENDATION_BASE_URL, BuildConfig.KIOSK_KEY)
-    private val runtimeEngine = RuntimeRecommendationEngine(RuntimeModeProvider { RuntimeMode.HYBRID }, localEngine, remoteEngine)
+    private val remoteEngine = RecommendationEngine { request ->
+        val settings = runtimeSettings.load()
+        HttpRecommendationEngine(settings.serverBaseUrl, settings.kioskKey).recommend(request)
+    }
+    private val runtimeEngine = RuntimeRecommendationEngine(
+        RuntimeModeProvider { runtimeSettings.load().mode },
+        localEngine,
+        remoteEngine,
+    )
     private val recommendUseCase = Recommend(
         runtimeEngine,
         localData.recommendationEvents,
@@ -41,11 +50,19 @@ class AppContainer(
 
     suspend fun start(preferredLanguage: String = "ko"): ProjectConfiguration {
         configuration?.let { return it }
-        val json = context.assets.open(DEFAULT_CONFIG_ASSET).bufferedReader().use { it.readText() }
+        val json = context.assets.open(runtimeSettings.load().projectConfigAsset).bufferedReader().use { it.readText() }
         val imported = importer.import(json, preferredLanguage)
         localData.projectCatalog.replace(imported.catalog)
         configuration = imported
         return imported
+    }
+
+    fun settings(): RuntimeSettings = runtimeSettings.load()
+
+    suspend fun updateSettings(settings: RuntimeSettings): ProjectConfiguration {
+        runtimeSettings.save(settings)
+        configuration = null
+        return start()
     }
 
     suspend fun recommend(
@@ -62,17 +79,12 @@ class AppContainer(
                 sessionId = sessionId,
                 emotionProfile = EmotionProfile(listOf(EmotionScore(emotion, 1.0))),
                 requestedAt = Instant.now(clock),
-                kioskId = DEFAULT_KIOSK_ID,
+                kioskId = runtimeSettings.load().kioskId,
                 stressScore = stressScore,
                 language = config.selectedLanguage,
                 consentStatus = consentStatus,
                 participant = participant,
             ),
         )
-    }
-
-    private companion object {
-        const val DEFAULT_CONFIG_ASSET = "taean-flower-project-config.json"
-        const val DEFAULT_KIOSK_ID = "LOCAL-KIOSK"
     }
 }

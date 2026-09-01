@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
 private sealed interface AppState {
     data object Loading : AppState
     data class Home(val config: ProjectConfiguration) : AppState
+    data class Settings(val config: ProjectConfiguration, val settings: RuntimeSettings) : AppState
     data class Consent(val config: ProjectConfiguration) : AppState
     data class Measuring(
         val config: ProjectConfiguration,
@@ -82,7 +83,20 @@ fun RecommendationApp(container: AppContainer) {
     RecommendationTheme {
         when (val current = state) {
             AppState.Loading -> Centered { CircularProgressIndicator() }
-            is AppState.Home -> HomeScreen(current.config) { state = AppState.Consent(current.config) }
+            is AppState.Home -> HomeScreen(
+                current.config,
+                container.settings(),
+                onStart = { state = AppState.Consent(current.config) },
+                onSettings = { state = AppState.Settings(current.config, container.settings()) },
+            )
+            is AppState.Settings -> RuntimeSettingsScreen(
+                initial = current.settings,
+                onSave = { settings -> scope.launch {
+                    state = runCatching { AppState.Home(container.updateSettings(settings)) }
+                        .getOrElse { AppState.Failed(it.message ?: "운영 설정을 저장하지 못했습니다.", current.config) }
+                } },
+                onCancel = { state = AppState.Home(current.config) },
+            )
             is AppState.Consent -> ConsentScreen(
                 onSelect = { consent, participant -> state = AppState.Measuring(current.config, consent, participant) },
                 onCancel = { state = AppState.Home(current.config) },
@@ -194,13 +208,60 @@ private fun ConsentScreen(
 }
 
 @Composable
-private fun HomeScreen(config: ProjectConfiguration, onStart: () -> Unit) = Centered {
+private fun HomeScreen(
+    config: ProjectConfiguration,
+    settings: RuntimeSettings,
+    onStart: () -> Unit,
+    onSettings: () -> Unit,
+) = Centered {
     Text(config.theme.name, style = MaterialTheme.typography.headlineMedium)
-    Text("HYBRID · config v${config.catalog.configVersion}")
+    Text("${settings.mode} · config v${config.catalog.configVersion}")
     Spacer(Modifier.height(28.dp))
     Text("카메라로 현재 상태를 측정하고\n감정상태에 어울리는 꽃을 추천합니다.")
     Spacer(Modifier.height(28.dp))
     Button(onClick = onStart) { Text("측정 시작") }
+    TextButton(onClick = onSettings) { Text("운영 설정") }
+}
+
+@Composable
+private fun RuntimeSettingsScreen(
+    initial: RuntimeSettings,
+    onSave: (RuntimeSettings) -> Unit,
+    onCancel: () -> Unit,
+) {
+    var projectAsset by remember { mutableStateOf(initial.projectConfigAsset) }
+    var mode by remember { mutableStateOf(initial.mode) }
+    var serverBaseUrl by remember { mutableStateOf(initial.serverBaseUrl) }
+    var kioskId by remember { mutableStateOf(initial.kioskId) }
+    var kioskKey by remember { mutableStateOf(initial.kioskKey) }
+    var error by remember { mutableStateOf<String?>(null) }
+    Column(
+        Modifier.fillMaxSize().padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text("운영 설정", style = MaterialTheme.typography.headlineMedium)
+        OutlinedTextField(projectAsset, { projectAsset = it }, label = { Text("프로젝트 설정 파일") }, singleLine = true)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RuntimeMode.entries.forEach { value ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(selected = mode == value, onClick = { mode = value })
+                    Text(value.name)
+                }
+            }
+        }
+        OutlinedTextField(serverBaseUrl, { serverBaseUrl = it }, label = { Text("서버 주소") }, singleLine = true)
+        OutlinedTextField(kioskId, { kioskId = it }, label = { Text("키오스크 ID") }, singleLine = true)
+        OutlinedTextField(kioskKey, { kioskKey = it }, label = { Text("키오스크 키") }, singleLine = true)
+        error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        Spacer(Modifier.height(12.dp))
+        Button(onClick = {
+            runCatching {
+                RuntimeSettings(projectAsset.trim(), mode, serverBaseUrl.trim(), kioskId.trim(), kioskKey.trim())
+            }.onSuccess(onSave).onFailure { error = it.message }
+        }) { Text("저장 후 적용") }
+        TextButton(onClick = onCancel) { Text("취소") }
+    }
 }
 
 @Composable
