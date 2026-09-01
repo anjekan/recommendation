@@ -18,6 +18,8 @@ Admin     http://localhost:8080/admin/index.html
 Postgres  127.0.0.1:5432
 ```
 
+관리자 초기 계정은 `admin / admin`이다. 외부에 공개하기 전 `.env` 또는 시스템 환경변수의 `ADMIN_USERNAME`, `ADMIN_PASSWORD`를 변경한다.
+
 서버는 `projects/taean-flower/taean-flower-project-config.json`을 읽고 데이터베이스에 프로젝트가 없거나 더 높은 설정 버전일 때 반영한다.
 
 ## 검증 기준
@@ -39,7 +41,7 @@ Windows 터미널이 Java 8을 기본으로 사용하면 Gradle 실행 전에 `J
 - 서버 PC 내부 IP를 고정한다.
 - 공유기에서 필요한 외부 포트 하나만 서버로 전달한다.
 - PostgreSQL 5432는 외부에 공개하지 않는다.
-- 관리자 인증이 추가되기 전에는 8080을 인터넷에 공개하지 않는다.
+- 관리자 초기 비밀번호를 변경하기 전에는 8080을 인터넷에 공개하지 않는다.
 - 개발 비밀번호를 운영에서 사용하지 않고 환경변수나 별도 `.env`로 교체한다.
 - 도메인이 준비되면 Caddy를 앞에 추가해 HTTPS를 종료한다.
 

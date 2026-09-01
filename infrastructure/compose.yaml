@@ -24,6 +24,8 @@ services:
       DATABASE_USERNAME: recommendation
       DATABASE_PASSWORD: recommendation-local
       SEED_CONFIG_PATH: /config/project-config.json
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
     volumes:
       - ../projects/taean-flower/taean-flower-project-config.json:/config/project-config.json:ro
     ports:

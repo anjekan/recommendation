@@ -17,7 +17,8 @@
 health   서버 상태
 project  프로젝트 설정 조회와 초기 시드
 event    오프라인 추천 이벤트 멱등 동기화
-admin    익명 추천·동의 상태 집계 조회
+admin    추천·동의 상태 집계 조회
+security 관리자 화면과 API 인증
 ```
 
 ## 빌드
@@ -51,4 +52,4 @@ GET  /admin/index.html
 
 추천 요청의 `consent_status`는 `CONSENTED`, `DECLINED`, `NOT_ASKED` 중 하나다. 원격 추천이 성공하면 감정, 스트레스 점수, 동의 상태와 추천 결과를 익명 이벤트로 저장한다. 개인정보 내용은 저장하지 않는다.
 
-관리자 API와 화면에는 아직 인증이 없으므로 개발망에서만 사용한다.
+관리자 API와 화면은 Spring Security 로그인이 필요하다. 개발 초기 계정은 `admin / admin`이며 운영에서는 반드시 `ADMIN_USERNAME`, `ADMIN_PASSWORD` 환경변수로 변경한다. 관리자 API는 HTTP Basic 인증도 지원한다.
