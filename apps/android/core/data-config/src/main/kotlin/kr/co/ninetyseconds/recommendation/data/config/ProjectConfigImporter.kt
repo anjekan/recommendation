@@ -108,6 +108,7 @@ class ProjectConfigImporter(
             },
             analysisEmotionMappings = dto.analysisMappings.associate { it.sourceLabel to EmotionCode(it.emotionCode) },
             selectedLanguage = language,
+            supportedLanguages = dto.supportedLanguages,
         )
     }
 

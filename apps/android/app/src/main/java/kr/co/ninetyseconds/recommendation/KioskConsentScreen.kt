@@ -72,7 +72,9 @@ internal fun KioskConsentScreen(
                 .zIndex(2f).clip(RoundedCornerShape(32.dp))
                 .background(Color.White.copy(alpha = .72f)).padding(4.dp),
         ) {
-            listOf("ko" to "한국어", "en" to "English", "zh" to "中文", "ja" to "日本語").forEach { (code, label) ->
+            listOf("ko" to "한국어", "en" to "English", "zh" to "中文", "ja" to "日本語")
+                .filter { (code, _) -> code in config.supportedLanguages }
+                .forEach { (code, label) ->
                 Text(
                     label,
                     color = if (code == language) Color.White else Color(0xFF66656A),

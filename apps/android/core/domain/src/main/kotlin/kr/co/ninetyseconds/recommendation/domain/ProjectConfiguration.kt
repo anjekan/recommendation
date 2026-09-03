@@ -39,6 +39,7 @@ data class ProjectConfiguration(
     val emotions: List<EmotionDefinition>,
     val analysisEmotionMappings: Map<String, EmotionCode>,
     val selectedLanguage: String,
+    val supportedLanguages: List<String>,
 ) {
     fun mapAnalysisLabel(label: String): EmotionCode = analysisEmotionMappings[label]
         ?: throw IllegalArgumentException("No project emotion mapping for analysis label: $label")

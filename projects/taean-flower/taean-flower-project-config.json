@@ -1,15 +1,10 @@
 {
   "schema_version": 1,
-  "config_version": 3,
+  "config_version": 4,
   "minimum_app_version": 1,
   "project_code": "taean",
   "default_language": "ko",
-  "supported_languages": [
-    "ko",
-    "en",
-    "zh",
-    "ja"
-  ],
+  "supported_languages": ["ko"],
   "theme": {
     "name": {
       "ko": "AI 감정상태별 꽃 추천",
