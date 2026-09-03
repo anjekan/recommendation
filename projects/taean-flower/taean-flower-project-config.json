@@ -5,23 +5,29 @@
   "project_code": "taean",
   "default_language": "ko",
   "supported_languages": [
-    "ko"
+    "ko",
+    "en",
+    "zh",
+    "ja"
   ],
   "theme": {
     "name": {
-      "ko": "AI 감정상태별 꽃 추천"
+      "ko": "AI 감정상태별 꽃 추천",
+      "en": "AI Healing Flower Guide",
+      "zh": "AI 疗愈花推荐",
+      "ja": "AI 癒やしの花おすすめ"
     },
     "logo_url": null,
     "primary_color": "#6A5ACD",
-    "background_image_url": "",
+    "background_image_url": "android.resource://kr.co.ninetyseconds.recommendation/drawable/taean_background",
     "map_image_url": "android.resource://kr.co.ninetyseconds.recommendation/drawable/taean_garden_map"
   },
   "content": {
-    "home_introduction": {"ko": "카메라로 현재 상태를 측정하고\n감정상태에 어울리는 꽃을 추천합니다."},
-    "result_item_label": {"ko": "추천 꽃"},
-    "map_button_label": {"ko": "지도에서 위치 보기"},
-    "current_location_label": {"ko": "현재 위치"},
-    "map_gesture_hint": {"ko": "두 손가락으로 확대 · 한 손가락으로 이동"}
+    "home_introduction": {"ko": "카메라로 현재 상태를 측정하고\n감정상태에 어울리는 꽃을 추천합니다.", "en": "Measure your current state with the camera\nand discover a flower that matches your mood.", "zh": "通过摄像头测量您当前的状态，\n为您推荐符合情绪的花卉。", "ja": "カメラで現在の状態を測定し、\n気分に合う花をおすすめします。"},
+    "result_item_label": {"ko": "추천 꽃", "en": "Recommended flower", "zh": "推荐花卉", "ja": "おすすめの花"},
+    "map_button_label": {"ko": "지도에서 위치 보기", "en": "View location on map", "zh": "在地图上查看位置", "ja": "地図で場所を見る"},
+    "current_location_label": {"ko": "현재 위치", "en": "You are here", "zh": "当前位置", "ja": "現在地"},
+    "map_gesture_hint": {"ko": "두 손가락으로 확대 · 한 손가락으로 이동", "en": "Pinch to zoom · Drag to move", "zh": "双指缩放 · 单指移动", "ja": "ピンチで拡大 · ドラッグで移動"}
   },
   "navigation": {
     "origin": {"x_percent": 30.6, "y_percent": 88.8},

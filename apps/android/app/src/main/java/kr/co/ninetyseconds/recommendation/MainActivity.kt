@@ -16,9 +16,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.animation.core.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,7 +30,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.PathEffect
@@ -39,6 +44,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import java.util.concurrent.Executors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -51,8 +59,22 @@ import kr.co.ninetyseconds.recommendation.ui.theme.RecommendationTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enterKioskFullscreen()
         val container = (application as RecommendationApplication).container
         setContent { RecommendationApp(container) }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) enterKioskFullscreen()
+    }
+
+    private fun enterKioskFullscreen() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 }
 
@@ -77,7 +99,7 @@ fun RecommendationApp(container: AppContainer) {
     var state: AppState by remember { mutableStateOf(AppState.Loading) }
     val scope = rememberCoroutineScope()
     LaunchedEffect(container) {
-        state = runCatching { AppState.Home(container.start()) }
+        state = runCatching { AppState.Consent(container.start()) }
             .getOrElse { AppState.Failed(it.message ?: "프로젝트 설정을 불러오지 못했습니다.") }
     }
     RecommendationTheme {
@@ -92,50 +114,61 @@ fun RecommendationApp(container: AppContainer) {
             is AppState.Settings -> RuntimeSettingsScreen(
                 initial = current.settings,
                 onSave = { settings -> scope.launch {
-                    state = runCatching { AppState.Home(container.updateSettings(settings)) }
+                    state = runCatching { AppState.Consent(container.updateSettings(settings)) }
                         .getOrElse { AppState.Failed(it.message ?: "운영 설정을 저장하지 못했습니다.", current.config) }
                 } },
-                onCancel = { state = AppState.Home(current.config) },
+                onCancel = { state = AppState.Consent(current.config) },
             )
-            is AppState.Consent -> ConsentScreen(
+            is AppState.Consent -> KioskConsentScreen(
+                config = current.config,
+                onLanguageChange = { language -> scope.launch {
+                    state = runCatching { AppState.Consent(container.start(language)) }
+                        .getOrElse { AppState.Failed(it.message ?: "언어를 변경하지 못했습니다.", current.config) }
+                } },
                 onSelect = { consent, participant -> state = AppState.Measuring(current.config, consent, participant) },
-                onCancel = { state = AppState.Home(current.config) },
+                onSettings = { state = AppState.Settings(current.config, container.settings()) },
             )
             is AppState.Measuring -> MeasurementScreen(
                 current.config,
+                demoMode = container.settings().demoMode,
                 onComplete = { label, stress -> scope.launch {
                     state = AppState.Analyzing(current.config)
                     state = runCatching {
                         val emotion = current.config.mapAnalysisLabel(label, stress)
-                        AppState.Result(current.config, label, stress, container.recommend(emotion, stress, current.consentStatus, current.participant))
+                        val decision = if (container.settings().demoMode) {
+                            container.demoRecommend(emotion, stress)
+                        } else {
+                            container.recommend(emotion, stress, current.consentStatus, current.participant)
+                        }
+                        AppState.Result(current.config, label, stress, decision)
                     }.getOrElse { AppState.Failed(it.message ?: "추천에 실패했습니다.", current.config) }
                 } },
-                onCancel = { state = AppState.Home(current.config) },
+                onCancel = { state = AppState.Consent(current.config) },
             )
             is AppState.Analyzing -> Centered {
                 CircularProgressIndicator()
                 Spacer(Modifier.height(20.dp))
-                Text("분석 중입니다", style = MaterialTheme.typography.headlineMedium)
+                Text(uiText(current.config.selectedLanguage, "분석 중입니다", "Analyzing", "分析中", "分析中です"), style = MaterialTheme.typography.headlineMedium)
                 Spacer(Modifier.height(8.dp))
-                Text("추천 결과를 불러오고 있습니다.\n잠시만 기다려 주세요.")
+                Text(uiText(current.config.selectedLanguage, "추천 결과를 불러오고 있습니다.\n잠시만 기다려 주세요.", "Loading your recommendation.\nPlease wait a moment.", "正在加载推荐结果。\n请稍候。", "おすすめ結果を読み込んでいます。\n少々お待ちください。"))
             }
             is AppState.Result -> ResultScreen(
                 current,
                 onShowMap = { state = AppState.MapGuide(current.config, current.decision) },
-                onRestart = { state = AppState.Home(current.config) },
+                onRestart = { state = AppState.Consent(current.config) },
             )
-            is AppState.MapGuide -> MapGuideScreen(current) { state = AppState.Home(current.config) }
+            is AppState.MapGuide -> MapGuideScreen(current) { state = AppState.Consent(current.config) }
             is AppState.Failed -> Centered {
-                Text("처리 오류", style = MaterialTheme.typography.headlineMedium)
+                Text(uiText(current.config?.selectedLanguage, "처리 오류", "Processing error", "处理错误", "処理エラー"), style = MaterialTheme.typography.headlineMedium)
                 Text(current.message, color = MaterialTheme.colorScheme.error)
-                current.config?.let { config -> Button(onClick = { state = AppState.Home(config) }) { Text("처음으로") } }
+                current.config?.let { config -> Button(onClick = { state = AppState.Consent(config) }) { Text(uiText(config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) } }
             }
         }
     }
 }
 
 @Composable
-private fun ConsentScreen(
+private fun LegacyConsentScreen(
     onSelect: (ConsentStatus, ParticipantProfile?) -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -234,6 +267,7 @@ private fun RuntimeSettingsScreen(
     var serverBaseUrl by remember { mutableStateOf(initial.serverBaseUrl) }
     var kioskId by remember { mutableStateOf(initial.kioskId) }
     var kioskKey by remember { mutableStateOf(initial.kioskKey) }
+    var demoMode by remember { mutableStateOf(initial.demoMode) }
     var error by remember { mutableStateOf<String?>(null) }
     Column(
         Modifier.fillMaxSize().padding(24.dp),
@@ -253,11 +287,16 @@ private fun RuntimeSettingsScreen(
         OutlinedTextField(serverBaseUrl, { serverBaseUrl = it }, label = { Text("서버 주소") }, singleLine = true)
         OutlinedTextField(kioskId, { kioskId = it }, label = { Text("키오스크 ID") }, singleLine = true)
         OutlinedTextField(kioskKey, { kioskKey = it }, label = { Text("키오스크 키") }, singleLine = true)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Switch(checked = demoMode, onCheckedChange = { demoMode = it })
+            Spacer(Modifier.width(10.dp))
+            Text("촬영용 DEMO 모드 (얼굴·서버 전송 없음)")
+        }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         Spacer(Modifier.height(12.dp))
         Button(onClick = {
             runCatching {
-                RuntimeSettings(projectAsset.trim(), mode, serverBaseUrl.trim(), kioskId.trim(), kioskKey.trim())
+                RuntimeSettings(projectAsset.trim(), mode, serverBaseUrl.trim(), kioskId.trim(), kioskKey.trim(), demoMode)
             }.onSuccess(onSave).onFailure { error = it.message }
         }) { Text("저장 후 적용") }
         TextButton(onClick = onCancel) { Text("취소") }
@@ -265,16 +304,20 @@ private fun RuntimeSettingsScreen(
 }
 
 @Composable
-private fun MeasurementScreen(config: ProjectConfiguration, onComplete: (String, Int) -> Unit, onCancel: () -> Unit) {
+private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, onComplete: (String, Int) -> Unit, onCancel: () -> Unit) {
+    if (demoMode) {
+        DemoMeasurementScreen(config, onComplete, onCancel)
+        return
+    }
     val context = LocalContext.current
     var permitted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permitted = it }
     LaunchedEffect(Unit) { if (!permitted) permissionLauncher.launch(Manifest.permission.CAMERA) }
     if (!permitted) {
         Centered {
-            Text("측정을 위해 카메라 권한이 필요합니다.")
-            Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) { Text("카메라 권한 허용") }
-            Button(onClick = onCancel) { Text("취소") }
+            Text(uiText(config.selectedLanguage, "측정을 위해 카메라 권한이 필요합니다.", "Camera permission is required for measurement.", "测量需要摄像头权限。", "測定にはカメラの許可が必要です。"))
+            Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) { Text(uiText(config.selectedLanguage, "카메라 권한 허용", "Allow camera", "允许摄像头", "カメラを許可")) }
+            Button(onClick = onCancel) { Text(uiText(config.selectedLanguage, "취소", "Cancel", "取消", "キャンセル")) }
         }
         return
     }
@@ -301,9 +344,9 @@ private fun MeasurementScreen(config: ProjectConfiguration, onComplete: (String,
 
     cameraError?.let { message ->
         Centered {
-            Text("카메라를 시작하지 못했습니다.", style = MaterialTheme.typography.headlineSmall)
+            Text(uiText(config.selectedLanguage, "카메라를 시작하지 못했습니다.", "Could not start the camera.", "无法启动摄像头。", "カメラを起動できませんでした。"), style = MaterialTheme.typography.headlineSmall)
             Text(message, color = MaterialTheme.colorScheme.error)
-            Button(onClick = onCancel) { Text("처음으로") }
+            Button(onClick = onCancel) { Text(uiText(config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) }
         }
         return
     }
@@ -317,11 +360,54 @@ private fun MeasurementScreen(config: ProjectConfiguration, onComplete: (String,
             )
             Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(progress.phase.message)
-                Text("${progress.secondsRemaining}초", style = MaterialTheme.typography.headlineLarge)
-                snapshot?.vital?.let { Text("심박 ${it.heartRateBpm} · 호흡 ${it.respiratoryRateRpm}") }
+                Text("${progress.secondsRemaining}${uiText(config.selectedLanguage, "초", "s", "秒", "秒")}", style = MaterialTheme.typography.headlineLarge)
+                snapshot?.vital?.let { Text("${uiText(config.selectedLanguage, "심박", "Heart rate", "心率", "心拍数")} ${it.heartRateBpm} · ${uiText(config.selectedLanguage, "호흡", "Respiration", "呼吸", "呼吸数")} ${it.respiratoryRateRpm}") }
                 Text(config.theme.name)
-                Button(onClick = onCancel) { Text("측정 취소") }
+                Button(onClick = onCancel) { Text(uiText(config.selectedLanguage, "측정 취소", "Cancel measurement", "取消测量", "測定をキャンセル")) }
             }
+        }
+    }
+}
+
+@Composable
+private fun DemoMeasurementScreen(config: ProjectConfiguration, onComplete: (String, Int) -> Unit, onCancel: () -> Unit) {
+    var seconds by remember { mutableIntStateOf(10) }
+    val transition = rememberInfiniteTransition(label = "demo-scan")
+    val scan by transition.animateFloat(
+        initialValue = .15f,
+        targetValue = .85f,
+        animationSpec = infiniteRepeatable(tween(1_500, easing = LinearEasing), RepeatMode.Reverse),
+        label = "scan-position",
+    )
+    LaunchedEffect(Unit) {
+        while (seconds > 0) {
+            delay(1_000)
+            seconds--
+        }
+        onComplete("Happy", 24)
+    }
+    Box(Modifier.fillMaxSize().background(Color(0xFF15242B))) {
+        Image(
+            painter = painterResource(R.drawable.demo_face),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize(),
+        )
+        Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .10f)))
+        Canvas(Modifier.fillMaxSize()) {
+            val y = size.height * scan
+            drawLine(Color(0xFFE86B82), Offset(size.width * .28f, y), Offset(size.width * .72f, y), strokeWidth = 6f)
+        }
+        Surface(
+            color = Color(0xFFB72F50),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.align(Alignment.TopStart).padding(24.dp),
+        ) { Text("DEMO · ${uiText(config.selectedLanguage, "실제 측정값 아님", "Simulated data", "模拟数据", "シミュレーション")}", color = Color.White, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)) }
+        Column(Modifier.align(Alignment.BottomCenter).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(uiText(config.selectedLanguage, "얼굴을 저장하지 않고 분석을 시연하고 있습니다", "Demonstrating analysis without capturing a face", "正在演示不采集人脸的分析", "顔を撮影せず分析を実演しています"), color = Color.White)
+            Text("$seconds${uiText(config.selectedLanguage, "초", "s", "秒", "秒")}", color = Color.White, fontSize = 44.sp, fontWeight = FontWeight.Bold)
+            Text("${uiText(config.selectedLanguage, "가상 심박", "Simulated heart rate", "模拟心率", "模擬心拍数")} ${72 + (10 - seconds) % 4} BPM", color = Color(0xFFFFCED8))
+            TextButton(onClick = onCancel) { Text(uiText(config.selectedLanguage, "측정 취소", "Cancel", "取消", "キャンセル"), color = Color.White) }
         }
     }
 }
@@ -384,18 +470,19 @@ private fun CameraMeasurementPreview(
 
 @Composable
 private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onRestart: () -> Unit) = Centered {
-    Text("측정 결과", style = MaterialTheme.typography.headlineMedium)
-    Text("분석 감정 ${result.label} · 스트레스 ${result.stress}")
+    val language = result.config.selectedLanguage
+    Text(uiText(language, "측정 결과", "Measurement result", "测量结果", "測定結果"), style = MaterialTheme.typography.headlineMedium)
+    Text("${uiText(language, "분석 감정", "Emotion", "情绪", "感情")} ${result.label} · ${uiText(language, "스트레스", "Stress", "压力", "ストレス")} ${result.stress}")
     Spacer(Modifier.height(20.dp))
     val emotion = result.decision.item.supportedEmotions.firstOrNull()
     val emotionDefinition = result.config.emotions.firstOrNull { it.code == emotion }
     Text(result.config.content.resultItemLabel, style = MaterialTheme.typography.labelLarge)
     Text(result.decision.item.title, style = MaterialTheme.typography.headlineSmall)
     emotionDefinition?.let { Text("${it.name} · ${it.message}") }
-    Text("${result.decision.source} · 스트레스 ${result.stress}")
+    Text("${result.decision.source} · ${uiText(language, "스트레스", "Stress", "压力", "ストレス")} ${result.stress}")
     Spacer(Modifier.height(24.dp))
     Button(onClick = onShowMap) { Text(result.config.content.mapButtonLabel) }
-    Button(onClick = onRestart) { Text("다시 측정") }
+    Button(onClick = onRestart) { Text(uiText(language, "다시 측정", "Measure again", "重新测量", "もう一度測定")) }
 }
 
 @Composable
@@ -489,8 +576,15 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
             Button(
                 onClick = onFinish,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-            ) { Text("처음으로") }
+            ) { Text(uiText(result.config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) }
         }
+}
+
+private fun uiText(language: String?, ko: String, en: String, zh: String, ja: String): String = when (language) {
+    "en" -> en
+    "zh" -> zh
+    "ja" -> ja
+    else -> ko
 }
 
 @Composable

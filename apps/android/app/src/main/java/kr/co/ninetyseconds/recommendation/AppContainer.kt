@@ -50,7 +50,7 @@ class AppContainer(
     private var configuration: ProjectConfiguration? = null
 
     suspend fun start(preferredLanguage: String = "ko"): ProjectConfiguration {
-        configuration?.let { return it }
+        configuration?.takeIf { it.selectedLanguage == preferredLanguage }?.let { return it }
         val json = context.assets.open(runtimeSettings.load().projectConfigAsset).bufferedReader().use { it.readText() }
         val imported = importer.import(json, preferredLanguage)
         localData.projectCatalog.replace(imported.catalog)
@@ -90,6 +90,24 @@ class AppContainer(
         )
         syncPendingEvents()
         return decision
+    }
+
+    suspend fun demoRecommend(emotion: EmotionCode, stressScore: Int = 24): RecommendationDecision {
+        val config = configuration ?: start()
+        return localEngine.recommend(
+            RecommendationRequest(
+                requestId = UUID.randomUUID().toString(),
+                projectId = config.catalog.projectId,
+                sessionId = sessionId,
+                emotionProfile = EmotionProfile(listOf(EmotionScore(emotion, 1.0))),
+                requestedAt = Instant.now(clock),
+                kioskId = "DEMO-KIOSK",
+                stressScore = stressScore,
+                language = config.selectedLanguage,
+                consentStatus = ConsentStatus.DECLINED,
+                participant = null,
+            ),
+        )
     }
 
     private suspend fun syncPendingEvents() {
