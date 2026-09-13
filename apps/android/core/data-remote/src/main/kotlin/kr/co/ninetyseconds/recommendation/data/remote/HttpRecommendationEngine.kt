@@ -10,6 +10,7 @@ import kotlinx.serialization.json.Json
 import kr.co.ninetyseconds.recommendation.domain.DecisionSource
 import kr.co.ninetyseconds.recommendation.domain.LocationId
 import kr.co.ninetyseconds.recommendation.domain.JourneyStop
+import kr.co.ninetyseconds.recommendation.domain.JourneyLocation
 import kr.co.ninetyseconds.recommendation.domain.RecommendationDecision
 import kr.co.ninetyseconds.recommendation.domain.RecommendationItem
 import kr.co.ninetyseconds.recommendation.domain.RecommendationItemId
@@ -102,6 +103,12 @@ class HttpRecommendationEngine(
                     order = stop.order,
                     senseCode = stop.senseCode,
                     item = stop.item.toDomain(stop.location, request),
+                    location = JourneyLocation(
+                        code = stop.location.code,
+                        title = stop.location.name.resolve(request.language),
+                        markerXPercent = stop.location.marker?.xPercent,
+                        markerYPercent = stop.location.marker?.yPercent,
+                    ),
                 )
             },
         )

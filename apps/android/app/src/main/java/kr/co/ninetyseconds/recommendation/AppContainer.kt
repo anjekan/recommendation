@@ -86,6 +86,7 @@ class AppContainer(
                 language = config.selectedLanguage,
                 consentStatus = consentStatus,
                 participant = participant,
+                conditionCode = emotion.value,
             ),
         )
         syncPendingEvents()

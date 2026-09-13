@@ -494,6 +494,12 @@ private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onResta
     val emotionDefinition = result.config.emotions.firstOrNull { it.code == emotion }
     Text(result.config.content.resultItemLabel, style = MaterialTheme.typography.labelLarge)
     Text(result.decision.item.title, style = MaterialTheme.typography.headlineSmall)
+    if (result.decision.journey.isNotEmpty()) {
+        Spacer(Modifier.height(12.dp))
+        result.decision.journey.sortedBy { it.order }.forEach { stop ->
+            Text("${stop.order}. ${stop.item.title} · ${stop.senseCode}")
+        }
+    }
     emotionDefinition?.let { Text("${it.name} · ${it.message}") }
     Text("${result.decision.source} · ${uiText(language, "스트레스", "Stress", "压力", "ストレス")} ${result.stress}")
     Spacer(Modifier.height(24.dp))
@@ -503,7 +509,24 @@ private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onResta
 
 @Composable
 private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
-    val location = result.config.catalog.locations.first { it.id == result.decision.item.locationId }
+    val journeyLocations = result.decision.journey.sortedBy { it.order }.mapNotNull { stop ->
+        stop.location?.let { location ->
+            val x = location.markerXPercent ?: return@let null
+            val y = location.markerYPercent ?: return@let null
+            DisplayMapStop(stop.order, location.code, location.title, x, y)
+        }
+    }
+    val legacyLocation = result.config.catalog.locations.firstOrNull { it.id == result.decision.item.locationId }
+    val destinations = journeyLocations.ifEmpty {
+        legacyLocation?.let { listOf(DisplayMapStop(1, it.code, it.title, it.markerXPercent, it.markerYPercent)) }.orEmpty()
+    }
+    if (destinations.isEmpty()) {
+        Centered {
+            Text(uiText(result.config.selectedLanguage, "표시할 지도 위치가 없습니다.", "No map location is available.", "没有可显示的地图位置。", "表示できる地図位置がありません。"))
+            Button(onClick = onFinish) { Text(uiText(result.config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) }
+        }
+        return
+    }
     var scale by remember { mutableFloatStateOf(1.2f) }
     var translation by remember { mutableStateOf(Offset.Zero) }
     val dashPhase by rememberInfiniteTransition(label = "route-dashes").animateFloat(
@@ -552,9 +575,13 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                     modifier = Modifier.fillMaxSize(),
                 )
                 Canvas(Modifier.fillMaxSize()) {
-                    val configured = result.config.navigation.routesByLocationCode[location.code].orEmpty()
-                    val route = listOf(result.config.navigation.origin) + configured +
-                        MapPoint(location.markerXPercent, location.markerYPercent)
+                    val route = buildList {
+                        add(result.config.navigation.origin)
+                        destinations.forEach { destination ->
+                            addAll(result.config.navigation.routesByLocationCode[destination.code].orEmpty())
+                            add(MapPoint(destination.xPercent, destination.yPercent))
+                        }
+                    }
                     val path = Path().apply {
                         route.forEachIndexed { index, point ->
                             val px = (point.xPercent / 100.0).toFloat() * size.width
@@ -578,10 +605,13 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                     result.config.content.currentLocationLabel,
                     Color(0xFFD32F2F),
                 )
-                MapMarker(mapWidth, mapHeight, location.markerXPercent, location.markerYPercent, location.title, Color(0xFFFFC107))
+                destinations.forEachIndexed { index, destination ->
+                    val colors = listOf(Color(0xFFFFC107), Color(0xFF42A5F5), Color(0xFF66BB6A))
+                    MapMarker(mapWidth, mapHeight, destination.xPercent, destination.yPercent, "${destination.order}. ${destination.title}", colors[index % colors.size])
+                }
             }
             Text(
-                "${location.title} 안내",
+                destinations.joinToString(" → ") { "${it.order}. ${it.title}" },
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.align(Alignment.TopCenter).background(Color(0xDDFFFFFF)).padding(12.dp),
             )
@@ -595,6 +625,14 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
             ) { Text(uiText(result.config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) }
         }
 }
+
+private data class DisplayMapStop(
+    val order: Int,
+    val code: String,
+    val title: String,
+    val xPercent: Double,
+    val yPercent: Double,
+)
 
 private fun uiText(language: String?, ko: String, en: String, zh: String, ja: String): String = when (language) {
     "en" -> en

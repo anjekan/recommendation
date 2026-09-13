@@ -68,9 +68,17 @@ data class JourneyStop(
     val order: Int,
     val senseCode: String,
     val item: RecommendationItem,
+    val location: JourneyLocation? = null,
 ) {
     init {
         require(order in 1..3) { "Journey stop order must be between 1 and 3" }
         require(senseCode.isNotBlank()) { "Journey stop sense code cannot be blank" }
     }
 }
+
+data class JourneyLocation(
+    val code: String,
+    val title: String,
+    val markerXPercent: Double?,
+    val markerYPercent: Double?,
+)

@@ -62,8 +62,8 @@ internal data class ApiItem(
     val id: String,
     val type: String,
     val name: Map<String, String>,
-    val description: Map<String, String>,
-    @SerialName("image_url") val imageUrl: String,
+    val description: Map<String, String> = emptyMap(),
+    @SerialName("image_url") val imageUrl: String? = null,
     val attributes: JsonObject = JsonObject(emptyMap()),
 )
 
@@ -73,6 +73,13 @@ internal data class ApiLocation(
     val code: String,
     val name: Map<String, String>,
     val status: String,
+    val marker: ApiMapMarker? = null,
+)
+
+@Serializable
+internal data class ApiMapMarker(
+    @SerialName("x_percent") val xPercent: Double,
+    @SerialName("y_percent") val yPercent: Double,
 )
 
 @Serializable
