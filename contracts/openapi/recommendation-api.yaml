@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Recommendation Platform API
-  version: 0.1.0
+  version: 0.2.0
   description: 범용 감정 분석 기반 콘텐츠·장소 추천 플랫폼의 초기 계약
 servers:
   - url: http://localhost:8080
@@ -164,7 +164,7 @@ components:
       properties:
         schema_version:
           type: integer
-          const: 1
+          enum: [1, 2]
         project_code:
           type: string
         kiosk_id:
@@ -191,6 +191,17 @@ components:
           enum: [CONSENTED, DECLINED, NOT_ASKED]
           default: NOT_ASKED
           description: 개인정보 내용이 아닌 익명 통계 활용 동의 상태
+        condition_code:
+          type: [string, 'null']
+          description: schema version 2의 12상태 코드
+        journey_sense_codes:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+          description: 추천할 1·2·3정거장의 감각 코드 순서
+        operation_context:
+          $ref: '#/components/schemas/OperationContext'
         requested_at:
           type: string
           format: date-time
@@ -211,7 +222,7 @@ components:
       properties:
         schema_version:
           type: integer
-          const: 1
+          enum: [1, 2]
         recommendation_id:
           type: string
           format: uuid
@@ -235,6 +246,11 @@ components:
           type: array
           items:
             type: string
+        journey:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/JourneyStop'
         created_at:
           type: string
           format: date-time
@@ -310,6 +326,31 @@ components:
         attributes:
           type: object
           additionalProperties: true
+    JourneyStop:
+      type: object
+      required: [order, sense_code, item, location]
+      properties:
+        order:
+          type: integer
+          minimum: 1
+          maximum: 3
+        sense_code:
+          type: string
+        item:
+          $ref: '#/components/schemas/RecommendationItem'
+        location:
+          $ref: '#/components/schemas/Location'
+    OperationContext:
+      type: object
+      properties:
+        raining:
+          type: boolean
+          default: false
+        companion_type:
+          type: [string, 'null']
+        performance_window_open:
+          type: boolean
+          default: false
     Location:
       type: object
       required: [id, code, name, status, marker]

@@ -29,6 +29,9 @@ data class RecommendationRequest(
     val language: String = "ko",
     val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
     val participant: ParticipantProfile? = null,
+    val conditionCode: String? = null,
+    val journeySenseCodes: List<String> = emptyList(),
+    val operationContext: RecommendationOperationContext? = null,
 ) {
     init {
         require(requestId.isNotBlank()) { "Request id cannot be blank" }
@@ -38,8 +41,16 @@ data class RecommendationRequest(
         require(participant == null || consentStatus == ConsentStatus.CONSENTED) {
             "Participant information requires consent"
         }
+        require(journeySenseCodes.size <= 3) { "Journey can contain at most three senses" }
+        require(journeySenseCodes.none(String::isBlank)) { "Journey sense code cannot be blank" }
     }
 }
+
+data class RecommendationOperationContext(
+    val raining: Boolean = false,
+    val companionType: String? = null,
+    val performanceWindowOpen: Boolean = false,
+)
 
 enum class ConsentStatus { CONSENTED, DECLINED, NOT_ASKED }
 data class ParticipantProfile(val name: String, val phone: String, val birthDate: String, val gender: String)
@@ -50,4 +61,16 @@ data class RecommendationDecision(
     val item: RecommendationItem,
     val source: DecisionSource,
     val decidedAt: Instant,
+    val journey: List<JourneyStop> = emptyList(),
 )
+
+data class JourneyStop(
+    val order: Int,
+    val senseCode: String,
+    val item: RecommendationItem,
+) {
+    init {
+        require(order in 1..3) { "Journey stop order must be between 1 and 3" }
+        require(senseCode.isNotBlank()) { "Journey stop sense code cannot be blank" }
+    }
+}

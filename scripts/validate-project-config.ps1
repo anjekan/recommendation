@@ -12,8 +12,12 @@ if (-not (Test-Path -LiteralPath $ConfigPath)) {
 $config = Get-Content -Raw -Encoding UTF8 -LiteralPath $ConfigPath | ConvertFrom-Json
 $errors = New-Object System.Collections.Generic.List[string]
 
-if ($config.schema_version -ne 1) {
-    $errors.Add('schema_version must be 1')
+if ($config.schema_version -notin @(1, 2)) {
+    $errors.Add('schema_version must be 1 or 2')
+}
+
+if ($config.schema_version -eq 2 -and -not $config.rich_flow) {
+    $errors.Add('schema_version 2 requires rich_flow')
 }
 
 if ($config.supported_languages -notcontains $config.default_language) {
@@ -46,30 +50,28 @@ foreach ($rule in $config.rules) {
     }
 }
 
-foreach ($language in $config.supported_languages) {
-    if (-not $config.theme.name.PSObject.Properties[$language]) {
-        $errors.Add("theme.name is missing language $language")
-    }
+if (-not $config.theme.name.PSObject.Properties[$config.default_language]) {
+    $errors.Add("theme.name is missing default language $($config.default_language)")
+}
 
-    foreach ($emotion in $config.emotion_profiles) {
-        if (-not $emotion.name.PSObject.Properties[$language]) {
-            $errors.Add("emotion $($emotion.code) name is missing language $language")
-        }
-        if (-not $emotion.message.PSObject.Properties[$language]) {
-            $errors.Add("emotion $($emotion.code) message is missing language $language")
-        }
+foreach ($emotion in $config.emotion_profiles) {
+    if (-not $emotion.name.PSObject.Properties[$config.default_language]) {
+        $errors.Add("emotion $($emotion.code) name is missing default language $($config.default_language)")
     }
-
-    foreach ($location in $config.locations) {
-        if (-not $location.name.PSObject.Properties[$language]) {
-            $errors.Add("location $($location.code) name is missing language $language")
-        }
+    if (-not $emotion.message.PSObject.Properties[$config.default_language]) {
+        $errors.Add("emotion $($emotion.code) message is missing default language $($config.default_language)")
     }
+}
 
-    foreach ($item in $config.items) {
-        if (-not $item.name.PSObject.Properties[$language]) {
-            $errors.Add("item $($item.id) name is missing language $language")
-        }
+foreach ($location in $config.locations) {
+    if (-not $location.name.PSObject.Properties[$config.default_language]) {
+        $errors.Add("location $($location.code) name is missing default language $($config.default_language)")
+    }
+}
+
+foreach ($item in $config.items) {
+    if (-not $item.name.PSObject.Properties[$config.default_language]) {
+        $errors.Add("item $($item.id) name is missing default language $($config.default_language)")
     }
 }
 

@@ -17,7 +17,17 @@ internal data class ApiRecommendationRequest(
     @SerialName("previous_location_id") val previousLocationId: String?,
     @SerialName("consent_status") val consentStatus: String,
     val participant: ApiParticipant? = null,
+    @SerialName("condition_code") val conditionCode: String? = null,
+    @SerialName("journey_sense_codes") val journeySenseCodes: List<String> = emptyList(),
+    @SerialName("operation_context") val operationContext: ApiOperationContext? = null,
     @SerialName("requested_at") val requestedAt: String,
+)
+
+@Serializable
+internal data class ApiOperationContext(
+    val raining: Boolean = false,
+    @SerialName("companion_type") val companionType: String? = null,
+    @SerialName("performance_window_open") val performanceWindowOpen: Boolean = false,
 )
 
 @Serializable
@@ -35,7 +45,16 @@ internal data class ApiRecommendationResult(
     val item: ApiItem,
     val location: ApiLocation,
     val source: String,
+    val journey: List<ApiJourneyStop> = emptyList(),
     @SerialName("created_at") val createdAt: String,
+)
+
+@Serializable
+internal data class ApiJourneyStop(
+    val order: Int,
+    @SerialName("sense_code") val senseCode: String,
+    val item: ApiItem,
+    val location: ApiLocation,
 )
 
 @Serializable

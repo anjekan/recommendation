@@ -21,7 +21,7 @@
     "rules"
   ],
   "properties": {
-    "schema_version": { "const": 1 },
+    "schema_version": { "enum": [1, 2] },
     "config_version": { "type": "integer", "minimum": 1 },
     "minimum_app_version": { "type": "integer", "minimum": 1 },
     "project_code": { "type": "string", "minLength": 1 },
@@ -55,8 +55,15 @@
     "rules": {
       "type": "array",
       "items": { "$ref": "#/$defs/rule" }
-    }
+    },
+    "rich_flow": { "$ref": "#/$defs/richFlow" }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "schema_version": { "const": 2 } } },
+      "then": { "required": ["rich_flow"] }
+    }
+  ],
   "$defs": {
     "localizedText": {
       "type": "object",
@@ -179,6 +186,123 @@
         "weight": { "type": "integer", "minimum": 0 },
         "priority": { "type": "integer", "minimum": 0 },
         "active": { "type": "boolean" }
+      }
+    },
+    "richFlow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measurement_policy", "senses", "condition_states", "journey_mappings", "venue_operations", "kiosks", "congestion_policy"],
+      "properties": {
+        "measurement_policy": { "$ref": "#/$defs/measurementPolicy" },
+        "senses": { "type": "array", "minItems": 6, "maxItems": 6, "items": { "$ref": "#/$defs/sense" } },
+        "condition_states": { "type": "array", "minItems": 12, "maxItems": 12, "items": { "$ref": "#/$defs/conditionState" } },
+        "journey_mappings": { "type": "array", "minItems": 12, "items": { "$ref": "#/$defs/journeyMapping" } },
+        "venue_operations": { "type": "array", "items": { "$ref": "#/$defs/venueOperation" } },
+        "kiosks": { "type": "array", "items": { "$ref": "#/$defs/kiosk" } },
+        "congestion_policy": { "$ref": "#/$defs/congestionPolicy" }
+      }
+    },
+    "confirmationStatus": { "enum": ["CONFIRMED", "PENDING_CONFIRMATION"] },
+    "measurementPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measurement_seconds", "result_display_seconds", "idle_return_seconds", "max_attempts", "heart_rate_range", "respiration_range", "au_calibration_frames", "au_low_upper", "au_medium_upper", "overheat_stress_threshold", "confidence_threshold"],
+      "properties": {
+        "measurement_seconds": { "type": "integer", "minimum": 1 },
+        "result_display_seconds": { "type": "integer", "minimum": 1 },
+        "idle_return_seconds": { "type": "integer", "minimum": 1 },
+        "max_attempts": { "type": "integer", "minimum": 1 },
+        "heart_rate_range": { "$ref": "#/$defs/intRange" },
+        "respiration_range": { "$ref": "#/$defs/intRange" },
+        "au_calibration_frames": { "type": "integer", "minimum": 1 },
+        "au_low_upper": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "au_medium_upper": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "overheat_stress_threshold": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+        "confidence_threshold": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "intRange": {
+      "type": "object", "additionalProperties": false, "required": ["min", "max"],
+      "properties": { "min": { "type": "integer" }, "max": { "type": "integer" } }
+    },
+    "sense": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "name", "order", "active"],
+      "properties": {
+        "code": { "enum": ["INSIGHT", "SCENT", "TASTE", "LISTENING", "ACTION", "INTUITION"] },
+        "name": { "$ref": "#/$defs/localizedText" },
+        "order": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "active": { "type": "boolean" }
+      }
+    },
+    "conditionState": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "group", "display_name", "message", "stress_band", "tension_band", "primary_sense", "compass_values", "active"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "group": { "enum": ["A", "B", "C", "D", "E", "F"] },
+        "display_name": { "$ref": "#/$defs/localizedText" },
+        "message": { "$ref": "#/$defs/localizedText" },
+        "stress_band": { "enum": ["LOW", "NORMAL", "MODERATELY_HIGH", "HIGH"] },
+        "tension_band": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "primary_sense": { "type": "string" },
+        "compass_values": { "type": "object", "minProperties": 6, "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 100 } },
+        "active": { "type": "boolean" }
+      }
+    },
+    "journeyMapping": {
+      "type": "object", "additionalProperties": false,
+      "required": ["condition_code", "sense_sequence"],
+      "properties": {
+        "condition_code": { "type": "string" },
+        "sense_sequence": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "string" } },
+        "exception_code": { "type": ["string", "null"] }
+      }
+    },
+    "venueOperation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "name", "sense_codes", "zone_code", "marker", "capacity", "recommendation_ttl_minutes", "indoor", "family_priority", "high_stimulation", "alcohol", "confirmation_status", "active"],
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "$ref": "#/$defs/localizedText" },
+        "sense_codes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "zone_code": { "type": ["string", "null"] },
+        "marker": { "anyOf": [{ "$ref": "#/$defs/mapPoint" }, { "type": "null" }] },
+        "capacity": { "type": ["integer", "null"], "minimum": 1 },
+        "recommendation_ttl_minutes": { "enum": [40, 60, 90] },
+        "indoor": { "type": ["boolean", "null"] },
+        "family_priority": { "type": "boolean" },
+        "high_stimulation": { "type": "boolean" },
+        "alcohol": { "type": "boolean" },
+        "confirmation_status": { "$ref": "#/$defs/confirmationStatus" },
+        "active": { "type": "boolean" }
+      }
+    },
+    "kiosk": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "installation_group", "zone_code", "marker", "quantity", "confirmation_status", "active"],
+      "properties": {
+        "code": { "type": "string" },
+        "installation_group": { "type": "string" },
+        "zone_code": { "type": ["string", "null"] },
+        "marker": { "anyOf": [{ "$ref": "#/$defs/mapPoint" }, { "type": "null" }] },
+        "quantity": { "type": "integer", "minimum": 1 },
+        "confirmation_status": { "$ref": "#/$defs/confirmationStatus" },
+        "active": { "type": "boolean" }
+      }
+    },
+    "congestionPolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["normal_under_percent", "busy_under_percent", "exclude_at_percent", "companion_exclude_at_percent", "rain_indoor_normal_under_percent", "rain_indoor_busy_under_percent", "meal_windows", "closing_cutoff_minutes"],
+      "properties": {
+        "normal_under_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "busy_under_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "exclude_at_percent": { "type": "integer", "minimum": 0 },
+        "companion_exclude_at_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "rain_indoor_normal_under_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "rain_indoor_busy_under_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "meal_windows": { "type": "array", "items": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]-[0-2][0-9]:[0-5][0-9]$" } },
+        "closing_cutoff_minutes": { "type": "integer", "minimum": 0 }
       }
     }
   }

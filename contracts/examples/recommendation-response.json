@@ -1,36 +1,94 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "recommendation_id": "33333333-3333-4333-8333-333333333333",
   "request_id": "22222222-2222-4222-8222-222222222222",
   "emotion_profile": {
-    "code": "VITALITY",
-    "name": { "ko": "활력", "en": "Vitality" },
-    "message": { "ko": "밝은 에너지가 넘치는 상태입니다.", "en": "You are full of bright energy." },
+    "code": "THRILL",
+    "name": { "ko": "설렘" },
+    "message": { "ko": "어떤 이유인지 설레어 보여요" },
     "color": "#FFA726",
     "icon": "energy"
   },
   "item": {
     "id": "44444444-4444-4444-8444-444444444444",
-    "type": "place",
-    "name": { "ko": "숲속 체험장", "en": "Forest Experience Zone" },
-    "description": { "ko": "활동적인 체험을 즐길 수 있는 공간입니다.", "en": "A place for active experiences." },
-    "image_url": "/assets/projects/taean/items/forest-zone.webp",
+    "type": "program",
+    "name": { "ko": "리치 해피&티니핑 포토존" },
+    "description": { "ko": "오늘의 안목을 깨우는 첫 번째 정거장" },
+    "image_url": "/assets/projects/richrich/photo-zone.webp",
     "attributes": {}
   },
   "location": {
     "id": "55555555-5555-4555-8555-555555555555",
-    "code": "ZONE-03",
-    "name": { "ko": "숲속 체험장", "en": "Forest Experience Zone" },
+    "code": "HAPPY_TINIPING_PHOTO",
+    "name": { "ko": "리치 해피&티니핑 포토존" },
     "status": "NORMAL",
-    "marker": { "x_percent": 62.4, "y_percent": 38.7 }
+    "marker": { "x_percent": 51.1, "y_percent": 27.4 }
   },
   "display": {
     "recommendation_text": {
-      "ko": "지금의 당신에게 숲속 체험장을 추천합니다.",
-      "en": "We recommend the Forest Experience Zone for you."
+      "ko": "지금은 안목의 감각이 필요한 순간이에요."
     },
     "display_seconds": 10
   },
+  "journey": [
+    {
+      "order": 1,
+      "sense_code": "INSIGHT",
+      "item": {
+        "id": "44444444-4444-4444-8444-444444444444",
+        "type": "program",
+        "name": { "ko": "리치 해피&티니핑 포토존" },
+        "description": { "ko": "오늘의 안목을 깨우는 첫 번째 정거장" },
+        "image_url": "/assets/projects/richrich/photo-zone.webp",
+        "attributes": {}
+      },
+      "location": {
+        "id": "55555555-5555-4555-8555-555555555555",
+        "code": "HAPPY_TINIPING_PHOTO",
+        "name": { "ko": "리치 해피&티니핑 포토존" },
+        "status": "NORMAL",
+        "marker": { "x_percent": 51.1, "y_percent": 27.4 }
+      }
+    },
+    {
+      "order": 2,
+      "sense_code": "ACTION",
+      "item": {
+        "id": "66666666-6666-4666-8666-666666666666",
+        "type": "program",
+        "name": { "ko": "리치리치 머니 플레이" },
+        "description": { "ko": "실천의 감각을 경험하는 두 번째 정거장" },
+        "image_url": "/assets/projects/richrich/money-play.webp",
+        "attributes": {}
+      },
+      "location": {
+        "id": "77777777-7777-4777-8777-777777777777",
+        "code": "MONEY_PLAY",
+        "name": { "ko": "리치리치 머니 플레이" },
+        "status": "NORMAL",
+        "marker": { "x_percent": 51.1, "y_percent": 27.4 }
+      }
+    },
+    {
+      "order": 3,
+      "sense_code": "TASTE",
+      "item": {
+        "id": "88888888-8888-4888-8888-888888888888",
+        "type": "program",
+        "name": { "ko": "리치 푸드코트" },
+        "description": { "ko": "미식의 감각을 만나는 마지막 정거장" },
+        "image_url": "/assets/projects/richrich/food-court.webp",
+        "attributes": {}
+      },
+      "location": {
+        "id": "99999999-9999-4999-8999-999999999999",
+        "code": "FOOD_COURT",
+        "name": { "ko": "리치 푸드코트" },
+        "status": "NORMAL",
+        "marker": { "x_percent": 86.8, "y_percent": 49.4 }
+      }
+    }
+  ],
   "source": "REMOTE",
   "policy_version": "balanced-v1",
   "reasons": ["PREVIOUS_EXCLUDED", "LOW_RECENT_COUNT"],

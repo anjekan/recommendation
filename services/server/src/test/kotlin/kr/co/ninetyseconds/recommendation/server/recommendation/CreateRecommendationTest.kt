@@ -88,11 +88,23 @@ class CreateRecommendationTest {
         assertFailsWith<NoEligibleRecommendationException> { service(request(emotionCode = "UNKNOWN")) }
     }
 
+    @Test
+    fun `version two returns a journey stop with requested sense`() {
+        val result = service(request(schemaVersion = 2, journeySenseCodes = listOf("INSIGHT", "ACTION", "TASTE")))
+
+        assertEquals(1, result.journey.size)
+        assertEquals(1, result.journey.single().order)
+        assertEquals("INSIGHT", result.journey.single().senseCode)
+        assertEquals(result.item, result.journey.single().item)
+    }
+
     private fun request(
         emotionCode: String = "VITALITY",
         previousLocationId: UUID? = null,
+        schemaVersion: Int = 1,
+        journeySenseCodes: List<String> = emptyList(),
     ) = RecommendationRequest(
-        schemaVersion = 1,
+        schemaVersion = schemaVersion,
         projectCode = "EXPO",
         kioskId = "KIOSK-01",
         sessionId = UUID.fromString("11111111-1111-4111-8111-111111111111"),
@@ -102,6 +114,7 @@ class CreateRecommendationTest {
         language = "ko",
         previousLocationId = previousLocationId,
         consentStatus = ConsentStatus.CONSENTED,
+        journeySenseCodes = journeySenseCodes,
         requestedAt = OffsetDateTime.parse("2026-08-27T09:00:00+09:00"),
     )
 }

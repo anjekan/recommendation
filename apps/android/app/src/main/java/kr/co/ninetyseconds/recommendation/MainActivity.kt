@@ -351,6 +351,13 @@ private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, o
         return
     }
 
+    val scanTransition = rememberInfiniteTransition(label = "camera-scan")
+    val cameraScan by scanTransition.animateFloat(
+        initialValue = .15f,
+        targetValue = .85f,
+        animationSpec = infiniteRepeatable(tween(1_500, easing = LinearEasing), RepeatMode.Reverse),
+        label = "camera-scan-position",
+    )
     Scaffold { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             CameraMeasurementPreview(
@@ -358,6 +365,15 @@ private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, o
                 onSnapshot = { snapshot = it },
                 onError = { cameraError = it },
             )
+            Canvas(Modifier.fillMaxSize()) {
+                val y = size.height * cameraScan
+                drawLine(
+                    color = Color(0xFFE86B82),
+                    start = Offset(size.width * .28f, y),
+                    end = Offset(size.width * .72f, y),
+                    strokeWidth = 6f,
+                )
+            }
             Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(progress.phase.message)
                 Text("${progress.secondsRemaining}${uiText(config.selectedLanguage, "초", "s", "秒", "秒")}", style = MaterialTheme.typography.headlineLarge)

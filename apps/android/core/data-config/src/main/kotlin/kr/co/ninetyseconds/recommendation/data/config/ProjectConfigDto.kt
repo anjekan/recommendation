@@ -20,6 +20,7 @@ internal data class ProjectConfigDto(
     val locations: List<LocationDto>,
     val items: List<ItemDto>,
     val rules: List<RuleDto>,
+    @SerialName("rich_flow") val richFlow: JsonObject? = null,
 )
 
 @Serializable

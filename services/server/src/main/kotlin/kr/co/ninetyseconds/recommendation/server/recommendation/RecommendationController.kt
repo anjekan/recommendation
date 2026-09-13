@@ -38,11 +38,27 @@ data class RecommendationRequestBody(
     val previousLocationId: UUID?,
     val consentStatus: ConsentStatus = ConsentStatus.NOT_ASKED,
     @field:Valid val participant: ParticipantRequestBody? = null,
+    val conditionCode: String? = null,
+    @field:Size(max = 3) val journeySenseCodes: List<String> = emptyList(),
+    @field:Valid val operationContext: OperationContextRequest? = null,
     val requestedAt: OffsetDateTime,
 ) {
     fun toCommand() = RecommendationRequest(
-        schemaVersion, projectCode, kioskId, sessionId, requestId, emotionCode,
-        stressScore, language, previousLocationId, consentStatus, participant, requestedAt,
+        schemaVersion = schemaVersion,
+        projectCode = projectCode,
+        kioskId = kioskId,
+        sessionId = sessionId,
+        requestId = requestId,
+        emotionCode = emotionCode,
+        stressScore = stressScore,
+        language = language,
+        previousLocationId = previousLocationId,
+        consentStatus = consentStatus,
+        participant = participant,
+        conditionCode = conditionCode,
+        journeySenseCodes = journeySenseCodes,
+        operationContext = operationContext,
+        requestedAt = requestedAt,
     )
 }
 

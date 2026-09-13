@@ -50,6 +50,21 @@ class HttpRecommendationEngineTest {
     }
 
     @Test
+    fun `sends version two journey context and maps journey stops`() = runBlocking {
+        val captured = AtomicReference<Request>()
+        val engine = engine(200, journeySuccessBody(), captured)
+
+        val decision = engine.recommend(request().copy(conditionCode = "THRILL", journeySenseCodes = listOf("INSIGHT", "ACTION", "TASTE")))
+
+        val body = Buffer().also { requireNotNull(captured.get().body).writeTo(it) }.readUtf8()
+        assertTrue(body.contains("\"schema_version\":2"))
+        assertTrue(body.contains("\"journey_sense_codes\":[\"INSIGHT\",\"ACTION\",\"TASTE\"]"))
+        assertEquals(1, decision.journey.size)
+        assertEquals("INSIGHT", decision.journey.single().senseCode)
+        assertEquals("장소", decision.journey.single().item.title)
+    }
+
+    @Test
     fun `server failure is classified as unavailable`() {
         assertThrows(RecommendationUnavailable::class.java) {
             runBlocking { engine(503, "{}").recommend(request()) }
@@ -119,4 +134,11 @@ class HttpRecommendationEngineTest {
           "created_at": "2026-08-25T00:00:01Z"
         }
         """.trimIndent()
+
+    private fun journeySuccessBody() = successBody()
+        .replace("\"schema_version\": 1", "\"schema_version\": 2")
+        .replace(
+            "\"source\": \"REMOTE\",",
+            "\"source\": \"REMOTE\", \"journey\": [{\"order\":1,\"sense_code\":\"INSIGHT\",\"item\":{\"id\":\"item-1\",\"type\":\"place\",\"name\":{\"ko\":\"장소\"},\"description\":{\"ko\":\"설명\"},\"image_url\":\"/item.webp\",\"attributes\":{}},\"location\":{\"id\":\"location-1\",\"code\":\"ZONE-1\",\"name\":{\"ko\":\"장소\"},\"status\":\"NORMAL\"}}],",
+        )
 }

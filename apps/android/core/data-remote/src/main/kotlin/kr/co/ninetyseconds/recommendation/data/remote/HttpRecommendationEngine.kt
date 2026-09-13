@@ -9,6 +9,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kr.co.ninetyseconds.recommendation.domain.DecisionSource
 import kr.co.ninetyseconds.recommendation.domain.LocationId
+import kr.co.ninetyseconds.recommendation.domain.JourneyStop
 import kr.co.ninetyseconds.recommendation.domain.RecommendationDecision
 import kr.co.ninetyseconds.recommendation.domain.RecommendationItem
 import kr.co.ninetyseconds.recommendation.domain.RecommendationItemId
@@ -36,7 +37,7 @@ class HttpRecommendationEngine(
 
     override suspend fun recommend(request: RecommendationRequest): RecommendationDecision = withContext(Dispatchers.IO) {
         val payload = ApiRecommendationRequest(
-            schemaVersion = 1,
+            schemaVersion = if (request.conditionCode != null || request.journeySenseCodes.isNotEmpty() || request.operationContext != null) 2 else 1,
             projectCode = request.projectId.value,
             kioskId = request.kioskId,
             sessionId = request.sessionId.value,
@@ -47,6 +48,11 @@ class HttpRecommendationEngine(
             previousLocationId = request.previousLocationId?.value,
             consentStatus = request.consentStatus.name,
             participant = request.participant?.let { ApiParticipant(it.name, it.phone, it.birthDate, it.gender) },
+            conditionCode = request.conditionCode,
+            journeySenseCodes = request.journeySenseCodes,
+            operationContext = request.operationContext?.let {
+                ApiOperationContext(it.raining, it.companionType, it.performanceWindowOpen)
+            },
             requestedAt = request.requestedAt.toString(),
         )
         val httpRequest = Request.Builder()
@@ -78,7 +84,7 @@ class HttpRecommendationEngine(
         } catch (error: SerializationException) {
             throw RecommendationUnavailable("Recommendation API returned an invalid response", error)
         }
-        if (result.schemaVersion != 1) throw RecommendationUnavailable("Unsupported response schema ${result.schemaVersion}")
+        if (result.schemaVersion !in 1..2) throw RecommendationUnavailable("Unsupported response schema ${result.schemaVersion}")
         if (result.requestId != request.requestId) throw RecommendationUnavailable("Response request id does not match")
         return RecommendationDecision(
             requestId = result.requestId,
@@ -91,8 +97,23 @@ class HttpRecommendationEngine(
             ),
             source = DecisionSource.REMOTE,
             decidedAt = parseInstant(result.createdAt),
+            journey = result.journey.map { stop ->
+                JourneyStop(
+                    order = stop.order,
+                    senseCode = stop.senseCode,
+                    item = stop.item.toDomain(stop.location, request),
+                )
+            },
         )
     }
+
+    private fun ApiItem.toDomain(location: ApiLocation, request: RecommendationRequest) = RecommendationItem(
+        id = RecommendationItemId(id),
+        locationId = LocationId(location.id),
+        title = name.resolve(request.language),
+        imageRef = imageUrl,
+        supportedEmotions = setOf(request.emotionProfile.dominant.emotion),
+    )
 
     private fun parseInstant(value: String): Instant = try {
         Instant.parse(value)

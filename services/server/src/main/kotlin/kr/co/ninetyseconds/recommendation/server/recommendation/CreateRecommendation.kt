@@ -29,7 +29,16 @@ data class RecommendationRequest(
     val previousLocationId: UUID?,
     val consentStatus: ConsentStatus,
     val participant: ParticipantRequestBody? = null,
+    val conditionCode: String? = null,
+    val journeySenseCodes: List<String> = emptyList(),
+    val operationContext: OperationContextRequest? = null,
     val requestedAt: OffsetDateTime,
+)
+
+data class OperationContextRequest(
+    val raining: Boolean = false,
+    val companionType: String? = null,
+    val performanceWindowOpen: Boolean = false,
 )
 
 data class RecommendationDisplay(val recommendationText: Map<String, String>, val displaySeconds: Int = 10)
@@ -45,7 +54,15 @@ data class RecommendationResult(
     val source: String = "REMOTE",
     val policyVersion: String = "balanced-v2",
     val reasons: List<String>,
+    val journey: List<JourneyStopResult> = emptyList(),
     val createdAt: OffsetDateTime,
+)
+
+data class JourneyStopResult(
+    val order: Int,
+    val senseCode: String,
+    val item: JsonNode,
+    val location: JsonNode,
 )
 
 class NoEligibleRecommendationException(val requestId: UUID) :
@@ -66,8 +83,9 @@ class CreateRecommendation(
     private val recentWindow: Duration,
 ) {
     operator fun invoke(request: RecommendationRequest): RecommendationResult {
-        require(request.schemaVersion == 1) { "Unsupported schema version: ${request.schemaVersion}" }
+        require(request.schemaVersion in 1..2) { "Unsupported schema version: ${request.schemaVersion}" }
         require(request.stressScore in 0..100) { "stress_score must be between 0 and 100" }
+        require(request.journeySenseCodes.size <= 3) { "journey_sense_codes can contain at most three values" }
         require(request.participant == null || request.consentStatus == ConsentStatus.CONSENTED) {
             "participant requires CONSENTED status"
         }
@@ -116,6 +134,7 @@ class CreateRecommendation(
         val recommendationText = names.mapValues { (_, name) -> "지금의 당신에게 $name 추천합니다." }
 
         val result = RecommendationResult(
+            schemaVersion = request.schemaVersion,
             recommendationId = UUID.nameUUIDFromBytes("${request.projectCode}:${request.requestId}".toByteArray()),
             requestId = request.requestId,
             emotionProfile = emotion,
@@ -128,6 +147,9 @@ class CreateRecommendation(
                 add("RECENT_LOAD_BALANCED")
                 add("WEIGHTED_DETERMINISTIC")
             },
+            journey = request.journeySenseCodes.firstOrNull()?.let { senseCode ->
+                listOf(JourneyStopResult(1, senseCode, selected.item, selected.location))
+            }.orEmpty(),
             createdAt = OffsetDateTime.now(clock).withOffsetSameInstant(ZoneOffset.UTC),
         )
         events.appendIfAbsent(

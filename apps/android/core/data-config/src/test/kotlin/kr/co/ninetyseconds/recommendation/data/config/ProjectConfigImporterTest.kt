@@ -42,6 +42,26 @@ class ProjectConfigImporterTest {
         }
     }
 
+    @Test
+    fun `schema version two accepts rich flow extension`() {
+        val versionTwo = validJson()
+            .replace("\"schema_version\": 1", "\"schema_version\": 2")
+            .dropLast(1) + ", \"rich_flow\": {\"measurement_policy\": {}} }"
+
+        val config = ProjectConfigImporter(currentAppVersion = 1).import(versionTwo)
+
+        assertEquals("EXPO", config.catalog.projectId.value)
+    }
+
+    @Test
+    fun `schema version two requires rich flow extension`() {
+        val missingExtension = validJson().replace("\"schema_version\": 1", "\"schema_version\": 2")
+
+        assertThrows(InvalidProjectConfig::class.java) {
+            ProjectConfigImporter(currentAppVersion = 1).import(missingExtension)
+        }
+    }
+
     private fun validJson() =
         """
         {

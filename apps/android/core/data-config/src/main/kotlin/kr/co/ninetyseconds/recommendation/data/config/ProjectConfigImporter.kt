@@ -113,7 +113,8 @@ class ProjectConfigImporter(
     }
 
     private fun validate(config: ProjectConfigDto) {
-        if (config.schemaVersion != 1) throw IncompatibleProjectConfig("Unsupported schema version ${config.schemaVersion}")
+        if (config.schemaVersion !in 1..2) throw IncompatibleProjectConfig("Unsupported schema version ${config.schemaVersion}")
+        if (config.schemaVersion == 2 && config.richFlow == null) invalid("Schema version 2 requires rich_flow")
         if (config.defaultLanguage !in config.supportedLanguages) invalid("Default language must be supported")
         unique(config.locations.map(LocationDto::id), "location id")
         unique(config.items.map(ItemDto::id), "item id")
