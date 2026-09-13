@@ -97,6 +97,9 @@ class CreateRecommendation(
             it.path("active").asBoolean(true) && it.path("code").stringValue() == request.emotionCode
         } ?: throw NoEligibleRecommendationException(request.requestId)
 
+        val richJourney = selectRichJourney(root, request)
+        if (richJourney.isNotEmpty()) return createRichJourneyResult(request, emotion, richJourney)
+
         val locations = root.path("locations").associateBy { it.path("id").stringValue() }
         val items = root.path("items").associateBy { it.path("id").stringValue() }
         val previous = request.previousLocationId?.toString()
@@ -185,5 +188,106 @@ class CreateRecommendation(
         return candidates.last()
     }
 
+    private fun selectRichJourney(root: JsonNode, request: RecommendationRequest): List<RichJourneySelection> {
+        val richFlow = root.path("rich_flow")
+        if (richFlow.isMissingNode || richFlow.isNull) return emptyList()
+        val requestedSenses: List<String> = if (request.journeySenseCodes.isNotEmpty()) {
+            request.journeySenseCodes.take(3)
+        } else {
+            val mapping = richFlow.path("journey_mappings").firstOrNull {
+                it.path("condition_code").stringValue() == request.conditionCode
+            }
+            val mappedSenses = mutableListOf<String>()
+            mapping?.path("sense_sequence")?.forEach { node ->
+                if (mappedSenses.size < 3) mappedSenses += node.stringValue()
+            }
+            mappedSenses
+        }
+        if (requestedSenses.isEmpty()) return emptyList()
+
+        val usedCodes = mutableSetOf<String>()
+        return requestedSenses.mapIndexedNotNull { index, senseCode ->
+            val candidates = richFlow.path("venue_operations").filter { venue ->
+                val code = venue.path("code").stringValue()
+                venue.path("active").asBoolean(false) &&
+                    venue.path("confirmation_status").stringValue() == "CONFIRMED" &&
+                    code !in usedCodes &&
+                    venue.path("sense_codes").any { it.stringValue() == senseCode } &&
+                    (!request.operationContext?.raining.orFalse() || venue.path("indoor").asBoolean(false)) &&
+                    (!isFamily(request.operationContext?.companionType) || !venue.path("alcohol").asBoolean(false))
+            }.sortedBy { it.path("code").stringValue() }
+            if (candidates.isEmpty()) return@mapIndexedNotNull null
+            val position = Math.floorMod("${request.requestId}:$senseCode:$index".hashCode(), candidates.size)
+            val venue = candidates[position]
+            usedCodes += venue.path("code").stringValue()
+            RichJourneySelection(index + 1, senseCode, venue)
+        }.mapIndexed { index, selection -> selection.copy(order = index + 1) }
+    }
+
+    private fun createRichJourneyResult(
+        request: RecommendationRequest,
+        emotion: JsonNode,
+        selections: List<RichJourneySelection>,
+    ): RecommendationResult {
+        val stops = selections.map { selection ->
+            val code = selection.venue.path("code").stringValue()
+            val locationId = stableUuid(request.projectCode, "location:$code")
+            val itemId = stableUuid(request.projectCode, "item:$code")
+            val location = objectMapper.createObjectNode().apply {
+                put("id", locationId.toString())
+                put("code", code)
+                set("name", selection.venue.path("name"))
+                put("status", "NORMAL")
+                set("marker", selection.venue.path("marker"))
+                put("active", true)
+            }
+            val item = objectMapper.createObjectNode().apply {
+                put("id", itemId.toString())
+                put("type", "place")
+                put("location_id", locationId.toString())
+                set("name", selection.venue.path("name"))
+                put("active", true)
+            }
+            JourneyStopResult(selection.order, selection.senseCode, item, location)
+        }
+        val primary = stops.first()
+        val names = objectMapper.convertValue(primary.item.path("name"), Map::class.java)
+            .entries.associate { it.key.toString() to it.value.toString() }
+        val result = RecommendationResult(
+            schemaVersion = request.schemaVersion,
+            recommendationId = UUID.nameUUIDFromBytes("${request.projectCode}:${request.requestId}".toByteArray()),
+            requestId = request.requestId,
+            emotionProfile = emotion,
+            item = primary.item,
+            location = primary.location,
+            display = RecommendationDisplay(names.mapValues { (_, name) -> "지금의 당신에게 $name 추천합니다." }),
+            policyVersion = "rich-journey-v1",
+            reasons = listOf("SENSE_SEQUENCE_MATCHED", "OPERATION_FILTERED", "DETERMINISTIC"),
+            journey = stops,
+            createdAt = OffsetDateTime.now(clock).withOffsetSameInstant(ZoneOffset.UTC),
+        )
+        events.appendIfAbsent(
+            RecommendationEvent(
+                eventId = result.recommendationId, projectCode = request.projectCode, kioskId = request.kioskId,
+                sessionId = request.sessionId, emotionCode = request.emotionCode,
+                itemId = UUID.fromString(primary.item.path("id").stringValue()),
+                locationId = UUID.fromString(primary.location.path("id").stringValue()),
+                source = RecommendationSource.REMOTE, consentStatus = request.consentStatus,
+                stressScore = request.stressScore, participantName = request.participant?.name,
+                participantPhone = request.participant?.phone, participantBirthDate = request.participant?.birthDate,
+                participantGender = request.participant?.gender, policyVersion = result.policyVersion,
+                occurredAt = request.requestedAt.toInstant(),
+            ),
+        )
+        return result
+    }
+
+    private fun Boolean?.orFalse() = this ?: false
+    private fun isFamily(companionType: String?): Boolean =
+        companionType.equals("FAMILY", ignoreCase = true) || companionType.equals("CHILD", ignoreCase = true)
+    private fun stableUuid(projectCode: String, value: String): UUID =
+        UUID.nameUUIDFromBytes("$projectCode:$value".toByteArray())
+
     private data class Candidate(val rule: JsonNode, val item: JsonNode, val location: JsonNode)
+    private data class RichJourneySelection(val order: Int, val senseCode: String, val venue: JsonNode)
 }

@@ -98,6 +98,70 @@ class CreateRecommendationTest {
         assertEquals(result.item, result.journey.single().item)
     }
 
+    @Test
+    fun `rich flow selects three confirmed active venues in requested sense order`() {
+        val richConfig = """
+            {
+              "emotion_profiles":[{"code":"VITALITY","active":true}],
+              "locations":[], "items":[], "rules":[],
+              "rich_flow": {
+                "journey_mappings":[{"condition_code":"JOY","sense_sequence":["INSIGHT","ACTION","TASTE"]}],
+                "venue_operations":[
+                  {"code":"HALL","name":{"ko":"주제관"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["INSIGHT"],"marker":{"x_percent":10,"y_percent":20}},
+                  {"code":"PLAY","name":{"ko":"체험장"},"active":true,"confirmation_status":"CONFIRMED","indoor":false,"alcohol":false,"sense_codes":["ACTION"],"marker":{"x_percent":30,"y_percent":40}},
+                  {"code":"FOOD","name":{"ko":"먹거리"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["TASTE"],"marker":{"x_percent":50,"y_percent":60}},
+                  {"code":"DRAFT","name":{"ko":"미확정"},"active":true,"confirmation_status":"PENDING_CONFIRMATION","indoor":true,"alcohol":false,"sense_codes":["ACTION"]}
+                ]
+              }
+            }
+        """.trimIndent()
+        val richService = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() }, Duration.ofMinutes(15),
+        )
+
+        val result = richService(
+            request(schemaVersion = 2, journeySenseCodes = listOf("INSIGHT", "ACTION", "TASTE"))
+                .copy(conditionCode = "JOY"),
+        )
+
+        assertEquals("rich-journey-v1", result.policyVersion)
+        assertEquals(listOf("INSIGHT", "ACTION", "TASTE"), result.journey.map { it.senseCode })
+        assertEquals(listOf("HALL", "PLAY", "FOOD"), result.journey.map { it.location.path("code").stringValue() })
+        assertEquals(listOf(1, 2, 3), result.journey.map { it.order })
+    }
+
+    @Test
+    fun `rich flow rain and family filters unsafe venues`() {
+        val richConfig = """
+            {
+              "emotion_profiles":[{"code":"VITALITY","active":true}],
+              "locations":[], "items":[], "rules":[],
+              "rich_flow":{"venue_operations":[
+                {"code":"OUTDOOR","name":{"ko":"야외"},"active":true,"confirmation_status":"CONFIRMED","indoor":false,"alcohol":false,"sense_codes":["TASTE"]},
+                {"code":"BAR","name":{"ko":"주류"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":true,"sense_codes":["TASTE"]},
+                {"code":"SAFE","name":{"ko":"실내 먹거리"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["TASTE"]}
+              ]}
+            }
+        """.trimIndent()
+        val richService = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() }, Duration.ofMinutes(15),
+        )
+
+        val result = richService(
+            request(schemaVersion = 2, journeySenseCodes = listOf("TASTE")).copy(
+                operationContext = OperationContextRequest(raining = true, companionType = "FAMILY"),
+            ),
+        )
+
+        assertEquals("SAFE", result.location.path("code").stringValue())
+    }
+
     private fun request(
         emotionCode: String = "VITALITY",
         previousLocationId: UUID? = null,
