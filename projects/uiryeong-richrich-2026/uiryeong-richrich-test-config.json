@@ -1,0 +1,142 @@
+{
+  "schema_version": 2,
+  "config_version": 1,
+  "minimum_app_version": 1,
+  "project_code": "UIRYEONG_RICHRICH_2026_TEST",
+  "default_language": "ko",
+  "supported_languages": ["ko"],
+  "theme": {
+    "name": {"ko": "AI 리치 컨디션"},
+    "logo_url": null,
+    "primary_color": "#C99A35",
+    "background_image_url": "android.resource://kr.co.ninetyseconds.recommendation/drawable/richrich_start_background",
+    "map_image_url": "android.resource://kr.co.ninetyseconds.recommendation/drawable/richrich_2026_map"
+  },
+  "content": {
+    "home_introduction": {"ko": "AI가 깨우는 부자의 감각\n나의 부자감각은 무엇일까?"},
+    "result_item_label": {"ko": "오늘의 감각"},
+    "map_button_label": {"ko": "감각 여정 지도 보기"},
+    "current_location_label": {"ko": "현재 위치"},
+    "map_gesture_hint": {"ko": "지도를 확대하거나 움직여 추천 여정을 확인하세요"}
+  },
+  "navigation": {
+    "origin": {"x_percent": 50.0, "y_percent": 50.0},
+    "routes_by_location_code": {}
+  },
+  "emotion_profiles": [
+    {"code":"JOY","name":{"ko":"즐거움"},"message":{"ko":"지금은 즐거움에 가까워 보여요"},"color":"#F4C542","icon":null,"active":true},
+    {"code":"EXCITED","name":{"ko":"들뜸"},"message":{"ko":"지금은 들뜸에 가까워 보여요"},"color":"#F0B43C","icon":null,"active":true},
+    {"code":"THRILL","name":{"ko":"설렘"},"message":{"ko":"어떤 이유인지 설레어 보여요"},"color":"#EAA63E","icon":null,"active":true},
+    {"code":"INTEREST","name":{"ko":"흥미"},"message":{"ko":"무언가에 흥미가 생긴 듯 보여요"},"color":"#DEA34A","icon":null,"active":true},
+    {"code":"TENSION","name":{"ko":"긴장"},"message":{"ko":"조금 긴장한 모습에 가까워 보여요"},"color":"#D98B55","icon":null,"active":true},
+    {"code":"HEAVINESS","name":{"ko":"무거움"},"message":{"ko":"몸과 마음이 조금 무거워 보여요"},"color":"#C67A5B","icon":null,"active":true},
+    {"code":"LOW_ENERGY","name":{"ko":"낮은 에너지"},"message":{"ko":"에너지가 잠시 낮아진 듯 보여요"},"color":"#9E8B67","icon":null,"active":true},
+    {"code":"DROWSY","name":{"ko":"노곤함"},"message":{"ko":"잠시 노곤한 상태에 가까워 보여요"},"color":"#8E9A72","icon":null,"active":true},
+    {"code":"LOOSE","name":{"ko":"느슨함"},"message":{"ko":"몸과 마음이 느슨해진 듯 보여요"},"color":"#7FA683","icon":null,"active":true},
+    {"code":"COMFORT","name":{"ko":"편안함"},"message":{"ko":"편안한 상태에 가까워 보여요"},"color":"#70A58C","icon":null,"active":true},
+    {"code":"STABLE","name":{"ko":"안정"},"message":{"ko":"차분하고 안정되어 보여요"},"color":"#6D9F91","icon":null,"active":true},
+    {"code":"LEISURE","name":{"ko":"여유"},"message":{"ko":"마음에 여유가 느껴져 보여요"},"color":"#739796","icon":null,"active":true}
+  ],
+  "analysis_mappings": [
+    {"source_label":"Neutral","emotion_code":"INTEREST"},
+    {"source_label":"Happy","emotion_code":"INTEREST"},
+    {"source_label":"Surprise","emotion_code":"INTEREST"},
+    {"source_label":"Sad","emotion_code":"INTEREST"},
+    {"source_label":"Anger","emotion_code":"INTEREST"},
+    {"source_label":"Disgust","emotion_code":"INTEREST"},
+    {"source_label":"Fear","emotion_code":"INTEREST"},
+    {"source_label":"Contempt","emotion_code":"INTEREST"}
+  ],
+  "locations": [],
+  "items": [],
+  "rules": [],
+  "rich_flow": {
+    "measurement_policy": {
+      "measurement_seconds": 10,
+      "result_display_seconds": 5,
+      "idle_return_seconds": 5,
+      "max_attempts": 2,
+      "heart_rate_range": {"min":55,"max":170},
+      "respiration_range": {"min":10,"max":35},
+      "au_calibration_frames": 30,
+      "au_low_upper": null,
+      "au_medium_upper": null,
+      "overheat_stress_threshold": null,
+      "confidence_threshold": 0.60
+    },
+    "senses": [
+      {"code":"INSIGHT","name":{"ko":"안목"},"order":1,"active":true},
+      {"code":"SCENT","name":{"ko":"향기"},"order":2,"active":true},
+      {"code":"TASTE","name":{"ko":"미식"},"order":3,"active":true},
+      {"code":"LISTENING","name":{"ko":"경청"},"order":4,"active":true},
+      {"code":"ACTION","name":{"ko":"실천"},"order":5,"active":true},
+      {"code":"INTUITION","name":{"ko":"통찰"},"order":6,"active":true}
+    ],
+    "condition_states": [
+      {"code":"JOY","group":"A","display_name":{"ko":"즐거움"},"message":{"ko":"지금은 즐거움에 가까워 보여요"},"stress_band":"HIGH","tension_band":"LOW","primary_sense":"ACTION","compass_values":{"INSIGHT":35,"SCENT":35,"TASTE":65,"LISTENING":35,"ACTION":95,"INTUITION":35},"active":true},
+      {"code":"EXCITED","group":"A","display_name":{"ko":"들뜸"},"message":{"ko":"지금은 들뜸에 가까워 보여요"},"stress_band":"HIGH","tension_band":"MEDIUM","primary_sense":"ACTION","compass_values":{"INSIGHT":35,"SCENT":35,"TASTE":60,"LISTENING":65,"ACTION":95,"INTUITION":35},"active":true},
+      {"code":"THRILL","group":"B","display_name":{"ko":"설렘"},"message":{"ko":"어떤 이유인지 설레어 보여요"},"stress_band":"MODERATELY_HIGH","tension_band":"MEDIUM","primary_sense":"INSIGHT","compass_values":{"INSIGHT":95,"SCENT":35,"TASTE":60,"LISTENING":35,"ACTION":65,"INTUITION":35},"active":true},
+      {"code":"INTEREST","group":"B","display_name":{"ko":"흥미"},"message":{"ko":"무언가에 흥미가 생긴 듯 보여요"},"stress_band":"NORMAL","tension_band":"MEDIUM","primary_sense":"INSIGHT","compass_values":{"INSIGHT":95,"SCENT":35,"TASTE":60,"LISTENING":35,"ACTION":35,"INTUITION":65},"active":true},
+      {"code":"TENSION","group":"C","display_name":{"ko":"긴장"},"message":{"ko":"조금 긴장한 모습에 가까워 보여요"},"stress_band":"HIGH","tension_band":"HIGH","primary_sense":"SCENT","compass_values":{"INSIGHT":65,"SCENT":95,"TASTE":60,"LISTENING":35,"ACTION":35,"INTUITION":35},"active":true},
+      {"code":"HEAVINESS","group":"C","display_name":{"ko":"무거움"},"message":{"ko":"몸과 마음이 조금 무거워 보여요"},"stress_band":"MODERATELY_HIGH","tension_band":"HIGH","primary_sense":"SCENT","compass_values":{"INSIGHT":35,"SCENT":95,"TASTE":65,"LISTENING":35,"ACTION":35,"INTUITION":35},"active":true},
+      {"code":"LOW_ENERGY","group":"D","display_name":{"ko":"낮은 에너지"},"message":{"ko":"에너지가 잠시 낮아진 듯 보여요"},"stress_band":"NORMAL","tension_band":"HIGH","primary_sense":"TASTE","compass_values":{"INSIGHT":60,"SCENT":35,"TASTE":95,"LISTENING":35,"ACTION":35,"INTUITION":35},"active":true},
+      {"code":"DROWSY","group":"D","display_name":{"ko":"노곤함"},"message":{"ko":"잠시 노곤한 상태에 가까워 보여요"},"stress_band":"LOW","tension_band":"HIGH","primary_sense":"TASTE","compass_values":{"INSIGHT":35,"SCENT":35,"TASTE":95,"LISTENING":35,"ACTION":35,"INTUITION":35},"active":true},
+      {"code":"LOOSE","group":"E","display_name":{"ko":"느슨함"},"message":{"ko":"몸과 마음이 느슨해진 듯 보여요"},"stress_band":"LOW","tension_band":"LOW","primary_sense":"INSIGHT","compass_values":{"INSIGHT":95,"SCENT":35,"TASTE":60,"LISTENING":35,"ACTION":35,"INTUITION":35},"active":true},
+      {"code":"COMFORT","group":"E","display_name":{"ko":"편안함"},"message":{"ko":"편안한 상태에 가까워 보여요"},"stress_band":"LOW","tension_band":"MEDIUM","primary_sense":"INSIGHT","compass_values":{"INSIGHT":95,"SCENT":35,"TASTE":65,"LISTENING":35,"ACTION":60,"INTUITION":35},"active":true},
+      {"code":"STABLE","group":"F","display_name":{"ko":"안정"},"message":{"ko":"차분하고 안정되어 보여요"},"stress_band":"NORMAL","tension_band":"LOW","primary_sense":"INSIGHT","compass_values":{"INSIGHT":95,"SCENT":35,"TASTE":60,"LISTENING":65,"ACTION":35,"INTUITION":35},"active":true},
+      {"code":"LEISURE","group":"F","display_name":{"ko":"여유"},"message":{"ko":"마음에 여유가 느껴져 보여요"},"stress_band":"MODERATELY_HIGH","tension_band":"LOW","primary_sense":"ACTION","compass_values":{"INSIGHT":35,"SCENT":35,"TASTE":60,"LISTENING":65,"ACTION":95,"INTUITION":35},"active":true}
+    ],
+    "journey_mappings": [
+      {"condition_code":"JOY","sense_sequence":["ACTION","TASTE","REST"],"exception_code":null},
+      {"condition_code":"EXCITED","sense_sequence":["ACTION","LISTENING","TASTE"],"exception_code":null},
+      {"condition_code":"THRILL","sense_sequence":["INSIGHT","ACTION","TASTE"],"exception_code":null},
+      {"condition_code":"INTEREST","sense_sequence":["INSIGHT","INTUITION","TASTE"],"exception_code":"E8"},
+      {"condition_code":"TENSION","sense_sequence":["SCENT","INSIGHT","TASTE"],"exception_code":null},
+      {"condition_code":"HEAVINESS","sense_sequence":["SCENT","TASTE","REST"],"exception_code":null},
+      {"condition_code":"LOW_ENERGY","sense_sequence":["TASTE","REST","INSIGHT"],"exception_code":null},
+      {"condition_code":"DROWSY","sense_sequence":["TASTE","REST","REST"],"exception_code":"E4"},
+      {"condition_code":"LOOSE","sense_sequence":["INSIGHT","REST","TASTE"],"exception_code":null},
+      {"condition_code":"COMFORT","sense_sequence":["INSIGHT","TASTE","ACTION"],"exception_code":null},
+      {"condition_code":"STABLE","sense_sequence":["INSIGHT","LISTENING","TASTE"],"exception_code":"E7"},
+      {"condition_code":"LEISURE","sense_sequence":["ACTION","LISTENING","TASTE"],"exception_code":"E7"}
+    ],
+    "venue_operations": [
+      {"code":"RICH_THEME_HALL","name":{"ko":"부자1번지 상설 주제관"},"sense_codes":["INSIGHT"],"zone_code":"10","marker":{"x_percent":83.8,"y_percent":41.2},"capacity":80,"recommendation_ttl_minutes":60,"indoor":true,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"HAPPY_TINIPING_PHOTO","name":{"ko":"리치 해피&티니핑 포토존"},"sense_codes":["INSIGHT"],"zone_code":"3","marker":null,"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":true,"high_stimulation":false,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"PARTY_ZONE","name":{"ko":"파티존 무대"},"sense_codes":["INSIGHT","LISTENING"],"zone_code":"1","marker":{"x_percent":73.7,"y_percent":60.9},"capacity":2000,"recommendation_ttl_minutes":90,"indoor":false,"family_priority":false,"high_stimulation":true,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"AROMA_CLASS","name":{"ko":"리치 조향 클래스"},"sense_codes":["SCENT"],"zone_code":"5","marker":{"x_percent":72.8,"y_percent":27.6},"capacity":20,"recommendation_ttl_minutes":90,"indoor":true,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"SHARING_MARKET","name":{"ko":"함께하는 나눔 마켓"},"sense_codes":["SCENT"],"zone_code":"3","marker":null,"capacity":null,"recommendation_ttl_minutes":60,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"JEONGAM_MARKET","name":{"ko":"정든 정암마켓"},"sense_codes":["TASTE"],"zone_code":"3","marker":null,"capacity":null,"recommendation_ttl_minutes":60,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"FOOD_COURT","name":{"ko":"리치 푸드코트"},"sense_codes":["TASTE"],"zone_code":"8","marker":{"x_percent":86.8,"y_percent":49.4},"capacity":null,"recommendation_ttl_minutes":60,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":true,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"SNACK_ZONE","name":{"ko":"리치 스낵존"},"sense_codes":["TASTE"],"zone_code":"2","marker":{"x_percent":37.5,"y_percent":42.7},"capacity":300,"recommendation_ttl_minutes":60,"indoor":false,"family_priority":true,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"RICH_DISCO","name":{"ko":"리치 디스코"},"sense_codes":["LISTENING"],"zone_code":"3","marker":null,"capacity":null,"recommendation_ttl_minutes":90,"indoor":false,"family_priority":false,"high_stimulation":true,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"RICH_SPORTS_DAY","name":{"ko":"리치 운동회"},"sense_codes":["ACTION"],"zone_code":"3","marker":null,"capacity":100,"recommendation_ttl_minutes":90,"indoor":false,"family_priority":false,"high_stimulation":true,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"RICH_KIDZANIA","name":{"ko":"리치 키자니아 직업체험"},"sense_codes":["ACTION"],"zone_code":"3","marker":{"x_percent":51.1,"y_percent":27.4},"capacity":60,"recommendation_ttl_minutes":90,"indoor":true,"family_priority":true,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"MONEY_PLAY","name":{"ko":"리치리치 머니 플레이"},"sense_codes":["ACTION"],"zone_code":"4","marker":null,"capacity":null,"recommendation_ttl_minutes":60,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"CAULDRON_BRIDGE","name":{"ko":"솥바위 하트부교"},"sense_codes":["INTUITION"],"zone_code":"2","marker":{"x_percent":87.4,"y_percent":87.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"BOAT_TOUR","name":{"ko":"뱃길투어·뱃놀이"},"sense_codes":["INTUITION"],"zone_code":"3","marker":null,"capacity":null,"recommendation_ttl_minutes":90,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"RICH_ROAD_REST","name":{"ko":"부자로드 산책"},"sense_codes":["REST"],"zone_code":null,"marker":{"x_percent":10.8,"y_percent":69.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"CAULDRON_RIVERSIDE_REST","name":{"ko":"솥바위 강변 휴식"},"sense_codes":["REST"],"zone_code":null,"marker":null,"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false}
+    ],
+    "kiosks": [
+      {"code":"CONDITION_A","installation_group":"테이스티존 옆 리치 컨디션존","zone_code":"6","marker":{"x_percent":39.5,"y_percent":51.5},"quantity":6,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"CONDITION_B","installation_group":"종합안내센터 옆 리치 컨디션존","zone_code":"6","marker":{"x_percent":64.5,"y_percent":38.0},"quantity":6,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"GATE_1","installation_group":"제1출입구","zone_code":null,"marker":null,"quantity":3,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"GATE_2","installation_group":"제2출입구","zone_code":null,"marker":null,"quantity":3,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"GATE_3","installation_group":"제3출입구","zone_code":null,"marker":null,"quantity":3,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"GATE_4","installation_group":"제4출입구","zone_code":null,"marker":null,"quantity":3,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"THEME_HALL","installation_group":"부자1번지 주제관","zone_code":"10","marker":null,"quantity":2,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"SPARE","installation_group":"예비 단말","zone_code":null,"marker":null,"quantity":4,"confirmation_status":"CONFIRMED","active":false}
+    ],
+    "congestion_policy": {
+      "normal_under_percent": 40,
+      "busy_under_percent": 70,
+      "exclude_at_percent": 100,
+      "companion_exclude_at_percent": 70,
+      "rain_indoor_normal_under_percent": 50,
+      "rain_indoor_busy_under_percent": 80,
+      "meal_windows": ["11:30-13:30","17:00-19:00"],
+      "closing_cutoff_minutes": 60
+    }
+  }
+}

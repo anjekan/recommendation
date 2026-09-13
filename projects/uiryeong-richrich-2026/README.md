@@ -4,6 +4,10 @@
 
 `uiryeong-richrich-project-config.json`은 RICH FLOW 태블릿 기획서 v1.4를 기준으로 만든 schema version 2 초안이다.
 
+`uiryeong-richrich-test-config.json`은 서버·태블릿 연동 확인 전용이다. 프로젝트 코드는
+`UIRYEONG_RICHRICH_2026_TEST`이며, 지도에서 근사 좌표가 확인된 대표 장소만 활성화했다.
+운영 서버에는 담당자 확인 전 이 파일을 사용하지 않는다.
+
 현재 포함된 확정 요구사항:
 
 - 10초 측정, 결과 5초 표시, 미검출 5초 후 복귀
