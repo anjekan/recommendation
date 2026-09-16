@@ -22,6 +22,12 @@ import kr.co.ninetyseconds.recommendation.domain.RecommendationRequest
 import kr.co.ninetyseconds.recommendation.domain.SessionId
 import kr.co.ninetyseconds.recommendation.domain.RuntimeMode
 import kr.co.ninetyseconds.recommendation.domain.ParticipantProfile
+import kr.co.ninetyseconds.recommendation.domain.DecisionSource
+import kr.co.ninetyseconds.recommendation.domain.JourneyLocation
+import kr.co.ninetyseconds.recommendation.domain.JourneyStop
+import kr.co.ninetyseconds.recommendation.domain.LocationId
+import kr.co.ninetyseconds.recommendation.domain.RecommendationItem
+import kr.co.ninetyseconds.recommendation.domain.RecommendationItemId
 import kr.co.ninetyseconds.recommendation.domain.ports.RecommendationEngine
 
 class AppContainer(
@@ -95,6 +101,29 @@ class AppContainer(
 
     suspend fun demoRecommend(emotion: EmotionCode, stressScore: Int = 24): RecommendationDecision {
         val config = configuration ?: start()
+        if (config.catalog.items.isEmpty() && config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true)) {
+            fun item(id: String, title: String) = RecommendationItem(
+                id = RecommendationItemId(id),
+                locationId = LocationId(id),
+                title = title,
+                imageRef = null,
+                supportedEmotions = setOf(emotion),
+            )
+            val themeHall = item("RICH_THEME_HALL", "부자1번지 상설 주제관")
+            val kidzania = item("RICH_KIDZANIA", "리치 키자니아 직업체험")
+            val snackZone = item("SNACK_ZONE", "리치 스낵존")
+            return RecommendationDecision(
+                requestId = UUID.randomUUID().toString(),
+                item = themeHall,
+                source = DecisionSource.LOCAL,
+                decidedAt = Instant.now(clock),
+                journey = listOf(
+                    JourneyStop(1, "INSIGHT", themeHall, JourneyLocation("RICH_THEME_HALL", themeHall.title, 83.8, 41.2)),
+                    JourneyStop(2, "ACTION", kidzania, JourneyLocation("RICH_KIDZANIA", kidzania.title, 51.1, 27.4)),
+                    JourneyStop(3, "TASTE", snackZone, JourneyLocation("SNACK_ZONE", snackZone.title, 37.5, 42.7)),
+                ),
+            )
+        }
         return localEngine.recommend(
             RecommendationRequest(
                 requestId = UUID.randomUUID().toString(),

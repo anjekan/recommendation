@@ -1,6 +1,7 @@
 package kr.co.ninetyseconds.recommendation
 
 import android.Manifest
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.net.Uri
@@ -16,6 +17,10 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -35,13 +40,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -58,10 +72,40 @@ import kr.co.ninetyseconds.recommendation.ui.theme.RecommendationTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         super.onCreate(savedInstanceState)
         enterKioskFullscreen()
         val container = (application as RecommendationApplication).container
-        setContent { RecommendationApp(container) }
+        setContent {
+            if (BuildConfig.DEBUG && intent.getBooleanExtra("measurement_design_preview", false)) {
+                RecommendationTheme {
+                    MeasurementPresentation(20, "화면 중앙에 얼굴을 맞춰주세요 · 디자인 미리보기", 92, 15, 31, .45f, { finish() }) {
+                        Image(painterResource(R.drawable.demo_face), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                    }
+                }
+            } else if (BuildConfig.DEBUG && intent.getBooleanExtra("result_design_preview", false)) {
+                RecommendationTheme {
+                    ResultPresentation("무언가에 흥미가 생긴 듯 보여요", listOf("INSIGHT", "TASTE", "ACTION"),
+                        listOf("1. 부자1번지 상설 주제관", "2. 리치 키자니아 직업체험", "3. 리치 스낵존"),
+                        72, 15, "감각 여정 지도 보기", { finish() }, { finish() })
+                }
+            } else if (BuildConfig.DEBUG && intent.getBooleanExtra("map_design_preview", false)) {
+                RecommendationTheme {
+                    var previewConfig by remember { mutableStateOf<ProjectConfiguration?>(null) }
+                    LaunchedEffect(Unit) { previewConfig = container.start() }
+                    previewConfig?.let { config ->
+                        val stops = config.catalog.locations.take(3).mapIndexed { i, location ->
+                            DisplayMapStop(i + 1, location.code, location.title, location.markerXPercent, location.markerYPercent)
+                        }.ifEmpty { listOf(
+                            DisplayMapStop(1, "PREVIEW_PLAY", "리치 플레이존", 51.1, 27.4),
+                            DisplayMapStop(2, "PREVIEW_DREAM", "리치 드림존", 72.8, 27.6),
+                            DisplayMapStop(3, "PREVIEW_LIFE", "리치 라이프존", 48.0, 58.0),
+                        ) }
+                        MapPresentation(config, stops) { finish() }
+                    }
+                }
+            } else RecommendationApp(container)
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -89,7 +133,7 @@ private sealed interface AppState {
         val participant: ParticipantProfile?,
     ) : AppState
     data class Analyzing(val config: ProjectConfiguration) : AppState
-    data class Result(val config: ProjectConfiguration, val label: String, val stress: Int, val decision: RecommendationDecision) : AppState
+    data class Result(val config: ProjectConfiguration, val label: String, val stress: Int, val heartRate: Int, val respiration: Int, val decision: RecommendationDecision) : AppState
     data class MapGuide(val config: ProjectConfiguration, val decision: RecommendationDecision) : AppState
     data class Failed(val message: String, val config: ProjectConfiguration? = null) : AppState
 }
@@ -98,8 +142,9 @@ private sealed interface AppState {
 fun RecommendationApp(container: AppContainer) {
     var state: AppState by remember { mutableStateOf(AppState.Loading) }
     val scope = rememberCoroutineScope()
+    val recentPrimarySenses = remember { mutableListOf<String>() }
     LaunchedEffect(container) {
-        state = runCatching { AppState.Consent(container.start()) }
+        state = runCatching { AppState.Home(container.start()) }
             .getOrElse { AppState.Failed(it.message ?: "프로젝트 설정을 불러오지 못했습니다.") }
     }
     RecommendationTheme {
@@ -108,16 +153,16 @@ fun RecommendationApp(container: AppContainer) {
             is AppState.Home -> HomeScreen(
                 current.config,
                 container.settings(),
-                onStart = { state = AppState.Consent(current.config) },
+                onStart = { state = AppState.Measuring(current.config, ConsentStatus.DECLINED, null) },
                 onSettings = { state = AppState.Settings(current.config, container.settings()) },
             )
             is AppState.Settings -> RuntimeSettingsScreen(
                 initial = current.settings,
                 onSave = { settings -> scope.launch {
-                    state = runCatching { AppState.Consent(container.updateSettings(settings)) }
+                    state = runCatching { AppState.Home(container.updateSettings(settings)) }
                         .getOrElse { AppState.Failed(it.message ?: "운영 설정을 저장하지 못했습니다.", current.config) }
                 } },
-                onCancel = { state = AppState.Consent(current.config) },
+                onCancel = { state = AppState.Home(current.config) },
             )
             is AppState.Consent -> KioskConsentScreen(
                 config = current.config,
@@ -131,7 +176,7 @@ fun RecommendationApp(container: AppContainer) {
             is AppState.Measuring -> MeasurementScreen(
                 current.config,
                 demoMode = container.settings().demoMode,
-                onComplete = { label, stress -> scope.launch {
+                onComplete = { label, stress, heartRate, respiration -> scope.launch {
                     state = AppState.Analyzing(current.config)
                     state = runCatching {
                         val emotion = current.config.mapAnalysisLabel(label, stress)
@@ -140,10 +185,15 @@ fun RecommendationApp(container: AppContainer) {
                         } else {
                             container.recommend(emotion, stress, current.consentStatus, current.participant)
                         }
-                        AppState.Result(current.config, label, stress, decision)
+                        val balancedDecision = if (current.config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true)) {
+                            balanceRichJourney(decision, recentPrimarySenses)
+                        } else {
+                            decision
+                        }
+                        AppState.Result(current.config, label, stress, heartRate, respiration, balancedDecision)
                     }.getOrElse { AppState.Failed(it.message ?: "추천에 실패했습니다.", current.config) }
                 } },
-                onCancel = { state = AppState.Consent(current.config) },
+                onCancel = { state = AppState.Home(current.config) },
             )
             is AppState.Analyzing -> Centered {
                 CircularProgressIndicator()
@@ -155,16 +205,34 @@ fun RecommendationApp(container: AppContainer) {
             is AppState.Result -> ResultScreen(
                 current,
                 onShowMap = { state = AppState.MapGuide(current.config, current.decision) },
-                onRestart = { state = AppState.Consent(current.config) },
+                onRestart = { state = AppState.Measuring(current.config, ConsentStatus.DECLINED, null) },
             )
-            is AppState.MapGuide -> MapGuideScreen(current) { state = AppState.Consent(current.config) }
+            is AppState.MapGuide -> MapGuideScreen(current) { state = AppState.Home(current.config) }
             is AppState.Failed -> Centered {
                 Text(uiText(current.config?.selectedLanguage, "처리 오류", "Processing error", "处理错误", "処理エラー"), style = MaterialTheme.typography.headlineMedium)
                 Text(current.message, color = MaterialTheme.colorScheme.error)
-                current.config?.let { config -> Button(onClick = { state = AppState.Consent(config) }) { Text(uiText(config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) } }
+                current.config?.let { config -> Button(onClick = { state = AppState.Home(config) }) { Text(uiText(config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) } }
             }
         }
     }
+}
+
+private fun balanceRichJourney(
+    decision: RecommendationDecision,
+    recentPrimarySenses: MutableList<String>,
+): RecommendationDecision {
+    val journey = decision.journey.sortedBy { it.order }
+    if (journey.size < 2) return decision
+
+    val nextIndex = journey.indexOfFirst { it.senseCode !in recentPrimarySenses }
+        .takeIf { it >= 0 }
+        ?: 0
+    val reordered = (journey.drop(nextIndex) + journey.take(nextIndex))
+        .mapIndexed { index, stop -> stop.copy(order = index + 1) }
+
+    recentPrimarySenses += reordered.first().senseCode
+    while (recentPrimarySenses.size > 2) recentPrimarySenses.removeAt(0)
+    return decision.copy(item = reordered.first().item, journey = reordered)
 }
 
 @Composable
@@ -246,14 +314,87 @@ private fun HomeScreen(
     settings: RuntimeSettings,
     onStart: () -> Unit,
     onSettings: () -> Unit,
-) = Centered {
-    Text(config.theme.name, style = MaterialTheme.typography.headlineMedium)
-    Text("${settings.mode} · config v${config.catalog.configVersion}")
-    Spacer(Modifier.height(28.dp))
-    Text(config.content.homeIntroduction)
-    Spacer(Modifier.height(28.dp))
-    Button(onClick = onStart) { Text("측정 시작") }
-    TextButton(onClick = onSettings) { Text("운영 설정") }
+) {
+    val startInteraction = remember { MutableInteractionSource() }
+    val startPressed by startInteraction.collectIsPressedAsState()
+    var starting by remember { mutableStateOf(false) }
+    val latestOnStart by rememberUpdatedState(onStart)
+    val startScale by animateFloatAsState(
+        targetValue = if (startPressed || starting) 1.08f else 1f,
+        animationSpec = tween(140, easing = FastOutSlowInEasing), label = "start-button-scale",
+    )
+    LaunchedEffect(starting) {
+        if (starting) {
+            // Let even a quick tap show the scale feedback before navigating.
+            delay(150)
+            latestOnStart()
+        }
+    }
+    Box(Modifier.fillMaxSize().background(Color(0xFF8ED7FF))) {
+        Image(
+            painter = painterResource(R.drawable.richrich_home_background),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize(),
+        )
+        Image(
+            painter = painterResource(R.drawable.richrich_home_logo),
+            contentDescription = "AI가 깨우는 부자의 감각",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 22.dp).fillMaxWidth(.57f),
+        )
+        Image(
+            painter = painterResource(R.drawable.richrich_festival_logo),
+            contentDescription = "제5회 의령 리치리치 페스티벌",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.align(Alignment.TopStart)
+                .padding(start = 24.dp, top = 20.dp)
+                .size(width = 250.dp, height = 84.dp),
+        )
+        Image(
+            painter = painterResource(R.drawable.richrich_three_generations),
+            contentDescription = "3대가 함께 경험하는 부자의 감각",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.align(Alignment.TopEnd)
+                .padding(end = 24.dp, top = 18.dp)
+                .size(width = 216.dp, height = 102.dp),
+        )
+        Image(
+            painter = painterResource(R.drawable.richrich_home_button),
+            contentDescription = "바로 시작",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.align(Alignment.BottomCenter)
+                .padding(bottom = 52.dp)
+                .size(width = 310.dp, height = 220.dp)
+                .graphicsLayer { scaleX = startScale; scaleY = startScale }
+                .clickable(
+                    interactionSource = startInteraction,
+                    indication = null,
+                    enabled = !starting,
+                    role = androidx.compose.ui.semantics.Role.Button,
+                    onClick = { starting = true },
+                ),
+        )
+        Surface(
+            color = Color(0xDDF4EEE5), shape = RoundedCornerShape(30.dp),
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 22.dp),
+        ) {
+            Text(
+                "🔒  카메라 영상과 측정 결과는 저장되지 않으며, 익명 통계로만 집계됩니다.",
+                color = Color(0xFF44352A), fontSize = 12.sp,
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp),
+            )
+        }
+        Text(
+            "⚙",
+            color = Color(0x992D251E),
+            fontSize = 21.sp,
+            modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(end = 12.dp, bottom = 12.dp)
+                .clickable(onClick = onSettings)
+                .padding(12.dp),
+        )
+    }
 }
 
 @Composable
@@ -304,7 +445,7 @@ private fun RuntimeSettingsScreen(
 }
 
 @Composable
-private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, onComplete: (String, Int) -> Unit, onCancel: () -> Unit) {
+private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, onComplete: (String, Int, Int, Int) -> Unit, onCancel: () -> Unit) {
     if (demoMode) {
         DemoMeasurementScreen(config, onComplete, onCancel)
         return
@@ -336,7 +477,7 @@ private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, o
                 emotionLabel = current?.emotion?.label,
             )
             progress.result?.let {
-                onComplete(it.emotionLabel, it.stressScore)
+                onComplete(it.emotionLabel, it.stressScore, it.vital.heartRateBpm, it.vital.respiratoryRateRpm)
                 break
             }
         }
@@ -358,35 +499,233 @@ private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, o
         animationSpec = infiniteRepeatable(tween(1_500, easing = LinearEasing), RepeatMode.Reverse),
         label = "camera-scan-position",
     )
-    Scaffold { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            CameraMeasurementPreview(
-                modifier = Modifier.fillMaxSize(),
-                onSnapshot = { snapshot = it },
-                onError = { cameraError = it },
+    MeasurementPresentation(
+        progress.secondsRemaining, progress.phase.message,
+        snapshot?.vital?.heartRateBpm ?: 0, snapshot?.vital?.respiratoryRateRpm ?: 0,
+        ((snapshot?.emotion?.confidence ?: 0f) * 100).toInt().coerceIn(0, 100), cameraScan, onCancel,
+    ) {
+        CameraMeasurementPreview(Modifier.fillMaxSize(), { snapshot = it }, { cameraError = it })
+    }
+}
+
+@Composable
+private fun MeasurementPresentation(seconds: Int, message: String, heart: Int, respiration: Int, actionUnit: Int, scan: Float, onCancel: () -> Unit, preview: @Composable () -> Unit) {
+    val measurementFont = remember { FontFamily(Font(R.font.sb_aggro_medium, FontWeight.Normal), Font(R.font.sb_aggro_bold, FontWeight.Bold)) }
+    var instructionHeight by remember { mutableStateOf(128.dp) }
+    val density = LocalDensity.current
+    ProvideTextStyle(LocalTextStyle.current.copy(fontFamily = measurementFont)) {
+    Box(Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(R.drawable.richrich_home_background),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
+        Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .84f)))
+        Row(Modifier.fillMaxSize().padding(28.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+        Surface(
+            Modifier.weight(.46f).fillMaxHeight(),
+            shape = RoundedCornerShape(28.dp),
+            border = androidx.compose.foundation.BorderStroke(3.dp, Color(0xFFFFDA52)),
+            color = Color(0xFF063C78),
+            shadowElevation = 0.dp,
+        ) {
+        Box(Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxSize().clip(RoundedCornerShape(28.dp))) { preview() }
+        Box(Modifier.fillMaxSize().padding(18.dp)) {
+            MeasurementScanGuide(scan, instructionHeight)
+            Text(
+                "얼굴 인식 영역 · ${seconds}초 비접촉 측정",
+                modifier = Modifier.align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
+                    .border(1.5.dp, Color(0xFF43CDFF), RoundedCornerShape(24.dp))
+                    .background(Brush.verticalGradient(listOf(Color(0xFF079EF7), Color(0xFF0638B1))), RoundedCornerShape(24.dp))
+                    .padding(horizontal = 18.dp, vertical = 9.dp),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
             )
-            Canvas(Modifier.fillMaxSize()) {
-                val y = size.height * cameraScan
-                drawLine(
-                    color = Color(0xFFE86B82),
-                    start = Offset(size.width * .28f, y),
-                    end = Offset(size.width * .72f, y),
-                    strokeWidth = 6f,
-                )
+            Image(painterResource(R.drawable.rich_measure_gripping_guide), null,
+                Modifier.align(Alignment.BottomStart).padding(bottom = (instructionHeight - 17.dp).coerceAtLeast(0.dp))
+                    .offset(x = 8.dp).size(85.dp).zIndex(1f), contentScale = ContentScale.Fit)
+            Column(
+                Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+                    .onSizeChanged { instructionHeight = with(density) { it.height.toDp() } }
+                    .border(1.5.dp, Color(0xFF38C6FF), RoundedCornerShape(22.dp))
+                    .background(Brush.verticalGradient(listOf(Color(0xF0124168), Color(0xF003245D))), RoundedCornerShape(22.dp)).padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text("잠시 편안한 표정으로 화면을 봐주세요", fontSize = 18.sp, color = Color.White)
+                Text(message, color = Color(0xFFDAEBFF), fontSize = 14.sp)
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(onClick = onCancel, modifier = Modifier.width(180.dp).height(40.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFAFD6FF)),
+                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFF084781), contentColor = Color.White),
+                ) { Text("측정 취소", fontWeight = FontWeight.Bold) }
             }
-            Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(progress.phase.message)
-                Text("${progress.secondsRemaining}${uiText(config.selectedLanguage, "초", "s", "秒", "秒")}", style = MaterialTheme.typography.headlineLarge)
-                snapshot?.vital?.let { Text("${uiText(config.selectedLanguage, "심박", "Heart rate", "心率", "心拍数")} ${it.heartRateBpm} · ${uiText(config.selectedLanguage, "호흡", "Respiration", "呼吸", "呼吸数")} ${it.respiratoryRateRpm}") }
-                Text(config.theme.name)
-                Button(onClick = onCancel) { Text(uiText(config.selectedLanguage, "측정 취소", "Cancel measurement", "取消测量", "測定をキャンセル")) }
+        }
+        }
+        }
+        Column(Modifier.weight(.54f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+            MeasurementMetricCard("♥", "맥박 (Heart Rate)", heart, "BPM", 55, 170, Color(0xFF008D92))
+            MeasurementMetricCard("≈", "호흡 (Respiration)", respiration, "RPM", 10, 35, Color(0xFF0798F2))
+            MeasurementMetricCard("☺", "표정근육 (Action Unit)", actionUnit, "%", 0, 100, Color(0xFF7146E8), "개인 무표정 대비 변화량")
+        }
+        }
+    }
+    }
+}
+
+@Composable
+private fun MeasurementScanGuide(scan: Float, instructionHeight: androidx.compose.ui.unit.Dp) {
+    val guideDropPx = LocalContext.current.resources.displayMetrics.ydpi * 5f / 25.4f
+    Canvas(Modifier.fillMaxSize()) {
+        val cyan = Color(0xFF20DEFF)
+        val y = size.height * scan
+        // Layered glow works on hardware-accelerated Canvas, including Android 8.
+        val spread = 24.dp.toPx()
+        drawRect(Brush.verticalGradient(
+            listOf(Color.Transparent, cyan.copy(alpha = .08f), cyan.copy(alpha = .32f), cyan.copy(alpha = .08f), Color.Transparent),
+            startY = y - spread, endY = y + spread),
+            topLeft = Offset(0f, y - spread), size = androidx.compose.ui.geometry.Size(size.width, spread * 2))
+        listOf(14f to .06f, 10f to .10f, 6f to .24f, 3.5f to .9f).forEach { (width, alpha) ->
+            drawLine(cyan.copy(alpha = alpha), Offset(0f, y), Offset(size.width, y), width.dp.toPx())
+        }
+        drawLine(Color(0xFFF0FFFF), Offset(0f, y), Offset(size.width, y), 1.5.dp.toPx())
+        val sideInset = size.minDimension * .13f
+        val topInset = size.minDimension * .13f
+        // Leave clear space above the peeking mascot and instruction panel.
+        val bottomY = minOf(size.height * .70f, size.height - instructionHeight.toPx() - 160.dp.toPx())
+            .coerceAtLeast(topInset + size.height * .30f)
+        val arm = size.minDimension * .10f
+        val bend = 9.dp.toPx().coerceAtMost(arm * .45f)
+        listOf(
+            Offset(sideInset, topInset) to Pair(1f, 1f),
+            Offset(size.width - sideInset, topInset) to Pair(-1f, 1f),
+            Offset(sideInset, bottomY) to Pair(1f, -1f),
+            Offset(size.width - sideInset, bottomY) to Pair(-1f, -1f),
+        ).forEach { (corner, direction) ->
+            val (dx, dy) = direction
+            val shiftedCorner = corner + Offset(0f, guideDropPx)
+            val path = Path().apply {
+                moveTo(shiftedCorner.x, shiftedCorner.y + arm * dy)
+                lineTo(shiftedCorner.x, shiftedCorner.y + bend * dy)
+                quadraticTo(shiftedCorner.x, shiftedCorner.y, shiftedCorner.x + bend * dx, shiftedCorner.y)
+                lineTo(shiftedCorner.x + arm * dx, shiftedCorner.y)
             }
+            listOf(24f to .025f, 18f to .045f, 13f to .08f, 9f to .18f, 6f to .75f).forEach { (width, alpha) ->
+                drawPath(path, cyan.copy(alpha = alpha), style = androidx.compose.ui.graphics.drawscope.Stroke(
+                    width.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round))
+            }
+            drawPath(path, Color(0xFFEEFFFF), style = androidx.compose.ui.graphics.drawscope.Stroke(
+                3.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round))
         }
     }
 }
 
 @Composable
-private fun DemoMeasurementScreen(config: ProjectConfiguration, onComplete: (String, Int) -> Unit, onCancel: () -> Unit) {
+private fun ColumnScope.MeasurementMetricCard(icon: String, title: String, value: Int, unit: String, min: Int, max: Int, accent: Color, footer: String = "유효 $min~$max") {
+    val fraction = ((value - min).toFloat() / (max - min).coerceAtLeast(1)).coerceIn(0f, 1f)
+    Surface(
+        Modifier.weight(1f).fillMaxWidth(),
+        shape = RoundedCornerShape(26.dp),
+        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFFFD85A)),
+        color = Color(0xFFF5FAFF),
+        shadowElevation = 0.dp,
+    ) {
+        Box(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            Row(Modifier.fillMaxWidth().height(54.dp)
+                .background(Brush.verticalGradient(listOf(accent.copy(alpha = .65f), accent, accent)))
+                .padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+                MeasurementIcon(icon, accent)
+                Spacer(Modifier.width(14.dp))
+                Text(title, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+            }
+            Row(Modifier.weight(1f).fillMaxWidth().padding(start = 22.dp, end = 12.dp, top = 4.dp, bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
+                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                        Text(if (value == 0) "--" else value.toString(), fontSize = 88.sp, fontWeight = FontWeight.ExtraBold, color = accent)
+                        Spacer(Modifier.width(8.dp))
+                        Text(unit, fontSize = 25.sp, fontWeight = FontWeight.Bold, color = Color(0xFF454B62), modifier = Modifier.padding(top = 24.dp))
+                    }
+                    MeasurementGauge(fraction, accent)
+                }
+                Column(Modifier.width(180.dp).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(painterResource(when (icon) {
+                        "♥" -> R.drawable.rich_measure_crown
+                        "≈" -> R.drawable.rich_measure_breathing
+                        else -> R.drawable.rich_measure_sunglasses
+                    }), null, Modifier.weight(1f).fillMaxWidth().graphicsLayer {
+                        val mascotScale = when (icon) { "≈" -> 1.4f; "☺" -> 1.15f; else -> 1f }
+                        scaleX = mascotScale
+                        scaleY = mascotScale
+                    }, contentScale = ContentScale.Fit)
+                    Text(footer, fontSize = 12.sp, lineHeight = 14.sp, textAlign = TextAlign.Center, color = Color(0xFF454B62))
+                }
+            }
+        }
+        }
+    }
+}
+
+@Composable
+private fun MeasurementIcon(kind: String, accent: Color) {
+    Canvas(Modifier.size(44.dp)) {
+        val w = size.width
+        drawCircle(Brush.radialGradient(listOf(Color.White.copy(alpha = .35f), accent), center = Offset(w * .28f, w * .18f), radius = w * .9f))
+        drawCircle(Color.White, style = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()))
+        if (kind == "♥") {
+            val p = Path().apply {
+                moveTo(w * .5f, w * .76f)
+                cubicTo(w * .02f, w * .47f, w * .22f, w * .16f, w * .5f, w * .35f)
+                cubicTo(w * .78f, w * .16f, w * .98f, w * .47f, w * .5f, w * .76f)
+                close()
+            }
+            drawPath(p, Color.White)
+        } else if (kind == "≈") {
+            listOf(.39f, .61f).forEach { y ->
+                val p = Path().apply {
+                    moveTo(w * .24f, w * y)
+                    cubicTo(w * .40f, w * (y - .23f), w * .60f, w * (y + .23f), w * .76f, w * y)
+                }
+                drawPath(p, Color.White, style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round))
+            }
+        } else {
+            drawCircle(Color.White, w * .055f, Offset(w * .35f, w * .36f))
+            drawCircle(Color.White, w * .055f, Offset(w * .65f, w * .36f))
+            val p = Path().apply {
+                moveTo(w * .25f, w * .53f)
+                quadraticBezierTo(w * .5f, w * .95f, w * .75f, w * .53f)
+                quadraticBezierTo(w * .5f, w * .64f, w * .25f, w * .53f)
+                close()
+            }
+            drawPath(p, Color.White)
+        }
+    }
+}
+
+@Composable
+private fun MeasurementGauge(fraction: Float, accent: Color) {
+    Canvas(Modifier.fillMaxWidth().height(24.dp)) {
+        val radius = 8.dp.toPx()
+        val left = radius + 2.dp.toPx()
+        val right = size.width - left
+        val y = size.height / 2
+        drawLine(Color.White, Offset(left, y), Offset(right, y), 18.dp.toPx(), androidx.compose.ui.graphics.StrokeCap.Round)
+        val colors = if (accent == Color(0xFF008D92)) listOf(Color(0xFF5DCBDB), Color(0xFF008D92), Color(0xFF477AC2))
+            else if (accent == Color(0xFF7146E8)) listOf(Color(0xFF008AFF), Color(0xFFA83FFF), Color(0xFFB8C6D8))
+            else listOf(Color(0xFF008AFF), Color(0xFF19CBB8), Color(0xFFE7F342), Color(0xFFFF3F55))
+        drawLine(Brush.horizontalGradient(colors), Offset(left, y), Offset(right, y), 12.dp.toPx(), androidx.compose.ui.graphics.StrokeCap.Round)
+        val center = Offset(left + (right - left) * fraction, y)
+        drawCircle(Color(0x33001E41), radius + 3.dp.toPx(), center + Offset(0f, 1.dp.toPx()))
+        drawCircle(Color.White, radius + 2.dp.toPx(), center)
+        drawCircle(accent, radius, center)
+    }
+}
+
+@Composable
+private fun DemoMeasurementScreen(config: ProjectConfiguration, onComplete: (String, Int, Int, Int) -> Unit, onCancel: () -> Unit) {
     var seconds by remember { mutableIntStateOf(10) }
     val transition = rememberInfiniteTransition(label = "demo-scan")
     val scan by transition.animateFloat(
@@ -400,7 +739,7 @@ private fun DemoMeasurementScreen(config: ProjectConfiguration, onComplete: (Str
             delay(1_000)
             seconds--
         }
-        onComplete("Happy", 24)
+        onComplete("Happy", 24, 72, 15)
     }
     Box(Modifier.fillMaxSize().background(Color(0xFF15242B))) {
         Image(
@@ -438,7 +777,10 @@ private fun CameraMeasurementPreview(
     val owner = LocalLifecycleOwner.current
     val mainExecutor = remember(context) { ContextCompat.getMainExecutor(context) }
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
-    val previewView = remember { PreviewView(context).apply { scaleType = PreviewView.ScaleType.FILL_CENTER } }
+    val previewView = remember { PreviewView(context).apply {
+        scaleType = PreviewView.ScaleType.FILL_CENTER
+        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+    } }
     val currentSnapshotListener by rememberUpdatedState(onSnapshot)
     val currentErrorListener by rememberUpdatedState(onError)
     val analyzerResult = remember {
@@ -447,6 +789,11 @@ private fun CameraMeasurementPreview(
                 faceDetector = MediaPipeFaceDetector.create(context),
                 emotionClassifier = OnnxEmotionClassifier.create(context),
                 listener = { value -> mainExecutor.execute { currentSnapshotListener(value) } },
+                errorListener = { error ->
+                    mainExecutor.execute {
+                        currentErrorListener(error.message ?: "분석 프레임 처리 오류")
+                    }
+                },
             )
         }
     }
@@ -458,6 +805,7 @@ private fun CameraMeasurementPreview(
     DisposableEffect(owner) {
         val future = ProcessCameraProvider.getInstance(context)
         var disposed = false
+        var boundAnalysis: ImageAnalysis? = null
         future.addListener({
             runCatching {
                 val provider = future.get()
@@ -468,6 +816,7 @@ private fun CameraMeasurementPreview(
                 val preview = Preview.Builder().build().also { it.surfaceProvider = previewView.surfaceProvider }
                 val analysis = ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
                     .also { it.setAnalyzer(analysisExecutor, analyzer) }
+                boundAnalysis = analysis
                 provider.unbindAll()
                 provider.bindToLifecycle(owner, CameraSelector.DEFAULT_FRONT_CAMERA, preview, analysis)
             }.onFailure {
@@ -476,8 +825,11 @@ private fun CameraMeasurementPreview(
         }, mainExecutor)
         onDispose {
             disposed = true
+            boundAnalysis?.clearAnalyzer()
             if (future.isDone) runCatching { future.get().unbindAll() }
-            analyzer.close()
+            // Analyzer resources are native. Close them on the same single-thread executor
+            // only after any in-flight frame has returned, preventing use-after-close crashes.
+            runCatching { analysisExecutor.execute { analyzer.close() } }
             analysisExecutor.shutdown()
         }
     }
@@ -485,26 +837,292 @@ private fun CameraMeasurementPreview(
 }
 
 @Composable
-private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onRestart: () -> Unit) = Centered {
-    val language = result.config.selectedLanguage
-    Text(uiText(language, "측정 결과", "Measurement result", "测量结果", "測定結果"), style = MaterialTheme.typography.headlineMedium)
-    Text("${uiText(language, "분석 감정", "Emotion", "情绪", "感情")} ${result.label} · ${uiText(language, "스트레스", "Stress", "压力", "ストレス")} ${result.stress}")
-    Spacer(Modifier.height(20.dp))
+private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onRestart: () -> Unit) {
     val emotion = result.decision.item.supportedEmotions.firstOrNull()
     val emotionDefinition = result.config.emotions.firstOrNull { it.code == emotion }
-    Text(result.config.content.resultItemLabel, style = MaterialTheme.typography.labelLarge)
-    Text(result.decision.item.title, style = MaterialTheme.typography.headlineSmall)
-    if (result.decision.journey.isNotEmpty()) {
-        Spacer(Modifier.height(12.dp))
-        result.decision.journey.sortedBy { it.order }.forEach { stop ->
-            Text("${stop.order}. ${stop.item.title} · ${stop.senseCode}")
+    ResultPresentation(emotionDefinition?.message ?: "무언가에 흥미가 생긴 듯 보여요",
+        result.decision.journey.map { it.senseCode },
+        result.decision.journey.sortedBy { it.order }.map { "${it.order}. ${it.item.title}" },
+        result.heartRate, result.respiration, result.config.content.mapButtonLabel, onShowMap, onRestart)
+}
+
+@Composable
+private fun ResultPresentation(message: String, senseCodes: List<String>, journey: List<String>, heartRate: Int, respiration: Int,
+    mapLabel: String, onShowMap: () -> Unit, onRestart: () -> Unit) {
+    val sense = richSenseVisual(senseCodes.firstOrNull())
+    val particle = subjectParticle(sense.name)
+    val resultFont = remember { FontFamily(Font(R.font.sb_aggro_medium, FontWeight.Normal), Font(R.font.sb_aggro_bold, FontWeight.Bold)) }
+    ProvideTextStyle(LocalTextStyle.current.copy(fontFamily = resultFont)) {
+    Box(Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(R.drawable.rich_result_night_background),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
+        Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .10f)))
+        Row(Modifier.fillMaxSize().padding(horizontal = 34.dp, vertical = 28.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            ResultPanel(Modifier.weight(.43f).fillMaxHeight()) {
+                Column(Modifier.fillMaxSize().padding(22.dp), verticalArrangement = Arrangement.SpaceBetween, horizontalAlignment = Alignment.CenterHorizontally) {
+                    ResultSenseComposition(sense, Modifier.fillMaxWidth().weight(1f))
+                    Spacer(Modifier.height(10.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        ResultVital("심박수", heartRate.toString(), "BPM", Modifier.weight(1f), Color(0xFF15BCD0))
+                        ResultVital("호흡수", respiration.toString(), "/min", Modifier.weight(1f), Color(0xFF22B7FF))
+                    }
+                    Text("* 측정 데이터는 실시간 상태를 반영하며, 의학적 진단이 아닙니다.", color = Color(0xFFB9D9FF), fontSize = 12.sp, modifier = Modifier.padding(top = 10.dp))
+                }
+            }
+            ResultPanel(Modifier.weight(.57f).fillMaxHeight()) {
+                Column(Modifier.fillMaxSize().padding(horizontal = 26.dp, vertical = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(message, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD8EAFF))
+                    Row(Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                        Text("지금은 ", fontSize = 27.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                        GoldenSenseLabel("[${sense.name}]", Modifier, 29)
+                        Text("${particle} 필요한 순간이에요", fontSize = 27.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                    }
+                    Box(Modifier.weight(1f).fillMaxWidth()) {
+                        RichSenseRadar(senseCodes, Modifier.fillMaxSize().padding(end = 60.dp))
+                        Image(
+                            painter = painterResource(R.drawable.rich_result_sunglasses_resting),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 4.dp).offset(y = 34.dp).width(210.dp).height(174.dp),
+                        )
+                    }
+                    if (journey.isNotEmpty()) {
+                        // One shared parent inset keeps both edges equally far from the outer panel.
+                        Box(Modifier.fillMaxWidth()) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(top = 17.dp),
+                            shape = RoundedCornerShape(18.dp),
+                            color = Color(0xFF103262),
+                            border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFFFC83D)),
+                        ) {
+                            Column(Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = 34.dp, bottom = 9.dp)) {
+                                Text(
+                                    journey.joinToString("  ·  "),
+                                    color = Color.White,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.padding(top = 4.dp),
+                                )
+                            }
+                        }
+                        Surface(Modifier.align(Alignment.TopStart).padding(start = 16.dp), shape = RoundedCornerShape(22.dp),
+                            color = Color(0xFF062951), border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFFFD75B))) {
+                            Text("● 추천 감각 여정  ›", color = Color(0xFFFFDE4A), fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp))
+                        }
+                        }
+                    }
+                    Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedButton(onClick = onRestart, modifier = Modifier.weight(.34f).height(54.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFFD2EEFF)), border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF8FC8FF))) { Text("다시 측정", color = Color(0xFF063AB1), fontFamily = resultFont, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
+                        Button(onClick = onShowMap, modifier = Modifier.weight(.66f).height(54.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC329), contentColor = Color(0xFF241607))) { Text(mapLabel, fontFamily = resultFont, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
+                    }
+                }
+            }
         }
     }
-    emotionDefinition?.let { Text("${it.name} · ${it.message}") }
-    Text("${result.decision.source} · ${uiText(language, "스트레스", "Stress", "压力", "ストレス")} ${result.stress}")
-    Spacer(Modifier.height(24.dp))
-    Button(onClick = onShowMap) { Text(result.config.content.mapButtonLabel) }
-    Button(onClick = onRestart) { Text(uiText(language, "다시 측정", "Measure again", "重新测量", "もう一度測定")) }
+}
+}
+
+@Composable
+private fun ResultSenseComposition(sense: RichSenseVisual, modifier: Modifier = Modifier) {
+    val captionDrop = with(LocalDensity.current) {
+        (LocalContext.current.resources.displayMetrics.ydpi * 3f / 25.4f).toDp()
+    }
+    BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
+        // One reference coordinate system keeps the badge, seated mascot and caption connected.
+        val u = minOf(maxWidth / 600f, maxHeight / 620f)
+        Box(Modifier.size(u * 600f, u * 620f)) {
+            Box(Modifier.offset(u * 75f, u * 0f).size(u * 480f)) {
+                ResultBadgeEffect(sense.accent)
+                Image(painterResource(sense.drawableRes), sense.name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
+                GoldenSenseLabel(sense.name, Modifier.align(Alignment.BottomCenter).padding(bottom = u * 87f), (u.value * 64f).toInt())
+            }
+            Canvas(Modifier.offset(u * 18f, u * 507f).size(u * 350f, u * 19f)) {
+                drawOval(Brush.horizontalGradient(listOf(Color.Transparent, Color(0x557EB0B4), Color(0x33428CAF), Color.Transparent)))
+            }
+            Image(painterResource(R.drawable.rich_result_seated_guide), null,
+                Modifier.offset(u * 23f, u * 327f).size(u * 260f, u * 203f), contentScale = ContentScale.Fit)
+            Text("오늘의 감각, 축제처럼\n당신의 하루도 빛나기를.",
+                Modifier.offset(u * 52f, u * 531f + captionDrop).width(u * 508f),
+                fontSize = (u.value * 32f).sp, lineHeight = (u.value * 39f).sp,
+                fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
+            Canvas(Modifier.fillMaxSize()) {
+                val k = size.width / 600f
+                listOf(48f to 572f, 551f to 546f, 567f to 587f).forEach { (x, y) ->
+                    val p = Path().apply {
+                        moveTo(x * k, (y - 14f) * k)
+                        lineTo((x + 4f) * k, (y - 4f) * k)
+                        lineTo((x + 13f) * k, y * k)
+                        lineTo((x + 4f) * k, (y + 4f) * k)
+                        lineTo(x * k, (y + 14f) * k)
+                        lineTo((x - 4f) * k, (y + 4f) * k)
+                        lineTo((x - 13f) * k, y * k)
+                        lineTo((x - 4f) * k, (y - 4f) * k)
+                        close()
+                    }
+                    drawPath(p, Color(0xFFFFD965))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ResultPanel(modifier: Modifier, content: @Composable () -> Unit) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        color = Color.Transparent,
+        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFFFC83D)),
+        shadowElevation = 12.dp,
+    ) {
+        Box(Modifier.fillMaxSize()
+            .background(Brush.verticalGradient(listOf(Color(0xE80651B8), Color(0xA6093978), Color(0xE605275C))))
+            .padding(4.dp)
+            .border(1.dp, Brush.verticalGradient(listOf(Color(0xFFC8F4FF), Color(0x3349AFFF), Color(0xFF4BA9FF))), RoundedCornerShape(26.dp))) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun GoldenSenseLabel(text: String, modifier: Modifier = Modifier, size: Int) {
+    Box(modifier.padding(horizontal = 3.dp, vertical = 2.dp)) {
+        // Code-rendered lettering works for all six senses and language particles.
+        listOf(Offset(-2f, 0f), Offset(2f, 0f), Offset(0f, -2f), Offset(0f, 3f)).forEach { shift ->
+            Text(text, Modifier.offset(shift.x.dp, shift.y.dp), fontSize = size.sp, fontWeight = FontWeight.Bold, color = Color(0xFF552508))
+        }
+        Text(text, fontSize = size.sp, fontWeight = FontWeight.Bold,
+            style = LocalTextStyle.current.copy(brush = Brush.verticalGradient(listOf(Color(0xFFFFFFE1), Color(0xFFFFCF49), Color(0xFFFF9815))),
+                shadow = androidx.compose.ui.graphics.Shadow(Color(0x88000000), Offset(0f, 3f), 5f)))
+    }
+}
+
+@Composable
+private fun ResultVital(title: String, value: String, unit: String, modifier: Modifier = Modifier, accent: Color = Color(0xFFFFC83D)) {
+    Surface(shape = RoundedCornerShape(16.dp), border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFC83D)), color = Color(0xD908234A), modifier = modifier) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        MeasurementIcon(if (title == "심박수") "♥" else "≈", accent)
+        Column {
+            Text(title, color = Color(0xFFD7E8FF))
+            Row(verticalAlignment = Alignment.Bottom) { Text(value, fontSize = 30.sp, fontWeight = FontWeight.Bold, color = accent); Text(" $unit", color = Color.White, modifier = Modifier.padding(bottom = 4.dp)) }
+        }
+        }
+    }
+}
+
+private data class RichSenseVisual(val code: String, val name: String, val drawableRes: Int, val accent: Color)
+
+private fun richSenseVisual(code: String?): RichSenseVisual = when (code) {
+    "SCENT" -> RichSenseVisual("SCENT", "향기", R.drawable.rich_sense_scent, Color(0xFFC99BFF))
+    "TASTE" -> RichSenseVisual("TASTE", "미식", R.drawable.rich_sense_taste, Color(0xFFFF715B))
+    "LISTENING" -> RichSenseVisual("LISTENING", "경청", R.drawable.rich_sense_listening, Color(0xFF31C7FF))
+    "ACTION" -> RichSenseVisual("ACTION", "실천", R.drawable.rich_sense_action, Color(0xFF43D27B))
+    "INTUITION" -> RichSenseVisual("INTUITION", "통찰", R.drawable.rich_sense_intuition, Color(0xFF8A78FF))
+    else -> RichSenseVisual("INSIGHT", "안목", R.drawable.rich_sense_insight, Color(0xFFFFB72D))
+}
+
+private fun subjectParticle(word: String): String {
+    val last = word.lastOrNull() ?: return "가"
+    return if (last in '가'..'힣' && (last.code - '가'.code) % 28 != 0) "이" else "가"
+}
+
+@Composable
+private fun BoxScope.ResultBadgeEffect(accent: Color) {
+    val transition = rememberInfiniteTransition(label = "result-badge-effect")
+    val pulse by transition.animateFloat(0f, 1f, infiniteRepeatable(tween(2_200, easing = LinearEasing), RepeatMode.Restart), label = "badge-pulse")
+    val rotation by transition.animateFloat(0f, 360f, infiniteRepeatable(tween(18_000, easing = LinearEasing), RepeatMode.Restart), label = "badge-rays")
+    Canvas(Modifier.fillMaxSize()) {
+        // Match the visible medallion, whose center sits above the PNG canvas center.
+        val center = Offset(size.width * .50f, size.height * .48f)
+        val radius = size.minDimension * .42f
+        val halo = radius * 1.36f
+        drawCircle(Brush.radialGradient(
+            0f to Color.Transparent, .58f to Color.Transparent, .78f to accent.copy(alpha = .26f),
+            .88f to accent.copy(alpha = .40f), 1f to Color.Transparent,
+            center = center, radius = halo), halo, center)
+        val orbit = radius * 1.20f
+        listOf(10f to .04f, 5f to .10f, 1.2f to .70f).forEach { (width, alpha) ->
+            drawCircle(accent.copy(alpha = alpha), orbit, center, style = androidx.compose.ui.graphics.drawscope.Stroke(width.dp.toPx()))
+        }
+        repeat(2) { index ->
+            val phase = (pulse + index / 2f) % 1f
+            drawCircle(accent.copy(alpha = (1f - phase) * .46f), radius * (1.08f + phase * .25f), center,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()))
+        }
+        repeat(8) { index ->
+            val angle = Math.toRadians((rotation + index * 45f).toDouble())
+            val point = Offset(center.x + kotlin.math.cos(angle).toFloat() * orbit, center.y + kotlin.math.sin(angle).toFloat() * orbit)
+            val brightness = .55f + .45f * kotlin.math.sin((pulse * 2 * Math.PI + index).toFloat()).let { it * it }
+            drawCircle(Brush.radialGradient(listOf(accent.copy(alpha = brightness * .65f), Color.Transparent), point, 10.dp.toPx()), 10.dp.toPx(), point)
+            val arm = (if (index % 3 == 0) 7f else 4f).dp.toPx()
+            drawLine(Color(0xFFFFFFCD).copy(alpha = brightness), point - Offset(arm, 0f), point + Offset(arm, 0f), 1.2.dp.toPx())
+            drawLine(Color(0xFFFFFFCD).copy(alpha = brightness), point - Offset(0f, arm), point + Offset(0f, arm), 1.2.dp.toPx())
+        }
+    }
+}
+
+@Composable
+private fun RichSenseRadar(selected: List<String>, modifier: Modifier = Modifier) {
+    val senses = listOf("안목" to "INSIGHT", "향기" to "SCENT", "미식" to "TASTE", "경청" to "LISTENING", "실천" to "ACTION", "통찰" to "INTUITION")
+    val context = LocalContext.current
+    val radarFont = remember { androidx.core.content.res.ResourcesCompat.getFont(context, R.font.sb_aggro_medium) }
+    val transition = rememberInfiniteTransition(label = "selected-senses")
+    val selectedGlow by transition.animateFloat(.18f, 1f,
+        infiniteRepeatable(tween(1_100, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "sense-glow")
+    Canvas(modifier.padding(28.dp)) {
+        val center = Offset(size.width / 2f, size.height / 2f)
+        val radius = minOf(size.width, size.height) * .34f
+        drawCircle(Brush.radialGradient(listOf(Color(0x553879DE), Color(0x66003285), Color(0xFF0348AD)), center, radius * 1.38f), radius * 1.38f, center)
+        drawCircle(Color(0xFF4EC9FF), radius * 1.38f, center, style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()))
+        fun point(index: Int, ratio: Float): Offset {
+            val angle = Math.toRadians((-90 + index * 60).toDouble())
+            return Offset(center.x + kotlin.math.cos(angle).toFloat() * radius * ratio, center.y + kotlin.math.sin(angle).toFloat() * radius * ratio)
+        }
+        for (level in 1..4) {
+            val path = Path().apply { senses.indices.forEach { i -> val p = point(i, level / 4f); if (i == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y) }; close() }
+            drawPath(path, Color(0xFF5FA9E8).copy(alpha = .48f), style = androidx.compose.ui.graphics.drawscope.Stroke(2f))
+        }
+        val values = senses.mapIndexed { index, pair -> selected.indexOf(pair.second).let { if (it < 0) .38f else (1f - it * .18f).coerceAtLeast(.55f) } }
+        val resultPath = Path().apply { senses.indices.forEach { i -> val p = point(i, values[i]); if (i == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y) }; close() }
+        drawPath(resultPath, Brush.verticalGradient(listOf(Color(0xF5FFE978), Color(0xCCFFB52D), Color(0xAAE69A12))))
+        drawPath(resultPath, Color(0xFFFFD451), style = androidx.compose.ui.graphics.drawscope.Stroke(4f))
+        val nodeColors = listOf(Color(0xFFFFBB16), Color(0xFF29E799), Color(0xFFFF5897), Color(0xFF22D2FF), Color(0xFFFFAD21), Color(0xFFAA55FF))
+        val rim = Path().apply { senses.indices.forEach { i -> val p = point(i, 1f); if (i == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y) }; close() }
+        drawPath(rim, Color(0xFFFFD45A), style = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()))
+        senses.forEachIndexed { i, sense ->
+            val node = point(i, 1f)
+            val isSelected = sense.second in selected.take(3)
+            if (isSelected) {
+                val glowRadius = (22f + 9f * selectedGlow).dp.toPx()
+                drawCircle(Brush.radialGradient(listOf(nodeColors[i].copy(alpha = selectedGlow * .85f), Color.Transparent), node, glowRadius), glowRadius, node)
+                drawCircle(Color(0xFFFFED9C).copy(alpha = selectedGlow), (10f + 4f * selectedGlow).dp.toPx(), node,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
+            }
+            drawCircle(Brush.radialGradient(listOf(nodeColors[i].copy(alpha = .7f), Color.Transparent), node, 17.dp.toPx()), 17.dp.toPx(), node)
+            drawCircle(nodeColors[i], 7.dp.toPx(), node)
+            drawCircle(Color.White, 7.dp.toPx(), node, style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()))
+            val p = point(i, 1.26f)
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                color = android.graphics.Color.WHITE; textSize = 17.sp.toPx(); textAlign = android.graphics.Paint.Align.CENTER; typeface = radarFont
+            }
+            drawRoundRect(Color(0xEE001B48), Offset(p.x - 30.dp.toPx(), p.y - 14.dp.toPx()),
+                androidx.compose.ui.geometry.Size(60.dp.toPx(), 28.dp.toPx()), androidx.compose.ui.geometry.CornerRadius(14.dp.toPx()))
+            if (isSelected) {
+                drawRoundRect(Color(0xFFFFDA5D).copy(alpha = selectedGlow), Offset(p.x - 30.dp.toPx(), p.y - 14.dp.toPx()),
+                    androidx.compose.ui.geometry.Size(60.dp.toPx(), 28.dp.toPx()), androidx.compose.ui.geometry.CornerRadius(14.dp.toPx()),
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()))
+            }
+            // Center the visible Korean glyphs, not the font's extra ascent/descent space.
+            val textBounds = android.graphics.Rect()
+            paint.getTextBounds(sense.first, 0, sense.first.length, textBounds)
+            val baseline = p.y - (textBounds.top + textBounds.bottom) / 2f
+            drawContext.canvas.nativeCanvas.drawText(sense.first, p.x, baseline, paint)
+        }
+    }
 }
 
 @Composable
@@ -520,26 +1138,49 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
     val destinations = journeyLocations.ifEmpty {
         legacyLocation?.let { listOf(DisplayMapStop(1, it.code, it.title, it.markerXPercent, it.markerYPercent)) }.orEmpty()
     }
+    MapPresentation(result.config, destinations, onFinish)
+}
+
+@Composable
+private fun MapPresentation(config: ProjectConfiguration, destinations: List<DisplayMapStop>, onFinish: () -> Unit) {
+    val font = remember { FontFamily(Font(R.font.sb_aggro_medium, FontWeight.Normal), Font(R.font.sb_aggro_bold, FontWeight.Bold)) }
+    val base = MaterialTheme.typography
+    MaterialTheme(typography = base.copy(
+        bodyLarge = base.bodyLarge.copy(fontFamily = font),
+        bodyMedium = base.bodyMedium.copy(fontFamily = font),
+        labelLarge = base.labelLarge.copy(fontFamily = font),
+        headlineSmall = base.headlineSmall.copy(fontFamily = font),
+    )) {
+        ProvideTextStyle(LocalTextStyle.current.copy(fontFamily = font)) {
+            MapPresentationContent(config, destinations, onFinish)
+        }
+    }
+}
+
+@Composable
+private fun MapPresentationContent(config: ProjectConfiguration, destinations: List<DisplayMapStop>, onFinish: () -> Unit) {
     if (destinations.isEmpty()) {
         Centered {
-            Text(uiText(result.config.selectedLanguage, "표시할 지도 위치가 없습니다.", "No map location is available.", "没有可显示的地图位置。", "表示できる地図位置がありません。"))
-            Button(onClick = onFinish) { Text(uiText(result.config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) }
+            Text(uiText(config.selectedLanguage, "표시할 지도 위치가 없습니다.", "No map location is available.", "没有可显示的地图位置。", "表示できる地図位置がありません。"))
+            Button(onClick = onFinish) { Text(uiText(config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) }
         }
         return
     }
-    var scale by remember { mutableFloatStateOf(1.2f) }
+    var scale by remember(config.catalog.projectId) {
+        mutableFloatStateOf(if (config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true)) 1f else 1.2f)
+    }
     var translation by remember { mutableStateOf(Offset.Zero) }
     val dashPhase by rememberInfiniteTransition(label = "route-dashes").animateFloat(
         initialValue = 0f,
-        targetValue = -48f,
-        animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing), RepeatMode.Restart),
+        targetValue = -40f,
+        animationSpec = infiniteRepeatable(tween(800, easing = LinearEasing), RepeatMode.Restart),
         label = "route-dash-phase",
     )
     BoxWithConstraints(
-        Modifier.fillMaxSize().background(Color(0xFFF3ECEF)).clipToBounds(),
+        Modifier.fillMaxSize().background(Color(0xFFF4E9CB)).clipToBounds(),
         contentAlignment = Alignment.Center,
     ) {
-            val mapAspect = 1208f / 740f
+            val mapAspect = 16f / 10f
             val mapWidth = if (maxWidth / maxHeight > mapAspect) maxHeight * mapAspect else maxWidth
             val mapHeight = mapWidth / mapAspect
             Box(
@@ -571,14 +1212,31 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                             contentDescription = "프로젝트 안내 지도"
                         }
                     },
-                    update = { it.setImageURI(Uri.parse(result.config.theme.mapImageRef)) },
+                    update = {
+                        if (config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true)) {
+                            it.setImageResource(R.drawable.richrich_map_sotbawi_integrated)
+                            // Recede the artwork with a light veil and softer contrast;
+                            // keep colored UI and route overlays unaffected.
+                            val mapColors = android.graphics.ColorMatrix().apply { setSaturation(.78f) }
+                            mapColors.postConcat(android.graphics.ColorMatrix(floatArrayOf(
+                                .78f, 0f, 0f, 0f, 52f,
+                                0f, .78f, 0f, 0f, 52f,
+                                0f, 0f, .78f, 0f, 48f,
+                                0f, 0f, 0f, 1f, 0f,
+                            )))
+                            it.colorFilter = android.graphics.ColorMatrixColorFilter(mapColors)
+                        } else {
+                            it.clearColorFilter()
+                            it.setImageURI(Uri.parse(config.theme.mapImageRef))
+                        }
+                    },
                     modifier = Modifier.fillMaxSize(),
                 )
                 Canvas(Modifier.fillMaxSize()) {
                     val route = buildList {
-                        add(result.config.navigation.origin)
+                        add(config.navigation.origin)
                         destinations.forEach { destination ->
-                            addAll(result.config.navigation.routesByLocationCode[destination.code].orEmpty())
+                            addAll(config.navigation.routesByLocationCode[destination.code].orEmpty())
                             add(MapPoint(destination.xPercent, destination.yPercent))
                         }
                     }
@@ -591,39 +1249,147 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
                     }
                     drawPath(
                         path = path,
+                        color = Color.White,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(
+                            width = 11f,
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(22f, 18f), dashPhase),
+                        ),
+                    )
+                    drawPath(
+                        path = path,
                         color = Color(0xFFE53935),
                         style = androidx.compose.ui.graphics.drawscope.Stroke(
-                            width = 7f,
+                            width = 6f,
                             pathEffect = PathEffect.dashPathEffect(floatArrayOf(22f, 18f), dashPhase),
                         ),
                     )
                 }
                 MapMarker(
                     mapWidth, mapHeight,
-                    result.config.navigation.origin.xPercent,
-                    result.config.navigation.origin.yPercent,
-                    result.config.content.currentLocationLabel,
-                    Color(0xFFD32F2F),
+                    config.navigation.origin.xPercent,
+                    config.navigation.origin.yPercent,
+                    config.content.currentLocationLabel,
+                    Color(0xFF00A8D9),
                 )
                 destinations.forEachIndexed { index, destination ->
-                    val colors = listOf(Color(0xFFFFC107), Color(0xFF42A5F5), Color(0xFF66BB6A))
+                    val colors = listOf(Color(0xFFE53935), Color(0xFF1479E8), Color(0xFF12A94A))
                     MapMarker(mapWidth, mapHeight, destination.xPercent, destination.yPercent, "${destination.order}. ${destination.title}", colors[index % colors.size])
                 }
             }
-            Text(
-                destinations.joinToString(" → ") { "${it.order}. ${it.title}" },
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.align(Alignment.TopCenter).background(Color(0xDDFFFFFF)).padding(12.dp),
+            Image(
+                painter = painterResource(R.drawable.richrich_festival_logo),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.align(Alignment.TopStart).padding(14.dp).width(190.dp).height(76.dp),
             )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.align(Alignment.TopCenter)
+                    .padding(top = 12.dp)
+                    .border(3.dp, Color(0xFF10213A), RoundedCornerShape(26.dp))
+                    .background(Brush.verticalGradient(listOf(Color(0xFF1169D9), Color(0xFF073C9A))), RoundedCornerShape(26.dp))
+                    .padding(horizontal = 26.dp, vertical = 12.dp),
+            ) {
+                Text("당신을 부자로 만드는 감각을 만나러 가보세요!", color = Color.White,
+                    style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                Text(destinations.joinToString("  →  ") { "${it.order}. ${it.title}" },
+                    color = Color(0xFFFFDE78), fontSize = 19.sp, fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center, modifier = Modifier.padding(top = 5.dp))
+            }
+            Box(
+                Modifier.align(Alignment.BottomStart).padding(start = 18.dp, bottom = 16.dp).width(278.dp),
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.richrich_map_mascot),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.align(Alignment.TopCenter).offset(y = (-5).dp).width(164.dp).height(102.dp)
+                        .graphicsLayer { scaleX = -1f }
+                        .zIndex(1f),
+                )
+                Column(
+                    Modifier.padding(top = 78.dp).fillMaxWidth()
+                        .border(3.dp, Color(0xFF101B2C), RoundedCornerShape(24.dp))
+                        .background(Brush.verticalGradient(listOf(Color(0xD10C4B9F), Color(0xD1062D70))), RoundedCornerShape(24.dp))
+                        .padding(horizontal = 16.dp, vertical = 11.dp),
+                ) {
+                    Text("✦  추천 감각 여정", color = Color(0xFFFFD75B), fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
+                    destinations.forEachIndexed { index, stop ->
+                        Row(Modifier.fillMaxWidth().padding(top = 4.dp)) {
+                            Text("${index + 1}", color = Color.White, fontWeight = FontWeight.Normal,
+                                fontSize = 13.sp, modifier = Modifier.width(24.dp).alignByBaseline())
+                            Text(stop.title, color = Color.White, fontWeight = FontWeight.Normal,
+                                fontSize = 13.sp, modifier = Modifier.weight(1f).alignByBaseline())
+                        }
+                    }
+                }
+            }
             Text(
-                result.config.content.mapGestureHint,
-                modifier = Modifier.align(Alignment.BottomCenter).background(Color(0xBBFFFFFF)).padding(8.dp),
+                config.content.mapGestureHint,
+                style = LocalTextStyle.current.copy(baselineShift = androidx.compose.ui.text.style.BaselineShift(-.10f)),
+                color = Color.White,
+                modifier = Modifier.align(Alignment.BottomCenter)
+                    .padding(bottom = 18.dp)
+                    .border(2.dp, Color(0xFF10213A), RoundedCornerShape(20.dp))
+                    .background(Color(0xE80A438B), RoundedCornerShape(20.dp))
+                    .padding(horizontal = 18.dp, vertical = 9.dp),
             )
-            Button(
-                onClick = onFinish,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-            ) { Text(uiText(result.config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る")) }
+            Row(Modifier.align(Alignment.BottomEnd).padding(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Button(
+                    onClick = onFinish,
+                    modifier = Modifier.size(width = 180.dp, height = 52.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp),
+                    shape = RoundedCornerShape(22.dp),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF10213A)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A438B), contentColor = Color.White),
+                ) {
+                    MapActionIcon(false, Color.White)
+                    Spacer(Modifier.width(6.dp))
+                    Text("여정 후 재측정", fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                        style = LocalTextStyle.current.copy(baselineShift = androidx.compose.ui.text.style.BaselineShift(-.10f)))
+                }
+                Button(
+                    onClick = onFinish,
+                    modifier = Modifier.size(width = 180.dp, height = 52.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp),
+                    shape = RoundedCornerShape(22.dp),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF5A3411)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC329), contentColor = Color(0xFF241607)),
+                ) {
+                    MapActionIcon(true, Color(0xFF241607))
+                    Spacer(Modifier.width(6.dp))
+                    Text(uiText(config.selectedLanguage, "처음으로", "Home", "返回首页", "最初に戻る"), fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                        style = LocalTextStyle.current.copy(baselineShift = androidx.compose.ui.text.style.BaselineShift(-.10f)))
+                }
+            }
         }
+}
+
+@Composable
+private fun MapActionIcon(home: Boolean, color: Color) {
+    Canvas(Modifier.size(24.dp)) {
+        val w = size.width
+        val stroke = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round,
+            join = androidx.compose.ui.graphics.StrokeJoin.Round)
+        if (home) {
+            // Restore the previous house glyph, centered by its visible bounds.
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = android.graphics.Color.rgb(36, 22, 7)
+                textSize = w * .92f
+                textAlign = android.graphics.Paint.Align.CENTER
+            }
+            val bounds = android.graphics.Rect()
+            paint.getTextBounds("⌂", 0, 1, bounds)
+            drawContext.canvas.nativeCanvas.drawText("⌂", w / 2f, w / 2f - (bounds.top + bounds.bottom) / 2f - 2.dp.toPx(), paint)
+        } else {
+            drawArc(color, -55f, 290f, false, Offset(w * .18f, w * .18f),
+                androidx.compose.ui.geometry.Size(w * .64f, w * .64f), style = stroke)
+            val arrow = Path().apply {
+                moveTo(w * .12f, w * .21f); lineTo(w * .35f, w * .24f); lineTo(w * .29f, w * .46f)
+            }
+            drawPath(arrow, color, style = stroke)
+        }
+    }
 }
 
 private data class DisplayMapStop(
@@ -643,15 +1409,32 @@ private fun uiText(language: String?, ko: String, en: String, zh: String, ja: St
 
 @Composable
 private fun MapMarker(width: androidx.compose.ui.unit.Dp, height: androidx.compose.ui.unit.Dp, x: Double, y: Double, label: String, color: Color) {
-    Column(
-        modifier = Modifier.offset(
-            x = width * (x / 100.0).toFloat() - 20.dp,
-            y = height * (y / 100.0).toFloat() - 20.dp,
-        ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(label, color = Color.White, modifier = Modifier.background(Color(0xCC333333)).padding(6.dp))
-        Box(Modifier.size(40.dp).background(color, CircleShape))
+    val markerX = width * (x / 100.0).toFloat()
+    val markerY = height * (y / 100.0).toFloat()
+    val labelWidth = 190.dp
+    val labelX = (markerX - labelWidth / 2).coerceIn(4.dp, (width - labelWidth - 4.dp).coerceAtLeast(4.dp))
+    val labelY = (markerY - 58.dp).coerceAtLeast(4.dp)
+    Box(Modifier.size(width, height)) {
+        Text(
+            label,
+            style = LocalTextStyle.current.copy(baselineShift = androidx.compose.ui.text.style.BaselineShift(-.10f)),
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            modifier = Modifier
+                .offset(x = labelX, y = labelY)
+                .width(labelWidth)
+                .border(3.dp, Color(0xFF111827), RoundedCornerShape(9.dp))
+                .background(color, RoundedCornerShape(9.dp))
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+        )
+        Box(
+            Modifier
+                .offset(x = markerX - 12.dp, y = markerY - 12.dp)
+                .size(24.dp)
+                .border(2.dp, Color(0xFF111827), CircleShape)
+                .background(color, CircleShape),
+        )
     }
 }
 

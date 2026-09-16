@@ -173,7 +173,14 @@ internal fun KioskConsentScreen(
                 }
             }
         }
-        Text("⚙", fontSize = 22.sp, modifier = Modifier.align(Alignment.BottomEnd).clickable(onClick = onSettings).padding(18.dp))
+        Text(
+            "⚙",
+            fontSize = 22.sp,
+            modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(end = 24.dp, bottom = 72.dp)
+                .clickable(onClick = onSettings)
+                .padding(18.dp),
+        )
     }
 }
 

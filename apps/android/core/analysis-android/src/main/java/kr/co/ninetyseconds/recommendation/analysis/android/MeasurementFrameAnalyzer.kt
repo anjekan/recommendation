@@ -27,13 +27,19 @@ class MeasurementFrameAnalyzer(
     private val faceDetector: BitmapFaceDetector,
     private val emotionClassifier: EmotionClassifier,
     private val listener: (MeasurementSnapshot) -> Unit,
+    private val errorListener: (Throwable) -> Unit = {},
     private val vitalProcessor: VitalSignalProcessor = LegacyPosVitalSignalProcessor(),
 ) : ImageAnalysis.Analyzer, Closeable {
     private var frameCount = 0
     private var lastVital: VitalResult? = null
     private var lastEmotion: EmotionPrediction? = null
+    private var closed = false
 
     override fun analyze(image: ImageProxy) {
+        if (closed) {
+            image.close()
+            return
+        }
         var rotated: Bitmap? = null
         try {
             val source = image.toBitmap()
@@ -59,6 +65,8 @@ class MeasurementFrameAnalyzer(
                 }
             }
             listener(MeasurementSnapshot(true, face.box, lastVital, lastEmotion, timestampMillis))
+        } catch (error: Exception) {
+            if (!closed) errorListener(error)
         } finally {
             rotated?.recycle()
             image.close()
@@ -73,6 +81,8 @@ class MeasurementFrameAnalyzer(
     }
 
     override fun close() {
+        if (closed) return
+        closed = true
         (faceDetector as? Closeable)?.close()
         (emotionClassifier as? Closeable)?.close()
     }

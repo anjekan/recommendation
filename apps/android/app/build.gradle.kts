@@ -19,7 +19,7 @@ android {
     defaultConfig {
         applicationId = "kr.co.ninetyseconds.recommendation"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
 
@@ -56,6 +56,11 @@ android {
     sourceSets {
         getByName("main").assets.directories.add("../../../contracts/examples")
         getByName("main").assets.directories.add("../../../projects/taean-flower")
+        getByName("main").assets.directories.add("../../../projects/uiryeong-richrich-2026")
+    }
+
+    androidResources {
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:CVS:thumbs.db:picasa.ini:!*~:README.md:MAP_COORDINATES.md"
     }
 }
 
