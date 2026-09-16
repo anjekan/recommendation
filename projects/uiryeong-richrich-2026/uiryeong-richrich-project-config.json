@@ -59,8 +59,8 @@
       "heart_rate_range": {"min":55,"max":170},
       "respiration_range": {"min":10,"max":35},
       "au_calibration_frames": 30,
-      "au_low_upper": null,
-      "au_medium_upper": null,
+      "au_low_upper": 25,
+      "au_medium_upper": 55,
       "overheat_stress_threshold": null,
       "confidence_threshold": 0.60
     },
@@ -87,15 +87,15 @@
       {"code":"LEISURE","group":"F","display_name":{"ko":"여유"},"message":{"ko":"마음에 여유가 느껴져 보여요"},"stress_band":"MODERATELY_HIGH","tension_band":"LOW","primary_sense":"ACTION","compass_values":{"INSIGHT":35,"SCENT":35,"TASTE":60,"LISTENING":65,"ACTION":95,"INTUITION":35},"active":true}
     ],
     "journey_mappings": [
-      {"condition_code":"JOY","sense_sequence":["ACTION","TASTE","REST"],"exception_code":null},
+      {"condition_code":"JOY","sense_sequence":["ACTION","TASTE","INSIGHT"],"exception_code":null},
       {"condition_code":"EXCITED","sense_sequence":["ACTION","LISTENING","TASTE"],"exception_code":null},
       {"condition_code":"THRILL","sense_sequence":["INSIGHT","ACTION","TASTE"],"exception_code":null},
       {"condition_code":"INTEREST","sense_sequence":["INSIGHT","INTUITION","TASTE"],"exception_code":"E8"},
       {"condition_code":"TENSION","sense_sequence":["SCENT","INSIGHT","TASTE"],"exception_code":null},
-      {"condition_code":"HEAVINESS","sense_sequence":["SCENT","TASTE","REST"],"exception_code":null},
-      {"condition_code":"LOW_ENERGY","sense_sequence":["TASTE","REST","INSIGHT"],"exception_code":null},
-      {"condition_code":"DROWSY","sense_sequence":["TASTE","REST","REST"],"exception_code":"E4"},
-      {"condition_code":"LOOSE","sense_sequence":["INSIGHT","REST","TASTE"],"exception_code":null},
+      {"condition_code":"HEAVINESS","sense_sequence":["SCENT","TASTE","INSIGHT"],"exception_code":null},
+      {"condition_code":"LOW_ENERGY","sense_sequence":["TASTE","INSIGHT","SCENT"],"exception_code":null},
+      {"condition_code":"DROWSY","sense_sequence":["TASTE","INSIGHT","SCENT"],"exception_code":"E4"},
+      {"condition_code":"LOOSE","sense_sequence":["INSIGHT","TASTE","SCENT"],"exception_code":null},
       {"condition_code":"COMFORT","sense_sequence":["INSIGHT","TASTE","ACTION"],"exception_code":null},
       {"condition_code":"STABLE","sense_sequence":["INSIGHT","LISTENING","TASTE"],"exception_code":"E7"},
       {"condition_code":"LEISURE","sense_sequence":["ACTION","LISTENING","TASTE"],"exception_code":"E7"}

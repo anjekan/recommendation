@@ -4,6 +4,7 @@ data class NormalizedPoint(val x: Float, val y: Float)
 
 data class NormalizedFace(
     val landmarks: List<NormalizedPoint>,
+    val blendshapes: Map<String, Float> = emptyMap(),
 ) {
     init { require(landmarks.isNotEmpty()) { "Face must contain landmarks" } }
 

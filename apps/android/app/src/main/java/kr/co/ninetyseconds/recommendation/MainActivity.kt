@@ -176,10 +176,10 @@ fun RecommendationApp(container: AppContainer) {
             is AppState.Measuring -> MeasurementScreen(
                 current.config,
                 demoMode = container.settings().demoMode,
-                onComplete = { label, stress, heartRate, respiration -> scope.launch {
+                onComplete = { label, stress, heartRate, respiration, actionUnit -> scope.launch {
                     state = AppState.Analyzing(current.config)
                     state = runCatching {
-                        val emotion = current.config.mapAnalysisLabel(label, stress)
+                        val emotion = current.config.mapAnalysisLabel(label, stress, actionUnit)
                         val decision = if (container.settings().demoMode) {
                             container.demoRecommend(emotion, stress)
                         } else {
@@ -445,7 +445,7 @@ private fun RuntimeSettingsScreen(
 }
 
 @Composable
-private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, onComplete: (String, Int, Int, Int) -> Unit, onCancel: () -> Unit) {
+private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, onComplete: (String, Int, Int, Int, Int) -> Unit, onCancel: () -> Unit) {
     if (demoMode) {
         DemoMeasurementScreen(config, onComplete, onCancel)
         return
@@ -475,9 +475,10 @@ private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, o
                 faceDetected = current?.faceDetected == true,
                 vital = current?.vital,
                 emotionLabel = current?.emotion?.label,
+                actionUnitPercent = current?.actionUnitPercent,
             )
             progress.result?.let {
-                onComplete(it.emotionLabel, it.stressScore, it.vital.heartRateBpm, it.vital.respiratoryRateRpm)
+                onComplete(it.emotionLabel, it.stressScore, it.vital.heartRateBpm, it.vital.respiratoryRateRpm, it.actionUnitPercent)
                 break
             }
         }
@@ -502,7 +503,7 @@ private fun MeasurementScreen(config: ProjectConfiguration, demoMode: Boolean, o
     MeasurementPresentation(
         progress.secondsRemaining, progress.phase.message,
         snapshot?.vital?.heartRateBpm ?: 0, snapshot?.vital?.respiratoryRateRpm ?: 0,
-        ((snapshot?.emotion?.confidence ?: 0f) * 100).toInt().coerceIn(0, 100), cameraScan, onCancel,
+        snapshot?.actionUnitPercent ?: 0, cameraScan, onCancel,
     ) {
         CameraMeasurementPreview(Modifier.fillMaxSize(), { snapshot = it }, { cameraError = it })
     }
@@ -725,7 +726,7 @@ private fun MeasurementGauge(fraction: Float, accent: Color) {
 }
 
 @Composable
-private fun DemoMeasurementScreen(config: ProjectConfiguration, onComplete: (String, Int, Int, Int) -> Unit, onCancel: () -> Unit) {
+private fun DemoMeasurementScreen(config: ProjectConfiguration, onComplete: (String, Int, Int, Int, Int) -> Unit, onCancel: () -> Unit) {
     var seconds by remember { mutableIntStateOf(10) }
     val transition = rememberInfiniteTransition(label = "demo-scan")
     val scan by transition.animateFloat(
@@ -739,7 +740,7 @@ private fun DemoMeasurementScreen(config: ProjectConfiguration, onComplete: (Str
             delay(1_000)
             seconds--
         }
-        onComplete("Happy", 24, 72, 15)
+        onComplete("Happy", 24, 72, 15, 31)
     }
     Box(Modifier.fillMaxSize().background(Color(0xFF15242B))) {
         Image(

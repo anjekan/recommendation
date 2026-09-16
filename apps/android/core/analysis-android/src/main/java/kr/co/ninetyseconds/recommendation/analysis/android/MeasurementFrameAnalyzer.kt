@@ -8,6 +8,7 @@ import java.io.Closeable
 import kr.co.ninetyseconds.recommendation.analysis.CheekRgbSampler
 import kr.co.ninetyseconds.recommendation.analysis.EmotionClassifier
 import kr.co.ninetyseconds.recommendation.analysis.EmotionPrediction
+import kr.co.ninetyseconds.recommendation.analysis.FacialActionUnitTracker
 import kr.co.ninetyseconds.recommendation.analysis.LegacyPosVitalSignalProcessor
 import kr.co.ninetyseconds.recommendation.analysis.NormalizedBox
 import kr.co.ninetyseconds.recommendation.analysis.NormalizedFace
@@ -20,6 +21,7 @@ data class MeasurementSnapshot(
     val faceBox: NormalizedBox?,
     val vital: VitalResult?,
     val emotion: EmotionPrediction?,
+    val actionUnitPercent: Int?,
     val timestampMillis: Long,
 )
 
@@ -29,10 +31,12 @@ class MeasurementFrameAnalyzer(
     private val listener: (MeasurementSnapshot) -> Unit,
     private val errorListener: (Throwable) -> Unit = {},
     private val vitalProcessor: VitalSignalProcessor = LegacyPosVitalSignalProcessor(),
+    private val actionUnitTracker: FacialActionUnitTracker = FacialActionUnitTracker(),
 ) : ImageAnalysis.Analyzer, Closeable {
     private var frameCount = 0
     private var lastVital: VitalResult? = null
     private var lastEmotion: EmotionPrediction? = null
+    private var lastActionUnitPercent: Int? = null
     private var closed = false
 
     override fun analyze(image: ImageProxy) {
@@ -48,9 +52,11 @@ class MeasurementFrameAnalyzer(
             val timestampMillis = image.imageInfo.timestamp / 1_000_000L
             val face = faceDetector.detect(rotated)
             if (face == null) {
-                listener(MeasurementSnapshot(false, null, lastVital, lastEmotion, timestampMillis))
+                listener(MeasurementSnapshot(false, null, lastVital, lastEmotion, lastActionUnitPercent, timestampMillis))
                 return
             }
+
+            actionUnitTracker.add(face.blendshapes)?.let { lastActionUnitPercent = it }
 
             val pixels = IntArray(rotated.width * rotated.height)
             rotated.getPixels(pixels, 0, rotated.width, 0, 0, rotated.width, rotated.height)
@@ -64,7 +70,7 @@ class MeasurementFrameAnalyzer(
                     lastEmotion = emotionClassifier.classify(BitmapGrayscalePreprocessor.preprocess(crop))
                 }
             }
-            listener(MeasurementSnapshot(true, face.box, lastVital, lastEmotion, timestampMillis))
+            listener(MeasurementSnapshot(true, face.box, lastVital, lastEmotion, lastActionUnitPercent, timestampMillis))
         } catch (error: Exception) {
             if (!closed) errorListener(error)
         } finally {
@@ -77,7 +83,9 @@ class MeasurementFrameAnalyzer(
         frameCount = 0
         lastVital = null
         lastEmotion = null
+        lastActionUnitPercent = null
         vitalProcessor.reset()
+        actionUnitTracker.reset()
     }
 
     override fun close() {

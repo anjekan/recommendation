@@ -20,8 +20,14 @@ class MediaPipeFaceDetector private constructor(
 ) : BitmapFaceDetector, Closeable {
     override fun detect(bitmap: Bitmap): NormalizedFace? {
         val result = landmarker.detect(BitmapImageBuilder(bitmap).build())
-        val faces = result.faceLandmarks().map { landmarks ->
-            NormalizedFace(landmarks.map { NormalizedPoint(it.x(), it.y()) })
+        val blendshapes = result.faceBlendshapes().orElse(emptyList())
+        val faces = result.faceLandmarks().mapIndexed { index, landmarks ->
+            val coefficients = blendshapes.getOrNull(index).orEmpty()
+                .associate { category -> category.categoryName() to category.score() }
+            NormalizedFace(
+                landmarks = landmarks.map { NormalizedPoint(it.x(), it.y()) },
+                blendshapes = coefficients,
+            )
         }
         return PrimaryFaceSelector.select(faces)
     }
@@ -36,6 +42,7 @@ class MediaPipeFaceDetector private constructor(
                 .setBaseOptions(BaseOptions.builder().setModelAssetPath(MODEL_ASSET).build())
                 .setRunningMode(RunningMode.IMAGE)
                 .setNumFaces(2)
+                .setOutputFaceBlendshapes(true)
                 .build()
             return MediaPipeFaceDetector(FaceLandmarker.createFromOptions(context, options))
         }

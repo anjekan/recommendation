@@ -44,7 +44,7 @@ data class ProjectConfiguration(
     fun mapAnalysisLabel(label: String): EmotionCode = analysisEmotionMappings[label]
         ?: throw IllegalArgumentException("No project emotion mapping for analysis label: $label")
 
-    fun mapAnalysisLabel(label: String, stressScore: Int): EmotionCode {
+    fun mapAnalysisLabel(label: String, stressScore: Int, actionUnitPercent: Int? = null): EmotionCode {
         require(stressScore in 0..100) { "Stress score must be between 0 and 100" }
         val available = emotions.map { it.code.value }.toSet()
 
@@ -55,9 +55,12 @@ data class ProjectConfiguration(
                 stressScore <= 70 -> StressBand.MODERATELY_HIGH
                 else -> StressBand.HIGH
             }
-            val tensionBand = when (label) {
-                "Happy" -> TensionBand.LOW
-                "Neutral", "Surprise" -> TensionBand.MEDIUM
+            val tensionBand = when {
+                actionUnitPercent != null && actionUnitPercent <= ACTION_UNIT_LOW_UPPER -> TensionBand.LOW
+                actionUnitPercent != null && actionUnitPercent <= ACTION_UNIT_MEDIUM_UPPER -> TensionBand.MEDIUM
+                actionUnitPercent != null -> TensionBand.HIGH
+                label == "Happy" -> TensionBand.LOW
+                label == "Neutral" || label == "Surprise" -> TensionBand.MEDIUM
                 else -> TensionBand.HIGH
             }
             return EmotionCode(RICH_CONDITION_BY_BANDS.getValue(stressBand to tensionBand))
@@ -83,6 +86,8 @@ data class ProjectConfiguration(
 
     private companion object {
         val POSITIVE_LABELS = setOf("Happy", "Surprise")
+        const val ACTION_UNIT_LOW_UPPER = 25
+        const val ACTION_UNIT_MEDIUM_UPPER = 55
         val RICH_CONDITION_CODES = setOf(
             "JOY", "EXCITED", "THRILL", "INTEREST", "TENSION", "HEAVINESS",
             "LOW_ENERGY", "DROWSY", "LOOSE", "COMFORT", "STABLE", "LEISURE",

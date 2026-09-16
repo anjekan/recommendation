@@ -80,6 +80,11 @@ class AppContainer(
         participant: ParticipantProfile? = null,
     ): RecommendationDecision {
         val config = configuration ?: start()
+        val journeySenseCodes = if (config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true)) {
+            richJourneySenseCodes(emotion.value)
+        } else {
+            emptyList()
+        }
         val decision = recommendUseCase(
             RecommendationRequest(
                 requestId = UUID.randomUUID().toString(),
@@ -93,6 +98,7 @@ class AppContainer(
                 consentStatus = consentStatus,
                 participant = participant,
                 conditionCode = emotion.value,
+                journeySenseCodes = journeySenseCodes,
             ),
         )
         syncPendingEvents()
@@ -148,5 +154,20 @@ class AppContainer(
             val accepted = HttpRecommendationEventSync(settings.serverBaseUrl, settings.kioskKey).sync(pending)
             localData.recommendationEvents.markSynced(accepted)
         }
+    }
+
+    private fun richJourneySenseCodes(conditionCode: String): List<String> = when (conditionCode) {
+        "JOY" -> listOf("ACTION", "TASTE", "INSIGHT")
+        "EXCITED" -> listOf("ACTION", "LISTENING", "TASTE")
+        "THRILL" -> listOf("INSIGHT", "ACTION", "TASTE")
+        "INTEREST" -> listOf("INSIGHT", "INTUITION", "TASTE")
+        "TENSION" -> listOf("SCENT", "INSIGHT", "TASTE")
+        "HEAVINESS" -> listOf("SCENT", "TASTE", "INSIGHT")
+        "LOW_ENERGY", "DROWSY" -> listOf("TASTE", "INSIGHT", "SCENT")
+        "LOOSE" -> listOf("INSIGHT", "TASTE", "SCENT")
+        "COMFORT" -> listOf("INSIGHT", "TASTE", "ACTION")
+        "STABLE" -> listOf("INSIGHT", "LISTENING", "TASTE")
+        "LEISURE" -> listOf("ACTION", "LISTENING", "TASTE")
+        else -> emptyList()
     }
 }

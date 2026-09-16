@@ -4,6 +4,7 @@ data class MeasurementResult(
     val emotionLabel: String,
     val stressScore: Int,
     val vital: VitalResult,
+    val actionUnitPercent: Int,
 )
 
 data class MeasurementProgress(
@@ -24,6 +25,7 @@ class MeasurementCoordinator(
     private val calibrationExtensionSeconds: Int = DEFAULT_CALIBRATION_EXTENSION_SECONDS,
 ) {
     private val emotions = LegacyEmotionAccumulator()
+    private val actionUnitSamples = mutableListOf<Int>()
     private var secondsRemaining = measurementSeconds
     private var completed: MeasurementResult? = null
 
@@ -32,11 +34,17 @@ class MeasurementCoordinator(
         require(calibrationExtensionSeconds > 0) { "Calibration extension must be positive" }
     }
 
-    fun tick(faceDetected: Boolean, vital: VitalResult?, emotionLabel: String?): MeasurementProgress {
+    fun tick(
+        faceDetected: Boolean,
+        vital: VitalResult?,
+        emotionLabel: String?,
+        actionUnitPercent: Int? = null,
+    ): MeasurementProgress {
         completed?.let { return MeasurementProgress(MeasurementPhase.COMPLETED, 0, it) }
         if (!faceDetected) return MeasurementProgress(MeasurementPhase.WAITING_FOR_FACE, secondsRemaining)
 
         emotionLabel?.let(emotions::add)
+        actionUnitPercent?.let { actionUnitSamples += it.coerceIn(0, 100) }
         secondsRemaining--
         if (secondsRemaining > 0) return MeasurementProgress(MeasurementPhase.MEASURING, secondsRemaining)
         if (vital == null) {
@@ -49,6 +57,7 @@ class MeasurementCoordinator(
             emotionLabel = label,
             stressScore = LegacyStressCalculator.calculate(vital.heartRateBpm, vital.respiratoryRateRpm, label),
             vital = vital,
+            actionUnitPercent = actionUnitSamples.medianOrZero(),
         )
         completed = result
         return MeasurementProgress(MeasurementPhase.COMPLETED, 0, result)
@@ -56,9 +65,17 @@ class MeasurementCoordinator(
 
     fun reset(): MeasurementProgress {
         emotions.reset()
+        actionUnitSamples.clear()
         completed = null
         secondsRemaining = measurementSeconds
         return MeasurementProgress(MeasurementPhase.WAITING_FOR_FACE, secondsRemaining)
+    }
+
+    private fun List<Int>.medianOrZero(): Int {
+        if (isEmpty()) return 0
+        val sorted = sorted()
+        val middle = sorted.size / 2
+        return if (sorted.size % 2 == 0) (sorted[middle - 1] + sorted[middle]) / 2 else sorted[middle]
     }
 
     companion object {
