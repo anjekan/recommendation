@@ -2,6 +2,7 @@ const $ = id => document.getElementById(id);
 const labels = {CONSENTED: '동의', DECLINED: '미동의', NOT_ASKED: '미선택'};
 const statusLabels = {NORMAL: '정상', PRIORITY: '우선 추천', CONGESTED: '혼잡', PAUSED: '추천 중지'};
 const senseLabels = {INSIGHT: '통찰', SCENT: '향기', TASTE: '미식', LISTENING: '경청', ACTION: '실천', INTUITION: '직관'};
+let stopImpactByCode = new Map();
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[char]));
 const localized = (value, language = 'ko') => value?.[language] || Object.values(value || {})[0] || '이름 없음';
 const today = () => {
@@ -23,20 +24,41 @@ function renderLocations(config, counts, selectedTotal, operationalStatuses) {
     status: venue.active && venue.confirmation_status === 'CONFIRMED' ? 'NORMAL' : 'PAUSED',
   }));
   const enabled = location => policyByCode.has(location.code) ? policyByCode.get(location.code).enabled : location.status !== 'PAUSED';
-  const enabledSenseCounts = new Map();
-  configured.filter(enabled).forEach(location => (location.sense_codes || []).forEach(sense => enabledSenseCounts.set(sense, (enabledSenseCounts.get(sense) || 0) + 1)));
   const conditionNames = new Map((config.rich_flow?.condition_states || []).map(state => [state.code, localized(state.display_name)]));
   const mappings = config.rich_flow?.journey_mappings || [];
+  const canCompleteJourney = (sequence, availableLocations) => {
+    const search = (index, used) => {
+      if (index >= sequence.length) return true;
+      return availableLocations.some(location => !used.has(location.code) && (location.sense_codes || []).includes(sequence[index]) && search(index + 1, new Set([...used, location.code])));
+    };
+    return search(0, new Set());
+  };
+  const enabledLocations = configured.filter(enabled);
+  const unavailableMappings = mappings.filter(mapping => !canCompleteJourney(mapping.sense_sequence || [], enabledLocations));
+  if (unavailableMappings.length) {
+    const names = unavailableMappings.map(mapping => conditionNames.get(mapping.condition_code) || mapping.condition_code);
+    $('journeyHealth').className = 'journey-health warning';
+    $('journeyHealth').textContent = `일부 감정의 3개 여정 부족: ${names.join(' · ')}`;
+  } else {
+    $('journeyHealth').className = 'journey-health healthy';
+    $('journeyHealth').textContent = '모든 감정의 3개 추천 여정 가능';
+  }
+  stopImpactByCode = new Map();
   const locations = configured.map(location => {
     const policy = policyByCode.get(location.code), priorityActive = policy?.enabled && policy.priority_share && policy.priority_until && new Date(policy.priority_until) > new Date();
     const senses = location.sense_codes || [];
     const affectedConditions = mappings.filter(mapping => mapping.sense_sequence?.some(sense => senses.includes(sense)))
       .map(mapping => conditionNames.get(mapping.condition_code) || mapping.condition_code);
+    const remainingLocations = enabledLocations.filter(candidate => candidate.code !== location.code);
+    const stopImpacts = enabled(location) ? mappings.filter(mapping =>
+      canCompleteJourney(mapping.sense_sequence || [], enabledLocations) && !canCompleteJourney(mapping.sense_sequence || [], remainingLocations)
+    ).map(mapping => conditionNames.get(mapping.condition_code) || mapping.condition_code) : [];
+    stopImpactByCode.set(location.code, stopImpacts);
     return {
       ...location,
       senses,
       affectedConditions: [...new Set(affectedConditions)],
-      critical: senses.some(sense => enabledSenseCounts.get(sense) === 1),
+      critical: stopImpacts.length > 0,
       status: policy ? (!policy.enabled ? 'PAUSED' : priorityActive ? 'PRIORITY' : 'NORMAL') : location.status,
       priorityShare: priorityActive ? policy.priority_share : null,
       priorityUntil: priorityActive ? policy.priority_until : null,
@@ -54,7 +76,7 @@ function renderLocations(config, counts, selectedTotal, operationalStatuses) {
     const priorityDescription = status === 'PRIORITY' ? `<small class="priority-description">${location.priorityShare}% · ${new Date(location.priorityUntil).toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'})}까지</small>` : '';
     return `<article class="location-card sense-card-${primarySense.toLowerCase()} ${status === 'PAUSED' ? 'is-paused' : ''}">
       <div class="location-heading"><div><strong>${escapeHtml(localized(location.name))}</strong><small>${escapeHtml(location.code)}</small></div><span class="status ${status.toLowerCase()}">${escapeHtml(statusLabels[status] || status)}</span></div>
-      <div class="sense-list">${senseBadges}${location.critical ? '<span class="critical-badge">필수 장소</span>' : ''}</div>
+      <div class="sense-list">${senseBadges}${location.critical ? '<span class="critical-badge" title="이 장소를 중지하면 일부 감정의 3개 여정을 만들 수 없습니다.">대체 장소 없음</span>' : ''}</div>
       <div class="emotion-list">${emotionBadges}</div>
       ${priorityDescription}
       <div class="location-count"><strong>${location.count.toLocaleString()}</strong><span>건 · ${ratio}%</span></div>
@@ -119,6 +141,7 @@ $('date').value = today();
 $('refresh').addEventListener('click', load);
 $('date').addEventListener('change', load);
 $('project').addEventListener('keydown', event => { if (event.key === 'Enter') load(); });
+$('showHelp').addEventListener('click', () => $('helpDialog').showModal());
 $('locations').addEventListener('click', async event => {
   const button = event.target.closest('.location-mode');
   if (!button) return;
@@ -130,7 +153,11 @@ $('locations').addEventListener('click', async event => {
     const body = mode === 'PRIORITY'
       ? {enabled: true, priority_share: share, priority_until: new Date(Date.now() + minutes * 60000).toISOString()}
       : {enabled: mode === 'NORMAL'};
-    if (mode === 'PAUSED' && !confirm('이 장소를 추천 중지하시겠습니까? 추천 여정에서 즉시 제외됩니다.')) { button.disabled = false; return; }
+    if (mode === 'PAUSED') {
+      const impacts = stopImpactByCode.get(locationCode) || [];
+      const impactText = impacts.length ? `\n\n영향받는 감정: ${impacts.join(' · ')}\n해당 감정은 3개 여정을 완성하지 못할 수 있습니다.` : '';
+      if (!confirm(`이 장소를 추천 중지하시겠습니까? 추천 여정에서 즉시 제외됩니다.${impactText}`)) { button.disabled = false; return; }
+    }
     const response = await fetch(`/api/v1/admin/location-statuses/${encodeURIComponent(locationCode)}?projectCode=${encodeURIComponent(projectCode)}`, {
       method: 'PUT', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(body),
