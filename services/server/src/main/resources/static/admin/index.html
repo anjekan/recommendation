@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>꽃 추천 운영 대시보드</title>
+  <title>추천 운영 대시보드</title>
   <link rel="stylesheet" href="/admin/styles.css">
 </head>
 <body>
   <main>
     <header>
-      <div><p class="eyebrow">TAEAN FLOWER · OPERATIONS</p><h1>꽃 추천 운영 대시보드</h1></div>
-      <div class="controls"><input id="project" value="taean" aria-label="프로젝트 코드"><input id="date" type="date" aria-label="집계 기준일"><button id="refresh">새로고침</button></div>
+      <div><p id="projectEyebrow" class="eyebrow">RECOMMENDATION PLATFORM · OPERATIONS</p><h1 id="dashboardTitle">추천 운영 대시보드</h1></div>
+      <div class="controls"><input id="project" list="projectCodes" aria-label="프로젝트 코드"><datalist id="projectCodes"></datalist><input id="date" type="date" aria-label="집계 기준일"><button id="refresh">새로고침</button></div>
     </header>
     <p class="notice">동의 사용자의 입력 정보만 표시하며 전화번호는 마스킹됩니다. 미동의 사용자는 개인정보를 저장하지 않습니다.</p>
-    <section class="panel" style="margin-top:14px;display:flex;align-items:baseline;gap:12px"><span>박람회 누적 총계</span><strong id="overallTotal" style="font-family:Georgia,serif;font-size:42px">–</strong><small>건</small></section>
+    <section class="panel" style="margin-top:14px;display:flex;align-items:baseline;gap:12px"><span>프로젝트 누적 총계</span><strong id="overallTotal" style="font-family:Georgia,serif;font-size:42px">–</strong><small>건</small></section>
     <section class="cards">
       <article><span>선택일 추천</span><strong id="total">–</strong><small id="totalDelta" class="delta">–</small></article>
       <article class="green"><span>개인정보 동의</span><strong id="consented">–</strong><small id="consentRate">–</small><small id="consentedDelta" class="delta">–</small></article>
@@ -37,6 +37,6 @@
     </section>
     <p id="error" role="alert"></p>
   </main>
-  <script src="/admin/app.js"></script>
+  <script src="/admin/app.js?v=2"></script>
 </body>
 </html>

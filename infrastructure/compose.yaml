@@ -26,6 +26,7 @@ services:
       SEED_CONFIG_PATH: /config/project-config.json
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      ADMIN_DEFAULT_PROJECT_CODE: UIRYEONG_RICHRICH_2026_TEST
     volumes:
       - ../projects/uiryeong-richrich-2026/uiryeong-richrich-test-config.json:/config/project-config.json:ro
     ports:

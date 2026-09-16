@@ -15,9 +15,14 @@ const delta = (id, current, previous, digits = 0) => {
 
 function renderLocations(config, counts, selectedTotal) {
   const countById = new Map(counts.map(item => [item.location_id, Number(item.count)]));
-  const locations = (config.locations || []).map(location => ({
+  const countByCode = new Map(counts.filter(item => item.location_code).map(item => [item.location_code, Number(item.count)]));
+  const configured = (config.locations || []).length ? config.locations : (config.rich_flow?.venue_operations || []).map(venue => ({
+    ...venue,
+    status: venue.active && venue.confirmation_status === 'CONFIRMED' ? 'NORMAL' : 'PAUSED',
+  }));
+  const locations = configured.map(location => ({
     ...location,
-    count: countById.get(location.id) || 0,
+    count: countById.get(location.id) || countByCode.get(location.code) || 0,
   })).sort((left, right) => right.count - left.count || localized(left.name).localeCompare(localized(right.name), 'ko'));
   const max = Math.max(...locations.map(location => location.count), 1);
   $('locationSummary').textContent = `${locations.length}개 장소 · 선택일 ${selectedTotal.toLocaleString()}건`;
@@ -50,6 +55,10 @@ async function load() {
     if (!dashboardResponse.ok) throw new Error(`집계 API 오류 (${dashboardResponse.status})`);
     if (!configResponse.ok) throw new Error(`프로젝트 설정 오류 (${configResponse.status})`);
     const data = await dashboardResponse.json(), config = await configResponse.json();
+    const projectName = localized(config.theme?.name) || code;
+    $('projectEyebrow').textContent = `${code} · OPERATIONS`;
+    $('dashboardTitle').textContent = `${projectName} 운영 대시보드`;
+    document.title = `${projectName} 운영 대시보드`;
     const summary = data.summary, previous = data.previous_summary, total = Math.max(summary.total, 1);
     const rate = Math.round(summary.consented / total * 100);
     $('overallTotal').textContent = data.overall_summary.total.toLocaleString();
@@ -80,5 +89,17 @@ $('date').value = today();
 $('refresh').addEventListener('click', load);
 $('date').addEventListener('change', load);
 $('project').addEventListener('keydown', event => { if (event.key === 'Enter') load(); });
-load();
-setInterval(load, 30000);
+async function initialize() {
+  try {
+    const response = await fetch('/api/v1/admin/context');
+    if (!response.ok) throw new Error(`관리자 설정 오류 (${response.status})`);
+    const context = await response.json();
+    $('projectCodes').innerHTML = (context.project_codes || []).map(code => `<option value="${escapeHtml(code)}"></option>`).join('');
+    $('project').value = context.default_project_code || context.project_codes?.[0] || '';
+  } catch (error) {
+    $('error').textContent = error.message;
+  }
+  if ($('project').value) await load();
+}
+initialize();
+setInterval(() => { if ($('project').value) load(); }, 30000);

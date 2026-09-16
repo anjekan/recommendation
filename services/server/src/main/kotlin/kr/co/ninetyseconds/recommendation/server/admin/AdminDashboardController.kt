@@ -1,14 +1,19 @@
 package kr.co.ninetyseconds.recommendation.server.admin
 
+import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.util.UUID
+import kr.co.ninetyseconds.recommendation.server.project.ProjectConfigurationStore
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import tools.jackson.databind.ObjectMapper
 
 data class DashboardSummary(
     val total: Long,
@@ -19,7 +24,7 @@ data class DashboardSummary(
 )
 
 data class NamedCount(val name: String, val count: Long)
-data class LocationCount(val locationId: String, val count: Long)
+data class LocationCount(val locationId: String, val locationCode: String?, val count: Long)
 data class HourCount(val hour: Int, val count: Long)
 data class KioskStatus(val kioskId: String, val count: Long, val lastActivityAt: OffsetDateTime)
 data class RecentRecommendation(
@@ -49,7 +54,11 @@ data class AdminDashboard(
 )
 
 @Repository
-class AdminDashboardQuery(private val jdbc: JdbcClient) {
+class AdminDashboardQuery(
+    private val jdbc: JdbcClient,
+    private val projects: ProjectConfigurationStore,
+    private val objectMapper: ObjectMapper,
+) {
     fun load(projectCode: String, date: LocalDate): AdminDashboard {
         val zone = ZoneId.of("Asia/Seoul")
         val start = date.atStartOfDay(zone).toOffsetDateTime()
@@ -64,12 +73,16 @@ class AdminDashboardQuery(private val jdbc: JdbcClient) {
                group by emotion_code order by count desc, emotion_code""",
         ).param("projectCode", projectCode).param("start", start).param("end", end)
             .query { rs, _ -> NamedCount(rs.getString(1), rs.getLong(2)) }.list()
+        val locationCodesById = projectLocationCodes(projectCode)
         val locations = jdbc.sql(
             """select location_id, count(*) as count from recommendation_events
                where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
                group by location_id order by count desc, location_id""",
         ).param("projectCode", projectCode).param("start", start).param("end", end)
-            .query { rs, _ -> LocationCount(rs.getString(1), rs.getLong(2)) }.list()
+            .query { rs, _ ->
+                val locationId = rs.getString(1)
+                LocationCount(locationId, locationCodesById[locationId], rs.getLong(2))
+            }.list()
         val countedHours = jdbc.sql(
             """select extract(hour from occurred_at at time zone 'Asia/Seoul') as hour_value, count(*) as count
                from recommendation_events where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
@@ -140,11 +153,50 @@ class AdminDashboardQuery(private val jdbc: JdbcClient) {
     private fun maskPhone(phone: String?): String? = phone?.let {
         if (it.length < 7) "***" else "${it.take(3)}-****-${it.takeLast(4)}"
     }
+
+    private fun projectLocationCodes(projectCode: String): Map<String, String> {
+        val configuration = projects.findActiveByCode(projectCode) ?: return emptyMap()
+        val root = objectMapper.readTree(configuration.json)
+        val legacy = root.path("locations").associate { location ->
+            location.path("id").stringValue() to location.path("code").stringValue()
+        }
+        val rich = root.path("rich_flow").path("venue_operations").associate { venue ->
+            val code = venue.path("code").stringValue()
+            stableLocationId(projectCode, code) to code
+        }
+        return legacy + rich
+    }
+
+    private fun stableLocationId(projectCode: String, code: String): String = UUID.nameUUIDFromBytes(
+        "$projectCode:location:$code".toByteArray(StandardCharsets.UTF_8),
+    ).toString()
+}
+
+data class AdminProjectContext(val defaultProjectCode: String, val projectCodes: List<String>)
+
+@Repository
+class AdminProjectContextQuery(
+    private val jdbc: JdbcClient,
+    @Value("\${platform.admin.default-project-code:}") private val configuredDefault: String,
+) {
+    fun load(): AdminProjectContext {
+        val codes = jdbc.sql(
+            "select project_code from projects where active = true order by updated_at desc, project_code",
+        ).query(String::class.java).list().filterNotNull()
+        val defaultCode = configuredDefault.takeIf { it in codes } ?: codes.firstOrNull().orEmpty()
+        return AdminProjectContext(defaultCode, codes)
+    }
 }
 
 @RestController
 @RequestMapping("/api/v1/admin")
-class AdminDashboardController(private val dashboard: AdminDashboardQuery) {
+class AdminDashboardController(
+    private val dashboard: AdminDashboardQuery,
+    private val context: AdminProjectContextQuery,
+) {
+    @GetMapping("/context")
+    fun context(): AdminProjectContext = context.load()
+
     @GetMapping("/dashboard")
     fun dashboard(
         @RequestParam projectCode: String,
