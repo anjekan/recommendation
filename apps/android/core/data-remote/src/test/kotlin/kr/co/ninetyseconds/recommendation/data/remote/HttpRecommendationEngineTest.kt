@@ -60,6 +60,7 @@ class HttpRecommendationEngineTest {
         assertTrue(body.contains("\"schema_version\":2"))
         assertTrue(body.contains("\"journey_sense_codes\":[\"INSIGHT\",\"ACTION\",\"TASTE\"]"))
         assertEquals(1, decision.journey.size)
+        assertEquals(3, decision.expectedJourneyStopCount)
         assertEquals("INSIGHT", decision.journey.single().senseCode)
         assertEquals("장소", decision.journey.single().item.title)
     }

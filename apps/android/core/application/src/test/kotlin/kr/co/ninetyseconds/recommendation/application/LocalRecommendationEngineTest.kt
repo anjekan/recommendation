@@ -66,6 +66,16 @@ class LocalRecommendationEngineTest {
     }
 
     @Test
+    fun `local fallback preserves the requested journey size`() = runSuspend {
+        val decision = engine(items = listOf(item("a", locationA))).recommend(
+            request("request-journey").copy(journeySenseCodes = listOf("INSIGHT", "ACTION", "TASTE")),
+        )
+
+        assertEquals(3, decision.expectedJourneyStopCount)
+        assertEquals(0, decision.journey.size)
+    }
+
+    @Test
     fun `missing emotion candidate fails explicitly`() {
         assertThrows(NoRecommendationAvailable::class.java) {
             runSuspend {

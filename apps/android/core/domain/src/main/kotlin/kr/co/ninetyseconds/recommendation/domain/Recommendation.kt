@@ -62,7 +62,12 @@ data class RecommendationDecision(
     val source: DecisionSource,
     val decidedAt: Instant,
     val journey: List<JourneyStop> = emptyList(),
-)
+    val expectedJourneyStopCount: Int = 1,
+) {
+    init {
+        require(expectedJourneyStopCount in 1..3) { "Expected journey stop count must be between 1 and 3" }
+    }
+}
 
 data class JourneyStop(
     val order: Int,

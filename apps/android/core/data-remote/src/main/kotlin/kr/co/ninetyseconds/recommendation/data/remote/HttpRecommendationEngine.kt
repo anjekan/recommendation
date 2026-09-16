@@ -111,6 +111,7 @@ class HttpRecommendationEngine(
                     ),
                 )
             },
+            expectedJourneyStopCount = request.journeySenseCodes.size.coerceAtLeast(1),
         )
     }
 

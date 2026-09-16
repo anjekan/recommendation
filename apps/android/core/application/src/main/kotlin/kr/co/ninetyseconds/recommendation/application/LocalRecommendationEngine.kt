@@ -45,6 +45,7 @@ class LocalRecommendationEngine(
             item = selected,
             source = DecisionSource.LOCAL,
             decidedAt = clock.instant(),
+            expectedJourneyStopCount = request.journeySenseCodes.size.coerceAtLeast(1),
         )
     }
 

@@ -128,6 +128,7 @@ class AppContainer(
                     JourneyStop(2, "ACTION", kidzania, JourneyLocation("RICH_KIDZANIA", kidzania.title, 51.1, 27.4)),
                     JourneyStop(3, "TASTE", snackZone, JourneyLocation("SNACK_ZONE", snackZone.title, 37.5, 42.7)),
                 ),
+                expectedJourneyStopCount = 3,
             )
         }
         return localEngine.recommend(

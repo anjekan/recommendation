@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                 RecommendationTheme {
                     ResultPresentation("무언가에 흥미가 생긴 듯 보여요", listOf("INSIGHT", "TASTE", "ACTION"),
                         listOf("1. 부자1번지 상설 주제관", "2. 리치 키자니아 직업체험", "3. 리치 스낵존"),
-                        72, 15, "감각 여정 지도 보기", { finish() }, { finish() })
+                        null, 72, 15, "감각 여정 지도 보기", { finish() }, { finish() })
                 }
             } else if (BuildConfig.DEBUG && intent.getBooleanExtra("map_design_preview", false)) {
                 RecommendationTheme {
@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
                             DisplayMapStop(2, "PREVIEW_DREAM", "리치 드림존", 72.8, 27.6),
                             DisplayMapStop(3, "PREVIEW_LIFE", "리치 라이프존", 48.0, 58.0),
                         ) }
-                        MapPresentation(config, stops) { finish() }
+                        MapPresentation(config, stops, expectedStopCount = 3) { finish() }
                     }
                 }
             } else RecommendationApp(container)
@@ -841,15 +841,17 @@ private fun CameraMeasurementPreview(
 private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onRestart: () -> Unit) {
     val emotion = result.decision.item.supportedEmotions.firstOrNull()
     val emotionDefinition = result.config.emotions.firstOrNull { it.code == emotion }
+    val journey = result.decision.toJourneyPresentation()
     ResultPresentation(emotionDefinition?.message ?: "무언가에 흥미가 생긴 듯 보여요",
-        result.decision.journey.map { it.senseCode },
-        result.decision.journey.sortedBy { it.order }.map { "${it.order}. ${it.item.title}" },
+        journey.senseCodes,
+        journey.stopLabels,
+        journey.operationNotice(result.config.selectedLanguage),
         result.heartRate, result.respiration, result.config.content.mapButtonLabel, onShowMap, onRestart)
 }
 
 @Composable
-private fun ResultPresentation(message: String, senseCodes: List<String>, journey: List<String>, heartRate: Int, respiration: Int,
-    mapLabel: String, onShowMap: () -> Unit, onRestart: () -> Unit) {
+private fun ResultPresentation(message: String, senseCodes: List<String>, journey: List<String>, operationNotice: String?,
+    heartRate: Int, respiration: Int, mapLabel: String, onShowMap: () -> Unit, onRestart: () -> Unit) {
     val sense = richSenseVisual(senseCodes.firstOrNull())
     val particle = subjectParticle(sense.name)
     val resultFont = remember { FontFamily(Font(R.font.sb_aggro_medium, FontWeight.Normal), Font(R.font.sb_aggro_bold, FontWeight.Bold)) }
@@ -907,6 +909,15 @@ private fun ResultPresentation(message: String, senseCodes: List<String>, journe
                                     fontSize = 14.sp,
                                     modifier = Modifier.padding(top = 4.dp),
                                 )
+                                operationNotice?.let { notice ->
+                                    Text(
+                                        "⚠ $notice",
+                                        color = Color(0xFFFFDE78),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(top = 5.dp),
+                                    )
+                                }
                             }
                         }
                         Surface(Modifier.align(Alignment.TopStart).padding(start = 16.dp), shape = RoundedCornerShape(22.dp),
@@ -1139,11 +1150,11 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
     val destinations = journeyLocations.ifEmpty {
         legacyLocation?.let { listOf(DisplayMapStop(1, it.code, it.title, it.markerXPercent, it.markerYPercent)) }.orEmpty()
     }
-    MapPresentation(result.config, destinations, onFinish)
+    MapPresentation(result.config, destinations, result.decision.expectedJourneyStopCount, onFinish)
 }
 
 @Composable
-private fun MapPresentation(config: ProjectConfiguration, destinations: List<DisplayMapStop>, onFinish: () -> Unit) {
+private fun MapPresentation(config: ProjectConfiguration, destinations: List<DisplayMapStop>, expectedStopCount: Int, onFinish: () -> Unit) {
     val font = remember { FontFamily(Font(R.font.sb_aggro_medium, FontWeight.Normal), Font(R.font.sb_aggro_bold, FontWeight.Bold)) }
     val base = MaterialTheme.typography
     MaterialTheme(typography = base.copy(
@@ -1153,13 +1164,13 @@ private fun MapPresentation(config: ProjectConfiguration, destinations: List<Dis
         headlineSmall = base.headlineSmall.copy(fontFamily = font),
     )) {
         ProvideTextStyle(LocalTextStyle.current.copy(fontFamily = font)) {
-            MapPresentationContent(config, destinations, onFinish)
+            MapPresentationContent(config, destinations, expectedStopCount, onFinish)
         }
     }
 }
 
 @Composable
-private fun MapPresentationContent(config: ProjectConfiguration, destinations: List<DisplayMapStop>, onFinish: () -> Unit) {
+private fun MapPresentationContent(config: ProjectConfiguration, destinations: List<DisplayMapStop>, expectedStopCount: Int, onFinish: () -> Unit) {
     if (destinations.isEmpty()) {
         Centered {
             Text(uiText(config.selectedLanguage, "표시할 지도 위치가 없습니다.", "No map location is available.", "没有可显示的地图位置。", "表示できる地図位置がありません。"))
@@ -1177,6 +1188,7 @@ private fun MapPresentationContent(config: ProjectConfiguration, destinations: L
         animationSpec = infiniteRepeatable(tween(800, easing = LinearEasing), RepeatMode.Restart),
         label = "route-dash-phase",
     )
+    val operationNotice = journeyOperationNotice(destinations.size, expectedStopCount, config.selectedLanguage)
     BoxWithConstraints(
         Modifier.fillMaxSize().background(Color(0xFFF4E9CB)).clipToBounds(),
         contentAlignment = Alignment.Center,
@@ -1296,6 +1308,10 @@ private fun MapPresentationContent(config: ProjectConfiguration, destinations: L
                 Text(destinations.joinToString("  →  ") { "${it.order}. ${it.title}" },
                     color = Color(0xFFFFDE78), fontSize = 19.sp, fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center, modifier = Modifier.padding(top = 5.dp))
+                operationNotice?.let { notice ->
+                    Text("⚠ $notice", color = Color(0xFFFFE7A3), fontSize = 13.sp, fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp))
+                }
             }
             Box(
                 Modifier.align(Alignment.BottomStart).padding(start = 18.dp, bottom = 16.dp).width(278.dp),
