@@ -153,13 +153,51 @@ class CreateRecommendationTest {
             JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
             RecentRecommendationLoad { _, _, _ -> emptyMap() },
-            OperationalLocationStatusLoad { _, _ -> mapOf("ACTIVE" to false, "DRAFT" to true) },
+            OperationalLocationStatusLoad { _, _ ->
+                mapOf(
+                    "ACTIVE" to OperationalLocationPolicy(false, null, null),
+                    "DRAFT" to OperationalLocationPolicy(true, null, null),
+                )
+            },
             Duration.ofMinutes(15),
         )
 
         val result = richService(request(schemaVersion = 2, journeySenseCodes = listOf("ACTION")))
 
         assertEquals("DRAFT", result.location.path("code").stringValue())
+    }
+
+    @Test
+    fun `active priority policy selects an eligible venue before load balancing`() {
+        val richConfig = """
+            {
+              "emotion_profiles":[{"code":"VITALITY","active":true}],
+              "locations":[], "items":[], "rules":[],
+              "rich_flow":{"venue_operations":[
+                {"code":"NORMAL","name":{"ko":"일반 장소"},"active":true,"confirmation_status":"CONFIRMED","capacity":100,"indoor":true,"alcohol":false,"sense_codes":["ACTION"]},
+                {"code":"PRIORITY","name":{"ko":"우선 장소"},"active":true,"confirmation_status":"CONFIRMED","capacity":100,"indoor":true,"alcohol":false,"sense_codes":["ACTION"]}
+              ]}
+            }
+        """.trimIndent()
+        val richService = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            OperationalLocationStatusLoad { _, _ ->
+                mapOf(
+                    "PRIORITY" to OperationalLocationPolicy(
+                        true, 100, OffsetDateTime.parse("2026-08-27T01:00:00Z"),
+                    ),
+                )
+            },
+            Duration.ofMinutes(15),
+        )
+
+        val result = richService(request(schemaVersion = 2, journeySenseCodes = listOf("ACTION")))
+
+        assertEquals("PRIORITY", result.location.path("code").stringValue())
+        assertEquals(true, "OPERATOR_PRIORITY_APPLIED" in result.reasons)
     }
 
     @Test
