@@ -13,15 +13,17 @@ const delta = (id, current, previous, digits = 0) => {
   $(id).className = `delta ${value > 0 ? 'up' : value < 0 ? 'down' : 'same'}`;
 };
 
-function renderLocations(config, counts, selectedTotal) {
+function renderLocations(config, counts, selectedTotal, operationalStatuses) {
   const countById = new Map(counts.map(item => [item.location_id, Number(item.count)]));
   const countByCode = new Map(counts.filter(item => item.location_code).map(item => [item.location_code, Number(item.count)]));
+  const enabledByCode = new Map(operationalStatuses.map(item => [item.location_code, item.enabled]));
   const configured = (config.locations || []).length ? config.locations : (config.rich_flow?.venue_operations || []).map(venue => ({
     ...venue,
     status: venue.active && venue.confirmation_status === 'CONFIRMED' ? 'NORMAL' : 'PAUSED',
   }));
   const locations = configured.map(location => ({
     ...location,
+    status: enabledByCode.has(location.code) ? (enabledByCode.get(location.code) ? 'NORMAL' : 'PAUSED') : location.status,
     count: countById.get(location.id) || countByCode.get(location.code) || 0,
   })).sort((left, right) => right.count - left.count || localized(left.name).localeCompare(localized(right.name), 'ko'));
   const max = Math.max(...locations.map(location => location.count), 1);
@@ -33,6 +35,7 @@ function renderLocations(config, counts, selectedTotal) {
       <div class="location-heading"><div><strong>${escapeHtml(localized(location.name))}</strong><small>${escapeHtml(location.code)}</small></div><span class="status ${status.toLowerCase()}">${escapeHtml(statusLabels[status] || status)}</span></div>
       <div class="location-count"><strong>${location.count.toLocaleString()}</strong><span>건 · ${ratio}%</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${location.count / max * 100}%"></div></div>
+      <button class="location-toggle" data-location-code="${escapeHtml(location.code)}" data-enable="${status === 'PAUSED'}">${status === 'PAUSED' ? '추천 켜기' : '추천 끄기'}</button>
     </article>`;
   }).join('') : '<p>프로젝트에 등록된 추천 장소가 없습니다.</p>';
 }
@@ -48,13 +51,15 @@ async function load() {
   $('error').textContent = '';
   try {
     const code = $('project').value.trim(), date = $('date').value || today();
-    const [dashboardResponse, configResponse] = await Promise.all([
+    const [dashboardResponse, configResponse, statusResponse] = await Promise.all([
       fetch(`/api/v1/admin/dashboard?projectCode=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`),
       fetch(`/api/v1/projects/${encodeURIComponent(code)}/config`),
+      fetch(`/api/v1/admin/location-statuses?projectCode=${encodeURIComponent(code)}`),
     ]);
     if (!dashboardResponse.ok) throw new Error(`집계 API 오류 (${dashboardResponse.status})`);
     if (!configResponse.ok) throw new Error(`프로젝트 설정 오류 (${configResponse.status})`);
-    const data = await dashboardResponse.json(), config = await configResponse.json();
+    if (!statusResponse.ok) throw new Error(`운영 상태 API 오류 (${statusResponse.status})`);
+    const data = await dashboardResponse.json(), config = await configResponse.json(), operationalStatuses = await statusResponse.json();
     const projectName = localized(config.theme?.name) || code;
     $('projectEyebrow').textContent = `${code} · OPERATIONS`;
     $('dashboardTitle').textContent = `${projectName} 운영 대시보드`;
@@ -76,7 +81,7 @@ async function load() {
     $('emotions').innerHTML = data.emotions.length ? data.emotions.map(item => `<div class="bar-row"><span>${escapeHtml(item.name)}</span><div class="bar-track"><div class="bar-fill" style="width:${item.count / emotionMax * 100}%"></div></div><strong>${item.count}</strong></div>`).join('') : '<p>아직 추천 데이터가 없습니다.</p>';
     const declined = Math.round(summary.declined / total * 100);
     $('consentChart').innerHTML = `<div><div class="donut" style="background:conic-gradient(#3c7655 0 ${rate}%,#e6a958 ${rate}% ${rate + declined}%,#d9ddd7 ${rate + declined}% 100%)"></div><div class="legend">● 동의 ${summary.consented}　● 미동의 ${summary.declined}<br>● 미선택 ${summary.not_asked}</div></div>`;
-    renderLocations(config, data.locations || [], summary.total);
+    renderLocations(config, data.locations || [], summary.total, operationalStatuses);
     renderOperations(data);
     $('recent').innerHTML = data.recent.map(item => `<tr><td>${new Date(item.occurred_at).toLocaleString('ko-KR')}</td><td>${escapeHtml(item.kiosk_id)}</td><td>${escapeHtml(item.participant_name || '–')}</td><td>${escapeHtml(item.participant_phone || '–')}</td><td>${escapeHtml(item.participant_birth_date || '–')}</td><td>${escapeHtml(item.participant_gender || '–')}</td><td>${escapeHtml(item.emotion_code)}</td><td><span class="badge ${item.consent_status === 'CONSENTED' ? 'yes' : item.consent_status === 'DECLINED' ? 'no' : ''}">${escapeHtml(labels[item.consent_status] || item.consent_status)}</span></td><td>${item.stress_score}</td><td>${escapeHtml(item.source)}</td></tr>`).join('');
     $('updated').textContent = `갱신 ${new Date().toLocaleTimeString('ko-KR')}`;
@@ -89,6 +94,23 @@ $('date').value = today();
 $('refresh').addEventListener('click', load);
 $('date').addEventListener('change', load);
 $('project').addEventListener('keydown', event => { if (event.key === 'Enter') load(); });
+$('locations').addEventListener('click', async event => {
+  const button = event.target.closest('.location-toggle');
+  if (!button) return;
+  button.disabled = true;
+  try {
+    const projectCode = $('project').value.trim(), locationCode = button.dataset.locationCode;
+    const response = await fetch(`/api/v1/admin/location-statuses/${encodeURIComponent(locationCode)}?projectCode=${encodeURIComponent(projectCode)}`, {
+      method: 'PUT', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({enabled: button.dataset.enable === 'true'}),
+    });
+    if (!response.ok) throw new Error(`운영 상태 변경 오류 (${response.status})`);
+    await load();
+  } catch (error) {
+    $('error').textContent = error.message;
+    button.disabled = false;
+  }
+});
 async function initialize() {
   try {
     const response = await fetch('/api/v1/admin/context');

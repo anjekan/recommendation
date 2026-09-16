@@ -41,6 +41,7 @@ class CreateRecommendationTest {
         RecommendationEventStore { true },
         Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
         RecentRecommendationLoad { _, _, _ -> emptyMap() },
+        OperationalLocationStatusLoad { _, _ -> emptyMap() },
         Duration.ofMinutes(15),
     )
 
@@ -74,6 +75,7 @@ class CreateRecommendationTest {
                 assertEquals(Instant.parse("2026-08-26T23:45:00Z"), since)
                 mapOf(locationA to 9L, locationB to 2L)
             },
+            OperationalLocationStatusLoad { _, _ -> emptyMap() },
             Duration.ofMinutes(15),
         )
 
@@ -119,7 +121,8 @@ class CreateRecommendationTest {
             ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
             JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
-            RecentRecommendationLoad { _, _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
         )
 
         val result = richService(
@@ -131,6 +134,32 @@ class CreateRecommendationTest {
         assertEquals(listOf("INSIGHT", "ACTION", "TASTE"), result.journey.map { it.senseCode })
         assertEquals(listOf("HALL", "PLAY", "FOOD"), result.journey.map { it.location.path("code").stringValue() })
         assertEquals(listOf(1, 2, 3), result.journey.map { it.order })
+    }
+
+    @Test
+    fun `operational override can stop an active venue and enable a draft venue`() {
+        val richConfig = """
+            {
+              "emotion_profiles":[{"code":"VITALITY","active":true}],
+              "locations":[], "items":[], "rules":[],
+              "rich_flow":{"venue_operations":[
+                {"code":"ACTIVE","name":{"ko":"운영 장소"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["ACTION"]},
+                {"code":"DRAFT","name":{"ko":"시험 장소"},"active":false,"confirmation_status":"PENDING_CONFIRMATION","indoor":true,"alcohol":false,"sense_codes":["ACTION"]}
+              ]}
+            }
+        """.trimIndent()
+        val richService = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            OperationalLocationStatusLoad { _, _ -> mapOf("ACTIVE" to false, "DRAFT" to true) },
+            Duration.ofMinutes(15),
+        )
+
+        val result = richService(request(schemaVersion = 2, journeySenseCodes = listOf("ACTION")))
+
+        assertEquals("DRAFT", result.location.path("code").stringValue())
     }
 
     @Test
@@ -150,7 +179,8 @@ class CreateRecommendationTest {
             ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
             JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
-            RecentRecommendationLoad { _, _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
         )
 
         val result = richService(

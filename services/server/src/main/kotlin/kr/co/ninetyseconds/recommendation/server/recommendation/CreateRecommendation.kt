@@ -79,6 +79,7 @@ class CreateRecommendation(
     private val events: RecommendationEventStore,
     private val clock: Clock,
     private val recentLoad: RecentRecommendationLoad,
+    private val operationalStatus: OperationalLocationStatusLoad,
     @Value("\${recommendation.policy.recent-window:PT15M}")
     private val recentWindow: Duration,
 ) {
@@ -101,6 +102,10 @@ class CreateRecommendation(
         if (richJourney.isNotEmpty()) return createRichJourneyResult(request, emotion, richJourney)
 
         val locations = root.path("locations").associateBy { it.path("id").stringValue() }
+        val operationalStatuses = operationalStatus.enabledByCode(
+            request.projectCode,
+            locations.values.map { it.path("code").stringValue() }.filter { it.isNotBlank() }.toSet(),
+        )
         val items = root.path("items").associateBy { it.path("id").stringValue() }
         val previous = request.previousLocationId?.toString()
         val candidates = root.path("rules").mapNotNull { rule ->
@@ -109,9 +114,11 @@ class CreateRecommendation(
             }
             val item = items[rule.path("item_id").stringValue()] ?: return@mapNotNull null
             val location = locations[item.path("location_id").stringValue()] ?: return@mapNotNull null
+            val locationCode = location.path("code").stringValue()
+            val enabledByConfiguration = location.path("active").asBoolean(true) &&
+                location.path("status").stringValue() != "PAUSED"
             if (!item.path("active").asBoolean(true) ||
-                !location.path("active").asBoolean(true) ||
-                location.path("status").stringValue() == "PAUSED" ||
+                !(operationalStatuses[locationCode] ?: enabledByConfiguration) ||
                 location.path("id").stringValue() == previous
             ) return@mapNotNull null
             Candidate(rule, item, location)
@@ -206,11 +213,17 @@ class CreateRecommendation(
         if (requestedSenses.isEmpty()) return emptyList()
 
         val usedCodes = mutableSetOf<String>()
+        val venues = richFlow.path("venue_operations").toList()
+        val operationalStatuses = operationalStatus.enabledByCode(
+            request.projectCode,
+            venues.map { it.path("code").stringValue() }.filter { it.isNotBlank() }.toSet(),
+        )
         return requestedSenses.mapIndexedNotNull { index, senseCode ->
-            val candidates = richFlow.path("venue_operations").filter { venue ->
+            val candidates = venues.filter { venue ->
                 val code = venue.path("code").stringValue()
-                venue.path("active").asBoolean(false) &&
-                    venue.path("confirmation_status").stringValue() == "CONFIRMED" &&
+                val enabledByConfiguration = venue.path("active").asBoolean(false) &&
+                    venue.path("confirmation_status").stringValue() == "CONFIRMED"
+                (operationalStatuses[code] ?: enabledByConfiguration) &&
                     code !in usedCodes &&
                     venue.path("sense_codes").any { it.stringValue() == senseCode } &&
                     (!request.operationContext?.raining.orFalse() || venue.path("indoor").asBoolean(false)) &&
