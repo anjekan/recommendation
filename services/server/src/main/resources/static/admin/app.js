@@ -35,14 +35,21 @@ function renderLocations(config, counts, selectedTotal, operationalStatuses) {
   };
   const enabledLocations = configured.filter(enabled);
   const unavailableMappings = mappings.filter(mapping => !canCompleteJourney(mapping.sense_sequence || [], enabledLocations));
+  const unavailableConditionCodes = new Set(unavailableMappings.map(mapping => mapping.condition_code));
   if (unavailableMappings.length) {
-    const names = unavailableMappings.map(mapping => conditionNames.get(mapping.condition_code) || mapping.condition_code);
     $('journeyHealth').className = 'journey-health warning';
-    $('journeyHealth').textContent = `일부 감정의 3개 여정 부족: ${names.join(' · ')}`;
+    $('journeyHealth').textContent = `3개 추천 여정 불가 감정 ${unavailableConditionCodes.size}개`;
   } else {
     $('journeyHealth').className = 'journey-health healthy';
     $('journeyHealth').textContent = '모든 감정의 3개 추천 여정 가능';
   }
+  const mappedConditions = [...new Map(mappings.map(mapping => [mapping.condition_code, mapping])).values()];
+  $('conditionHealth').hidden = mappedConditions.length === 0;
+  $('conditionHealth').innerHTML = mappedConditions.length ? `<strong>감정별 여정</strong>${mappedConditions.map(mapping => {
+    const unavailable = unavailableConditionCodes.has(mapping.condition_code);
+    const name = conditionNames.get(mapping.condition_code) || mapping.condition_code;
+    return `<span class="condition-chip ${unavailable ? 'unavailable' : ''}" title="${unavailable ? '현재 운영 장소로 3개 추천 여정을 만들 수 없습니다.' : '3개 추천 여정 가능'}">${escapeHtml(name)}</span>`;
+  }).join('')}` : '';
   stopImpactByCode = new Map();
   const locations = configured.map(location => {
     const policy = policyByCode.get(location.code), priorityActive = policy?.enabled && policy.priority_share && policy.priority_until && new Date(policy.priority_until) > new Date();
