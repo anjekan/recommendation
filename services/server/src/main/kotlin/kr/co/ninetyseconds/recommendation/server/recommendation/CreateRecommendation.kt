@@ -12,6 +12,8 @@ import kr.co.ninetyseconds.recommendation.server.event.ConsentStatus
 import kr.co.ninetyseconds.recommendation.server.event.RecommendationEvent
 import kr.co.ninetyseconds.recommendation.server.event.RecommendationEventStore
 import kr.co.ninetyseconds.recommendation.server.event.RecommendationSource
+import kr.co.ninetyseconds.recommendation.server.event.RecommendationJourneyStopEvent
+import kr.co.ninetyseconds.recommendation.server.event.RecommendationJourneyStore
 import org.springframework.stereotype.Service
 import org.springframework.beans.factory.annotation.Value
 import tools.jackson.databind.JsonNode
@@ -82,6 +84,7 @@ class CreateRecommendation(
     private val operationalStatus: OperationalLocationStatusLoad,
     @Value("\${recommendation.policy.recent-window:PT15M}")
     private val recentWindow: Duration,
+    private val journeyEvents: RecommendationJourneyStore,
 ) {
     operator fun invoke(request: RecommendationRequest): RecommendationResult {
         require(request.schemaVersion in 1..2) { "Unsupported schema version: ${request.schemaVersion}" }
@@ -181,6 +184,17 @@ class CreateRecommendation(
                 policyVersion = result.policyVersion,
                 occurredAt = request.requestedAt.toInstant(),
             ),
+        )
+        journeyEvents.appendIfAbsent(
+            result.recommendationId,
+            result.journey.map { stop ->
+                RecommendationJourneyStopEvent(
+                    stop.order,
+                    stop.senseCode,
+                    UUID.fromString(stop.item.path("id").stringValue()),
+                    UUID.fromString(stop.location.path("id").stringValue()),
+                )
+            },
         )
         return result
     }
@@ -322,6 +336,17 @@ class CreateRecommendation(
                 participantGender = request.participant?.gender, policyVersion = result.policyVersion,
                 occurredAt = request.requestedAt.toInstant(),
             ),
+        )
+        journeyEvents.appendIfAbsent(
+            result.recommendationId,
+            stops.map { stop ->
+                RecommendationJourneyStopEvent(
+                    stop.order,
+                    stop.senseCode,
+                    UUID.fromString(stop.item.path("id").stringValue()),
+                    UUID.fromString(stop.location.path("id").stringValue()),
+                )
+            },
         )
         return result
     }

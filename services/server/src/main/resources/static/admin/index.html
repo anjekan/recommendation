@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>추천 운영 대시보드</title>
-  <link rel="stylesheet" href="/admin/styles.css?v=2">
+  <link rel="stylesheet" href="/admin/styles.css?v=3">
 </head>
 <body>
   <main>
@@ -12,7 +12,7 @@
       <div><p id="projectEyebrow" class="eyebrow">RECOMMENDATION PLATFORM · OPERATIONS</p><h1 id="dashboardTitle">추천 운영 대시보드</h1></div>
       <div class="controls"><button id="showHelp" type="button">사용법</button><input id="project" list="projectCodes" aria-label="프로젝트 코드"><datalist id="projectCodes"></datalist><input id="date" type="date" aria-label="집계 기준일"><button id="refresh">새로고침</button></div>
     </header>
-    <p class="notice">동의 사용자의 입력 정보만 표시하며 전화번호는 마스킹됩니다. 미동의 사용자는 개인정보를 저장하지 않습니다.</p>
+    <p id="privacyNotice" class="notice">동의 사용자의 입력 정보만 표시하며 전화번호는 마스킹됩니다. 미동의 사용자는 개인정보를 저장하지 않습니다.</p>
     <section class="operations-guide" aria-label="추천 운영 상태 안내">
       <div id="journeyHealth" class="journey-health">여정 상태 확인 중…</div>
       <div class="sense-legend"><span class="sense-insight">통찰</span><span class="sense-scent">향기</span><span class="sense-taste">미식</span><span class="sense-listening">경청</span><span class="sense-action">실천</span><span class="sense-intuition">직관</span></div>
@@ -21,13 +21,13 @@
     <section class="panel" style="margin-top:14px;display:flex;align-items:baseline;gap:12px"><span>프로젝트 누적 총계</span><strong id="overallTotal" style="font-family:Georgia,serif;font-size:42px">–</strong><small>건</small></section>
     <section class="cards">
       <article><span>선택일 추천</span><strong id="total">–</strong><small id="totalDelta" class="delta">–</small></article>
-      <article class="green"><span>개인정보 동의</span><strong id="consented">–</strong><small id="consentRate">–</small><small id="consentedDelta" class="delta">–</small></article>
-      <article class="orange"><span>개인정보 미동의</span><strong id="declined">–</strong><small id="declinedDelta" class="delta">–</small></article>
+      <article id="secondaryMetricCard" class="green"><span id="secondaryMetricLabel">개인정보 동의</span><strong id="secondaryMetricValue">–</strong><small id="secondaryMetricMeta">–</small><small id="secondaryMetricDelta" class="delta">–</small></article>
+      <article id="tertiaryMetricCard" class="orange"><span id="tertiaryMetricLabel">개인정보 미동의</span><strong id="tertiaryMetricValue">–</strong><small id="tertiaryMetricMeta"></small><small id="tertiaryMetricDelta" class="delta">–</small></article>
       <article><span>평균 스트레스</span><strong id="stress">–</strong><small>/ 100</small><small id="stressDelta" class="delta">–</small></article>
     </section>
     <section class="grid">
       <article class="panel"><div class="panel-title"><h2>감정별 추천</h2><span id="summaryDate">–</span></div><div id="emotions" class="bars"></div></article>
-      <article class="panel"><div class="panel-title"><h2>동의 상태 구성</h2><span>익명</span></div><div id="consentChart" class="donut-wrap"></div></article>
+      <article class="panel"><div class="panel-title"><h2 id="distributionTitle">동의 상태 구성</h2><span id="distributionMeta">익명</span></div><div id="distributionChart" class="donut-wrap"></div></article>
     </section>
     <section class="panel location-panel">
       <div class="panel-title"><h2>추천 장소 현황</h2><span id="locationSummary">–</span></div>
@@ -38,7 +38,7 @@
       <article class="panel"><div class="panel-title"><h2>키오스크 현황</h2><span id="kioskSummary">–</span></div><div id="kiosks" class="kiosk-list"></div></article>
     </section>
     <section class="panel table-panel"><div class="panel-title"><h2>최근 추천</h2><span id="updated">–</span></div>
-      <div class="table-scroll"><table><thead><tr><th>시간</th><th>키오스크</th><th>이름</th><th>전화번호</th><th>생년월일</th><th>성별</th><th>감정</th><th>동의</th><th>스트레스</th><th>처리</th></tr></thead><tbody id="recent"></tbody></table></div>
+      <div class="table-scroll"><table><thead><tr id="recentHead"><th>시간</th><th>키오스크</th><th>이름</th><th>전화번호</th><th>생년월일</th><th>성별</th><th>감정</th><th>동의</th><th>스트레스</th><th>처리</th></tr></thead><tbody id="recent"></tbody></table></div>
     </section>
     <p id="error" role="alert"></p>
   </main>
@@ -53,6 +53,6 @@
     <div class="help-warning"><strong>대체 장소 없음</strong><span>이 장소를 중지하면 해당 감각을 추천할 수 없습니다. 같은 감각 색상의 다른 장소를 먼저 켜주세요.</span></div>
     <form method="dialog"><button class="dialog-confirm">확인</button></form>
   </dialog>
-  <script src="/admin/app.js?v=5"></script>
+  <script src="/admin/app.js?v=6"></script>
 </body>
 </html>

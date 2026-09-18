@@ -12,6 +12,7 @@ import kotlin.test.assertFailsWith
 import kr.co.ninetyseconds.recommendation.server.project.ProjectConfiguration
 import kr.co.ninetyseconds.recommendation.server.project.ProjectConfigurationStore
 import kr.co.ninetyseconds.recommendation.server.event.RecommendationEventStore
+import kr.co.ninetyseconds.recommendation.server.event.RecommendationJourneyStore
 import kr.co.ninetyseconds.recommendation.server.event.ConsentStatus
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.kotlinModule
@@ -43,6 +44,7 @@ class CreateRecommendationTest {
         RecentRecommendationLoad { _, _, _ -> emptyMap() },
         OperationalLocationStatusLoad { _, _ -> emptyMap() },
         Duration.ofMinutes(15),
+        RecommendationJourneyStore { _, _ -> },
     )
 
     @Test
@@ -77,6 +79,7 @@ class CreateRecommendationTest {
             },
             OperationalLocationStatusLoad { _, _ -> emptyMap() },
             Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
         )
 
         val result = balanced(request())
@@ -117,12 +120,14 @@ class CreateRecommendationTest {
               }
             }
         """.trimIndent()
+        var persistedJourneyStopCount = 0
         val richService = CreateRecommendation(
             ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
             JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
             RecentRecommendationLoad { _, _, _ -> emptyMap() },
             OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, stops -> persistedJourneyStopCount = stops.size },
         )
 
         val result = richService(
@@ -134,6 +139,7 @@ class CreateRecommendationTest {
         assertEquals(listOf("INSIGHT", "ACTION", "TASTE"), result.journey.map { it.senseCode })
         assertEquals(listOf("HALL", "PLAY", "FOOD"), result.journey.map { it.location.path("code").stringValue() })
         assertEquals(listOf(1, 2, 3), result.journey.map { it.order })
+        assertEquals(3, persistedJourneyStopCount)
     }
 
     @Test
@@ -160,6 +166,7 @@ class CreateRecommendationTest {
                 )
             },
             Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
         )
 
         val result = richService(request(schemaVersion = 2, journeySenseCodes = listOf("ACTION")))
@@ -192,6 +199,7 @@ class CreateRecommendationTest {
                 )
             },
             Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
         )
 
         val result = richService(request(schemaVersion = 2, journeySenseCodes = listOf("ACTION")))
@@ -219,6 +227,7 @@ class CreateRecommendationTest {
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
             RecentRecommendationLoad { _, _, _ -> emptyMap() },
             OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
         )
 
         val result = richService(

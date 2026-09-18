@@ -31,6 +31,7 @@ data class RecentRecommendation(
     val occurredAt: OffsetDateTime,
     val kioskId: String,
     val emotionCode: String,
+    val locationCode: String?,
     val consentStatus: String,
     val stressScore: Int,
     val source: String,
@@ -75,9 +76,23 @@ class AdminDashboardQuery(
             .query { rs, _ -> NamedCount(rs.getString(1), rs.getLong(2)) }.list()
         val locationCodesById = projectLocationCodes(projectCode)
         val locations = jdbc.sql(
-            """select location_id, count(*) as count from recommendation_events
-               where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
-               group by location_id order by count desc, location_id""",
+            """
+            select location_id, count(*) as count
+            from (
+                select journey.location_id
+                from recommendation_events event
+                join recommendation_journey_stops journey on journey.recommendation_id = event.event_id
+                where event.project_code = :projectCode and event.occurred_at >= :start and event.occurred_at < :end
+                union all
+                select event.location_id
+                from recommendation_events event
+                where event.project_code = :projectCode and event.occurred_at >= :start and event.occurred_at < :end
+                  and not exists (
+                      select 1 from recommendation_journey_stops journey where journey.recommendation_id = event.event_id
+                  )
+            ) selected_locations
+            group by location_id order by count desc, location_id
+            """.trimIndent(),
         ).param("projectCode", projectCode).param("start", start).param("end", end)
             .query { rs, _ ->
                 val locationId = rs.getString(1)
@@ -97,7 +112,7 @@ class AdminDashboardQuery(
         ).param("projectCode", projectCode).param("start", start).param("end", end)
             .query { rs, _ -> KioskStatus(rs.getString("kiosk_id"), rs.getLong("count"), rs.getObject("last_activity_at", OffsetDateTime::class.java)) }.list()
         val recent = jdbc.sql(
-            """select occurred_at, kiosk_id, emotion_code, consent_status, stress_score, source,
+            """select occurred_at, kiosk_id, emotion_code, location_id, consent_status, stress_score, source,
                       participant_name, participant_phone, participant_birth_date, participant_gender
                from recommendation_events
                where project_code = :projectCode and occurred_at >= :start and occurred_at < :end
@@ -105,7 +120,7 @@ class AdminDashboardQuery(
         ).param("projectCode", projectCode).param("start", start).param("end", end).query { rs, _ ->
             RecentRecommendation(
                 rs.getObject("occurred_at", OffsetDateTime::class.java), rs.getString("kiosk_id"),
-                rs.getString("emotion_code"), rs.getString("consent_status"),
+                rs.getString("emotion_code"), locationCodesById[rs.getString("location_id")], rs.getString("consent_status"),
                 rs.getInt("stress_score"), rs.getString("source"),
                 rs.getString("participant_name"), maskPhone(rs.getString("participant_phone")),
                 rs.getString("participant_birth_date"), rs.getString("participant_gender"),

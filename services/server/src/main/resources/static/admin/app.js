@@ -56,6 +56,7 @@ function renderLocations(config, counts, selectedTotal, operationalStatuses) {
     stopImpactByCode.set(location.code, stopImpacts);
     return {
       ...location,
+      enabled: enabled(location),
       senses,
       affectedConditions: [...new Set(affectedConditions)],
       critical: stopImpacts.length > 0,
@@ -66,9 +67,13 @@ function renderLocations(config, counts, selectedTotal, operationalStatuses) {
     };
   }).sort((left, right) => right.count - left.count || localized(left.name).localeCompare(localized(right.name), 'ko'));
   const max = Math.max(...locations.map(location => location.count), 1);
-  $('locationSummary').textContent = `${locations.length}개 장소 · 선택일 ${selectedTotal.toLocaleString()}건`;
+  const locationExposureTotal = locations.reduce((sum, location) => sum + location.count, 0);
+  $('locationSummary').textContent = config.rich_flow
+    ? `${locations.length}개 장소 · 선택일 ${locationExposureTotal.toLocaleString()}회 노출`
+    : `${locations.length}개 장소 · 선택일 ${selectedTotal.toLocaleString()}건`;
   $('locations').innerHTML = locations.length ? locations.map(location => {
-    const ratio = selectedTotal ? Math.round(location.count / selectedTotal * 100) : 0;
+    const ratioTotal = config.rich_flow ? locationExposureTotal : selectedTotal;
+    const ratio = ratioTotal ? Math.round(location.count / ratioTotal * 100) : 0;
     const status = location.status || 'NORMAL';
     const primarySense = location.senses[0] || 'NONE';
     const senseBadges = location.senses.map(sense => `<span class="sense-badge sense-${sense.toLowerCase()}">${escapeHtml(senseLabels[sense] || sense)}</span>`).join('');
@@ -85,6 +90,67 @@ function renderLocations(config, counts, selectedTotal, operationalStatuses) {
       <div class="location-actions"><button class="location-mode priority-action" data-location-code="${escapeHtml(location.code)}" data-mode="PRIORITY">우선 추천</button><button class="location-mode" data-location-code="${escapeHtml(location.code)}" data-mode="${status === 'PAUSED' || status === 'PRIORITY' ? 'NORMAL' : 'PAUSED'}">${status === 'PAUSED' || status === 'PRIORITY' ? '정상 전환' : '추천 중지'}</button></div>
     </article>`;
   }).join('') : '<p>프로젝트에 등록된 추천 장소가 없습니다.</p>';
+  return locations;
+}
+
+const donutColors = ['#3c7655','#e6a958','#4589d6','#9c6ade','#ed8a3d','#4e9b68','#5966b3','#c99a35','#d66b7a','#53a7a0'];
+
+function renderConsentSummary(summary, previous) {
+  const total = Math.max(summary.total, 1), rate = Math.round(summary.consented / total * 100);
+  $('privacyNotice').hidden = false;
+  $('secondaryMetricCard').className = 'green';
+  $('tertiaryMetricCard').className = 'orange';
+  $('secondaryMetricLabel').textContent = '개인정보 동의';
+  $('secondaryMetricValue').textContent = summary.consented.toLocaleString();
+  $('secondaryMetricMeta').textContent = `${rate}%`;
+  $('tertiaryMetricLabel').textContent = '개인정보 미동의';
+  $('tertiaryMetricValue').textContent = summary.declined.toLocaleString();
+  $('tertiaryMetricMeta').textContent = '';
+  delta('secondaryMetricDelta', summary.consented, previous.consented);
+  delta('tertiaryMetricDelta', summary.declined, previous.declined);
+  const declined = Math.round(summary.declined / total * 100);
+  $('distributionTitle').textContent = '동의 상태 구성';
+  $('distributionMeta').textContent = '익명';
+  $('distributionChart').innerHTML = `<div><div class="donut" style="background:conic-gradient(#3c7655 0 ${rate}%,#e6a958 ${rate}% ${rate + declined}%,#d9ddd7 ${rate + declined}% 100%)"><span>동의 비율</span></div><div class="legend">● 동의 ${summary.consented}　● 미동의 ${summary.declined}<br>● 미선택 ${summary.not_asked}</div></div>`;
+}
+
+function renderRichLocationSummary(locations, selectedTotal) {
+  const active = locations.filter(location => location.enabled);
+  const ranked = [...active].sort((left, right) => right.count - left.count || localized(left.name).localeCompare(localized(right.name), 'ko'));
+  const locationExposureTotal = active.reduce((sum, location) => sum + location.count, 0);
+  const hasData = locationExposureTotal > 0 && ranked.length > 0;
+  const hottest = hasData ? ranked[0] : null;
+  const coldest = hasData ? [...active].sort((left, right) => left.count - right.count || localized(left.name).localeCompare(localized(right.name), 'ko'))[0] : null;
+  const setPlaceCard = (prefix, label, location) => {
+    $(`${prefix}MetricLabel`).textContent = label;
+    $(`${prefix}MetricValue`).textContent = location ? localized(location.name) : '데이터 없음';
+    $(`${prefix}MetricMeta`).textContent = location ? `${location.count.toLocaleString()}회 · ${Math.round(location.count / locationExposureTotal * 100)}%` : '오늘 추천 기록이 없습니다.';
+    $(`${prefix}MetricDelta`).textContent = '';
+  };
+  $('privacyNotice').hidden = true;
+  $('secondaryMetricCard').className = 'green place-stat-card';
+  $('tertiaryMetricCard').className = 'orange place-stat-card';
+  setPlaceCard('secondary', '오늘 가장 핫한 장소', hottest);
+  setPlaceCard('tertiary', '오늘 가장 한산한 장소', coldest);
+  $('distributionTitle').textContent = '오늘 추천 장소 구성';
+  $('distributionMeta').textContent = `${locationExposureTotal.toLocaleString()}회 노출 · ${selectedTotal.toLocaleString()}건 여정`;
+  const counted = ranked.filter(location => location.count > 0);
+  if (!counted.length) {
+    $('distributionChart').innerHTML = '<div><div class="donut empty-donut"><span>추천 없음</span></div><div class="legend">오늘 추천된 장소가 없습니다.</div></div>';
+    return;
+  }
+  const countedTotal = counted.reduce((sum, location) => sum + location.count, 0);
+  let cumulative = 0;
+  const segments = counted.map((location, index) => {
+    const start = cumulative;
+    cumulative += location.count / countedTotal * 100;
+    return `${donutColors[index % donutColors.length]} ${start}% ${cumulative}%`;
+  });
+  const legend = counted.map((location, index) => {
+    const ratio = Math.round(location.count / countedTotal * 100);
+    return `<div class="place-legend-row"><i style="background:${donutColors[index % donutColors.length]}"></i><span>${escapeHtml(localized(location.name))}</span><strong>${location.count.toLocaleString()}건 · ${ratio}%</strong></div>`;
+  }).join('');
+  $('distributionChart').innerHTML = `<div class="location-donut-layout"><div class="donut" style="background:conic-gradient(${segments.join(',')})"><span>장소 비율</span></div><div class="place-legend">${legend}</div></div>`;
 }
 
 function renderOperations(data) {
@@ -111,26 +177,29 @@ async function load() {
     $('projectEyebrow').textContent = `${code} · OPERATIONS`;
     $('dashboardTitle').textContent = `${projectName} 운영 대시보드`;
     document.title = `${projectName} 운영 대시보드`;
-    const summary = data.summary, previous = data.previous_summary, total = Math.max(summary.total, 1);
-    const rate = Math.round(summary.consented / total * 100);
+    const summary = data.summary, previous = data.previous_summary;
+    const isRichFlow = Boolean(config.rich_flow);
     $('overallTotal').textContent = data.overall_summary.total.toLocaleString();
     $('total').textContent = summary.total.toLocaleString();
-    $('consented').textContent = summary.consented.toLocaleString();
-    $('declined').textContent = summary.declined.toLocaleString();
     $('stress').textContent = Number(summary.average_stress).toFixed(1);
-    $('consentRate').textContent = `${rate}%`;
     delta('totalDelta', summary.total, previous.total);
-    delta('consentedDelta', summary.consented, previous.consented);
-    delta('declinedDelta', summary.declined, previous.declined);
     delta('stressDelta', summary.average_stress, previous.average_stress, 1);
     $('summaryDate').textContent = `${data.date} 기준`;
     const emotionMax = Math.max(...data.emotions.map(item => item.count), 1);
     $('emotions').innerHTML = data.emotions.length ? data.emotions.map(item => `<div class="bar-row"><span>${escapeHtml(item.name)}</span><div class="bar-track"><div class="bar-fill" style="width:${item.count / emotionMax * 100}%"></div></div><strong>${item.count}</strong></div>`).join('') : '<p>아직 추천 데이터가 없습니다.</p>';
-    const declined = Math.round(summary.declined / total * 100);
-    $('consentChart').innerHTML = `<div><div class="donut" style="background:conic-gradient(#3c7655 0 ${rate}%,#e6a958 ${rate}% ${rate + declined}%,#d9ddd7 ${rate + declined}% 100%)"></div><div class="legend">● 동의 ${summary.consented}　● 미동의 ${summary.declined}<br>● 미선택 ${summary.not_asked}</div></div>`;
-    renderLocations(config, data.locations || [], summary.total, operationalStatuses);
+    const renderedLocations = renderLocations(config, data.locations || [], summary.total, operationalStatuses);
+    if (isRichFlow) renderRichLocationSummary(renderedLocations, summary.total);
+    else renderConsentSummary(summary, previous);
     renderOperations(data);
-    $('recent').innerHTML = data.recent.map(item => `<tr><td>${new Date(item.occurred_at).toLocaleString('ko-KR')}</td><td>${escapeHtml(item.kiosk_id)}</td><td>${escapeHtml(item.participant_name || '–')}</td><td>${escapeHtml(item.participant_phone || '–')}</td><td>${escapeHtml(item.participant_birth_date || '–')}</td><td>${escapeHtml(item.participant_gender || '–')}</td><td>${escapeHtml(item.emotion_code)}</td><td><span class="badge ${item.consent_status === 'CONSENTED' ? 'yes' : item.consent_status === 'DECLINED' ? 'no' : ''}">${escapeHtml(labels[item.consent_status] || item.consent_status)}</span></td><td>${item.stress_score}</td><td>${escapeHtml(item.source)}</td></tr>`).join('');
+    const configuredLocations = (config.locations || []).length ? config.locations : (config.rich_flow?.venue_operations || []);
+    const locationNameByCode = new Map(configuredLocations.map(location => [location.code, localized(location.name)]));
+    if (isRichFlow) {
+      $('recentHead').innerHTML = '<th>시간</th><th>키오스크</th><th>감정</th><th>대표 추천 장소</th><th>스트레스</th><th>처리</th>';
+      $('recent').innerHTML = data.recent.map(item => `<tr><td>${new Date(item.occurred_at).toLocaleString('ko-KR')}</td><td>${escapeHtml(item.kiosk_id)}</td><td>${escapeHtml(item.emotion_code)}</td><td>${escapeHtml(locationNameByCode.get(item.location_code) || item.location_code || '–')}</td><td>${item.stress_score}</td><td>${escapeHtml(item.source)}</td></tr>`).join('');
+    } else {
+      $('recentHead').innerHTML = '<th>시간</th><th>키오스크</th><th>이름</th><th>전화번호</th><th>생년월일</th><th>성별</th><th>감정</th><th>동의</th><th>스트레스</th><th>처리</th>';
+      $('recent').innerHTML = data.recent.map(item => `<tr><td>${new Date(item.occurred_at).toLocaleString('ko-KR')}</td><td>${escapeHtml(item.kiosk_id)}</td><td>${escapeHtml(item.participant_name || '–')}</td><td>${escapeHtml(item.participant_phone || '–')}</td><td>${escapeHtml(item.participant_birth_date || '–')}</td><td>${escapeHtml(item.participant_gender || '–')}</td><td>${escapeHtml(item.emotion_code)}</td><td><span class="badge ${item.consent_status === 'CONSENTED' ? 'yes' : item.consent_status === 'DECLINED' ? 'no' : ''}">${escapeHtml(labels[item.consent_status] || item.consent_status)}</span></td><td>${item.stress_score}</td><td>${escapeHtml(item.source)}</td></tr>`).join('');
+    }
     $('updated').textContent = `갱신 ${new Date().toLocaleTimeString('ko-KR')}`;
   } catch (error) {
     $('error').textContent = error.message;
