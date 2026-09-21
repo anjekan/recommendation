@@ -36,7 +36,7 @@ internal class OperatorCredentialsStore(context: Context) {
     }
 
     companion object {
-        const val DEFAULT_USERNAME = "adimin"
+        const val DEFAULT_USERNAME = "admin"
         private const val DEFAULT_PASSWORD = "admin"
         private const val SALT = "password-salt"
         private const val HASH = "password-hash"

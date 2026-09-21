@@ -650,10 +650,11 @@ private fun MeasurementPresentation(seconds: Int, message: String, heart: Int, r
         }
         }
         }
+        val revealMeasurements = seconds <= LIVE_VALUE_REVEAL_SECONDS
         Column(Modifier.weight(.54f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
-            MeasurementMetricCard("♥", "맥박 (Heart Rate)", heart, "BPM", 55, 170, Color(0xFF008D92))
-            MeasurementMetricCard("≈", "호흡 (Respiration)", respiration, "RPM", 10, 35, Color(0xFF0798F2))
-            MeasurementMetricCard("☺", "표정근육 (Action Unit)", actionUnit, "%", 0, 100, Color(0xFF7146E8), "개인 무표정 대비 변화량")
+            MeasurementMetricCard("♥", "맥박 (Heart Rate)", heart, "BPM", 55, 170, Color(0xFF008D92), revealValue = revealMeasurements)
+            MeasurementMetricCard("≈", "호흡 (Respiration)", respiration, "RPM", 10, 35, Color(0xFF0798F2), revealValue = revealMeasurements)
+            MeasurementMetricCard("☺", "표정근육 (Action Unit)", actionUnit, "%", 0, 100, Color(0xFF7146E8), "개인 무표정 대비 변화량", revealMeasurements)
         }
         }
     }
@@ -708,8 +709,16 @@ private fun MeasurementScanGuide(scan: Float, instructionHeight: androidx.compos
 }
 
 @Composable
-private fun ColumnScope.MeasurementMetricCard(icon: String, title: String, value: Int, unit: String, min: Int, max: Int, accent: Color, footer: String = "유효 $min~$max") {
+private fun ColumnScope.MeasurementMetricCard(icon: String, title: String, value: Int, unit: String, min: Int, max: Int, accent: Color, footer: String = "유효 $min~$max", revealValue: Boolean = true) {
     val fraction = ((value - min).toFloat() / (max - min).coerceAtLeast(1)).coerceIn(0f, 1f)
+    val placeholderTransition = rememberInfiniteTransition(label = "measurement-placeholder")
+    val placeholderAlpha by placeholderTransition.animateFloat(
+        initialValue = .28f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
+        label = "measurement-placeholder-alpha",
+    )
+    val hasVisibleValue = revealValue && value > 0
     Surface(
         Modifier.weight(1f).fillMaxWidth(),
         shape = RoundedCornerShape(26.dp),
@@ -730,7 +739,12 @@ private fun ColumnScope.MeasurementMetricCard(icon: String, title: String, value
                 horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
                     Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (value == 0) "--" else value.toString(), fontSize = 88.sp, fontWeight = FontWeight.ExtraBold, color = accent)
+                        Text(
+                            if (hasVisibleValue) value.toString() else "--",
+                            fontSize = 88.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = accent.copy(alpha = if (hasVisibleValue) 1f else placeholderAlpha),
+                        )
                         Spacer(Modifier.width(8.dp))
                         Text(unit, fontSize = 25.sp, fontWeight = FontWeight.Bold, color = Color(0xFF454B62), modifier = Modifier.padding(top = 24.dp))
                     }
@@ -746,7 +760,7 @@ private fun ColumnScope.MeasurementMetricCard(icon: String, title: String, value
                         scaleX = mascotScale
                         scaleY = mascotScale
                     }, contentScale = ContentScale.Fit)
-                    Text(if (value == 0 && icon != "☺") "신호 분석 중 · 잠시만 기다려 주세요" else footer,
+                    Text(footer,
                         fontSize = 12.sp, lineHeight = 14.sp, textAlign = TextAlign.Center, color = Color(0xFF454B62))
                 }
             }
@@ -754,6 +768,8 @@ private fun ColumnScope.MeasurementMetricCard(icon: String, title: String, value
         }
     }
 }
+
+private const val LIVE_VALUE_REVEAL_SECONDS = 12
 
 @Composable
 private fun MeasurementIcon(kind: String, accent: Color) {

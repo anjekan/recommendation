@@ -7,6 +7,11 @@ import org.junit.Test
 
 class OperatorPasswordHasherTest {
     @Test
+    fun `default operator username is admin`() {
+        assertEquals("admin", OperatorCredentialsStore.DEFAULT_USERNAME)
+    }
+
+    @Test
     fun `accepts the correct password and rejects a wrong one`() {
         val salt = ByteArray(16) { it.toByte() }
         val hash = OperatorPasswordHasher.derive("new-password-123", salt)
