@@ -9,6 +9,23 @@ val recommendationBaseUrl = providers.gradleProperty("recommendationBaseUrl")
 val kioskKey = providers.gradleProperty("kioskKey")
     .orElse(providers.environmentVariable("KIOSK_KEY"))
     .orElse("LOCAL-DEVELOPMENT")
+val distributionStoreFile = providers.environmentVariable("RECOMMENDATION_SIGNING_STORE_FILE").orNull
+val distributionStorePassword = providers.environmentVariable("RECOMMENDATION_SIGNING_STORE_PASSWORD").orNull
+val distributionKeyAlias = providers.environmentVariable("RECOMMENDATION_SIGNING_KEY_ALIAS").orNull
+val distributionKeyPassword = providers.environmentVariable("RECOMMENDATION_SIGNING_KEY_PASSWORD").orNull
+val hasDistributionSigning = listOf(
+    distributionStoreFile,
+    distributionStorePassword,
+    distributionKeyAlias,
+    distributionKeyPassword,
+).all { !it.isNullOrBlank() }
+if (gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }) {
+    require(hasDistributionSigning) {
+        "Release builds require RECOMMENDATION_SIGNING_STORE_FILE, " +
+            "RECOMMENDATION_SIGNING_STORE_PASSWORD, RECOMMENDATION_SIGNING_KEY_ALIAS, " +
+            "and RECOMMENDATION_SIGNING_KEY_PASSWORD."
+    }
+}
 
 android {
     namespace = "kr.co.ninetyseconds.recommendation"
@@ -20,16 +37,28 @@ android {
         applicationId = "kr.co.ninetyseconds.recommendation"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "RECOMMENDATION_BASE_URL", "\"${recommendationBaseUrl.get()}\"")
         buildConfigField("String", "KIOSK_KEY", "\"${kioskKey.get()}\"")
     }
 
+    signingConfigs {
+        if (hasDistributionSigning) {
+            create("distribution") {
+                storeFile = file(distributionStoreFile!!)
+                storePassword = distributionStorePassword
+                keyAlias = distributionKeyAlias
+                keyPassword = distributionKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfigs.findByName("distribution")?.let { signingConfig = it }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

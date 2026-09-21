@@ -16,7 +16,9 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,6 +33,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -87,7 +90,7 @@ class MainActivity : ComponentActivity() {
                 RecommendationTheme {
                     ResultPresentation("무언가에 흥미가 생긴 듯 보여요", listOf("INSIGHT", "TASTE", "ACTION"),
                         listOf("1. 부자1번지 상설 주제관", "2. 리치 키자니아 직업체험", "3. 리치 스낵존"),
-                        null, 72, 15, "감각 여정 지도 보기", { finish() }, { finish() })
+                        null, 72, 15, "감각 여정 지도 보기", { finish() })
                 }
             } else if (BuildConfig.DEBUG && intent.getBooleanExtra("map_design_preview", false)) {
                 RecommendationTheme {
@@ -125,6 +128,7 @@ class MainActivity : ComponentActivity() {
 private sealed interface AppState {
     data object Loading : AppState
     data class Home(val config: ProjectConfiguration) : AppState
+    data class SettingsLogin(val config: ProjectConfiguration) : AppState
     data class Settings(val config: ProjectConfiguration, val settings: RuntimeSettings) : AppState
     data class Consent(val config: ProjectConfiguration) : AppState
     data class Measuring(
@@ -133,7 +137,7 @@ private sealed interface AppState {
         val participant: ParticipantProfile?,
     ) : AppState
     data class Analyzing(val config: ProjectConfiguration) : AppState
-    data class Result(val config: ProjectConfiguration, val label: String, val stress: Int, val heartRate: Int, val respiration: Int, val decision: RecommendationDecision) : AppState
+    data class Result(val config: ProjectConfiguration, val condition: EmotionCode, val heartRate: Int, val respiration: Int, val decision: RecommendationDecision) : AppState
     data class MapGuide(val config: ProjectConfiguration, val decision: RecommendationDecision) : AppState
     data class Failed(val message: String, val config: ProjectConfiguration? = null) : AppState
 }
@@ -141,6 +145,8 @@ private sealed interface AppState {
 @Composable
 fun RecommendationApp(container: AppContainer) {
     var state: AppState by remember { mutableStateOf(AppState.Loading) }
+    val context = LocalContext.current
+    val credentials = remember(context) { OperatorCredentialsStore(context) }
     val scope = rememberCoroutineScope()
     val recentPrimarySenses = remember { mutableListOf<String>() }
     LaunchedEffect(container) {
@@ -154,10 +160,19 @@ fun RecommendationApp(container: AppContainer) {
                 current.config,
                 container.settings(),
                 onStart = { state = AppState.Measuring(current.config, ConsentStatus.DECLINED, null) },
-                onSettings = { state = AppState.Settings(current.config, container.settings()) },
+                onSettings = { state = AppState.SettingsLogin(current.config) },
+            )
+            is AppState.SettingsLogin -> OperatorLoginScreen(
+                onLogin = { username, password ->
+                    val accepted = credentials.verify(username.trim(), password)
+                    if (accepted) state = AppState.Settings(current.config, container.settings())
+                    accepted
+                },
+                onCancel = { state = AppState.Home(current.config) },
             )
             is AppState.Settings -> RuntimeSettingsScreen(
                 initial = current.settings,
+                onChangePassword = credentials::changePassword,
                 onSave = { settings -> scope.launch {
                     state = runCatching { AppState.Home(container.updateSettings(settings)) }
                         .getOrElse { AppState.Failed(it.message ?: "운영 설정을 저장하지 못했습니다.", current.config) }
@@ -171,7 +186,7 @@ fun RecommendationApp(container: AppContainer) {
                         .getOrElse { AppState.Failed(it.message ?: "언어를 변경하지 못했습니다.", current.config) }
                 } },
                 onSelect = { consent, participant -> state = AppState.Measuring(current.config, consent, participant) },
-                onSettings = { state = AppState.Settings(current.config, container.settings()) },
+                onSettings = { state = AppState.SettingsLogin(current.config) },
             )
             is AppState.Measuring -> MeasurementScreen(
                 current.config,
@@ -190,7 +205,7 @@ fun RecommendationApp(container: AppContainer) {
                         } else {
                             decision
                         }
-                        AppState.Result(current.config, label, stress, heartRate, respiration, balancedDecision)
+                        AppState.Result(current.config, emotion, heartRate, respiration, balancedDecision)
                     }.getOrElse { AppState.Failed(it.message ?: "추천에 실패했습니다.", current.config) }
                 } },
                 onCancel = { state = AppState.Home(current.config) },
@@ -205,7 +220,6 @@ fun RecommendationApp(container: AppContainer) {
             is AppState.Result -> ResultScreen(
                 current,
                 onShowMap = { state = AppState.MapGuide(current.config, current.decision) },
-                onRestart = { state = AppState.Measuring(current.config, ConsentStatus.DECLINED, null) },
             )
             is AppState.MapGuide -> MapGuideScreen(current) { state = AppState.Home(current.config) }
             is AppState.Failed -> Centered {
@@ -398,8 +412,44 @@ private fun HomeScreen(
 }
 
 @Composable
+private fun OperatorLoginScreen(
+    onLogin: (String, String) -> Boolean,
+    onCancel: () -> Unit,
+) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+    Box(Modifier.fillMaxSize().background(Color(0xFF102B55)), contentAlignment = Alignment.Center) {
+        Surface(shape = RoundedCornerShape(24.dp), color = Color(0xFFF5FAFF), modifier = Modifier.width(420.dp)) {
+            Column(Modifier.padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("운영 설정 로그인", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(16.dp))
+                OutlinedTextField(username, { username = it; error = null }, label = { Text("아이디") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(password, { password = it; error = null }, label = { Text("비밀번호") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = PasswordVisualTransformation())
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp)) }
+                Spacer(Modifier.height(18.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(onClick = onCancel) { Text("취소") }
+                    Button(onClick = {
+                        if (!onLogin(username, password)) {
+                            password = ""
+                            error = "아이디 또는 비밀번호가 올바르지 않습니다."
+                        }
+                    }) { Text("로그인") }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun RuntimeSettingsScreen(
     initial: RuntimeSettings,
+    onChangePassword: (String, String) -> Boolean,
     onSave: (RuntimeSettings) -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -410,8 +460,12 @@ private fun RuntimeSettingsScreen(
     var kioskKey by remember { mutableStateOf(initial.kioskKey) }
     var demoMode by remember { mutableStateOf(initial.demoMode) }
     var error by remember { mutableStateOf<String?>(null) }
+    var currentPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordMessage by remember { mutableStateOf<String?>(null) }
     Column(
-        Modifier.fillMaxSize().padding(24.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -433,6 +487,36 @@ private fun RuntimeSettingsScreen(
             Spacer(Modifier.width(10.dp))
             Text("촬영용 DEMO 모드 (얼굴·서버 전송 없음)")
         }
+        Spacer(Modifier.height(12.dp))
+        Text("운영 비밀번호 변경", style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(currentPassword, { currentPassword = it; passwordMessage = null },
+                label = { Text("현재 비밀번호") }, singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(), modifier = Modifier.width(180.dp))
+            OutlinedTextField(newPassword, { newPassword = it; passwordMessage = null },
+                label = { Text("새 비밀번호 (8자 이상)") }, singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(), modifier = Modifier.width(220.dp))
+            OutlinedTextField(confirmPassword, { confirmPassword = it; passwordMessage = null },
+                label = { Text("새 비밀번호 확인") }, singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(), modifier = Modifier.width(200.dp))
+        }
+        TextButton(onClick = {
+            passwordMessage = when {
+                newPassword.length < 8 -> "새 비밀번호는 8자 이상이어야 합니다."
+                newPassword != confirmPassword -> "새 비밀번호가 일치하지 않습니다."
+                !onChangePassword(currentPassword, newPassword) -> "현재 비밀번호가 올바르지 않습니다."
+                else -> "비밀번호가 변경되었습니다."
+            }
+            if (passwordMessage == "비밀번호가 변경되었습니다.") {
+                currentPassword = ""
+                newPassword = ""
+                confirmPassword = ""
+            }
+        }) { Text("비밀번호 변경") }
+        passwordMessage?.let { Text(it, color = if (it == "비밀번호가 변경되었습니다.") Color(0xFF187244) else MaterialTheme.colorScheme.error) }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         Spacer(Modifier.height(12.dp))
         Button(onClick = {
@@ -662,7 +746,8 @@ private fun ColumnScope.MeasurementMetricCard(icon: String, title: String, value
                         scaleX = mascotScale
                         scaleY = mascotScale
                     }, contentScale = ContentScale.Fit)
-                    Text(footer, fontSize = 12.sp, lineHeight = 14.sp, textAlign = TextAlign.Center, color = Color(0xFF454B62))
+                    Text(if (value == 0 && icon != "☺") "신호 분석 중 · 잠시만 기다려 주세요" else footer,
+                        fontSize = 12.sp, lineHeight = 14.sp, textAlign = TextAlign.Center, color = Color(0xFF454B62))
                 }
             }
         }
@@ -838,20 +923,28 @@ private fun CameraMeasurementPreview(
 }
 
 @Composable
-private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit, onRestart: () -> Unit) {
-    val emotion = result.decision.item.supportedEmotions.firstOrNull()
-    val emotionDefinition = result.config.emotions.firstOrNull { it.code == emotion }
+private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit) {
+    val emotionDefinition = result.config.emotions.firstOrNull { it.code == result.condition }
     val journey = result.decision.toJourneyPresentation()
+    val knownSenses = setOf("INSIGHT", "SCENT", "TASTE", "LISTENING", "ACTION", "INTUITION")
+    val senseCodes = journey.senseCodes.filter { it in knownSenses }.ifEmpty {
+        listOf(when (result.condition.value) {
+            "JOY", "EXCITED", "LEISURE" -> "ACTION"
+            "TENSION", "HEAVINESS" -> "SCENT"
+            "LOW_ENERGY", "DROWSY" -> "TASTE"
+            else -> "INSIGHT"
+        })
+    }
     ResultPresentation(emotionDefinition?.message ?: "무언가에 흥미가 생긴 듯 보여요",
-        journey.senseCodes,
+        senseCodes,
         journey.stopLabels,
         journey.operationNotice(result.config.selectedLanguage),
-        result.heartRate, result.respiration, result.config.content.mapButtonLabel, onShowMap, onRestart)
+        result.heartRate, result.respiration, result.config.content.mapButtonLabel, onShowMap)
 }
 
 @Composable
 private fun ResultPresentation(message: String, senseCodes: List<String>, journey: List<String>, operationNotice: String?,
-    heartRate: Int, respiration: Int, mapLabel: String, onShowMap: () -> Unit, onRestart: () -> Unit) {
+    heartRate: Int, respiration: Int, mapLabel: String, onShowMap: () -> Unit) {
     val sense = richSenseVisual(senseCodes.firstOrNull())
     val particle = subjectParticle(sense.name)
     val resultFont = remember { FontFamily(Font(R.font.sb_aggro_medium, FontWeight.Normal), Font(R.font.sb_aggro_bold, FontWeight.Bold)) }
@@ -927,9 +1020,9 @@ private fun ResultPresentation(message: String, senseCodes: List<String>, journe
                         }
                         }
                     }
-                    Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        OutlinedButton(onClick = onRestart, modifier = Modifier.weight(.34f).height(54.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFFD2EEFF)), border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF8FC8FF))) { Text("다시 측정", color = Color(0xFF063AB1), fontFamily = resultFont, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
-                        Button(onClick = onShowMap, modifier = Modifier.weight(.66f).height(54.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC329), contentColor = Color(0xFF241607))) { Text(mapLabel, fontFamily = resultFont, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
+                    Button(onClick = onShowMap, modifier = Modifier.fillMaxWidth().padding(top = 10.dp).height(54.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC329), contentColor = Color(0xFF241607))) {
+                        Text(mapLabel, fontFamily = resultFont, fontWeight = FontWeight.Bold, fontSize = 17.sp)
                     }
                 }
             }
@@ -1139,6 +1232,11 @@ private fun RichSenseRadar(selected: List<String>, modifier: Modifier = Modifier
 
 @Composable
 private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
+    val latestOnFinish by rememberUpdatedState(onFinish)
+    LaunchedEffect(result.decision.requestId) {
+        delay(15_000)
+        latestOnFinish()
+    }
     val journeyLocations = result.decision.journey.sortedBy { it.order }.mapNotNull { stop ->
         stop.location?.let { location ->
             val x = location.markerXPercent ?: return@let null
@@ -1352,19 +1450,6 @@ private fun MapPresentationContent(config: ProjectConfiguration, destinations: L
                     .padding(horizontal = 18.dp, vertical = 9.dp),
             )
             Row(Modifier.align(Alignment.BottomEnd).padding(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Button(
-                    onClick = onFinish,
-                    modifier = Modifier.size(width = 180.dp, height = 52.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp),
-                    shape = RoundedCornerShape(22.dp),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF10213A)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A438B), contentColor = Color.White),
-                ) {
-                    MapActionIcon(false, Color.White)
-                    Spacer(Modifier.width(6.dp))
-                    Text("여정 후 재측정", fontSize = 14.sp, fontWeight = FontWeight.Bold,
-                        style = LocalTextStyle.current.copy(baselineShift = androidx.compose.ui.text.style.BaselineShift(-.10f)))
-                }
                 Button(
                     onClick = onFinish,
                     modifier = Modifier.size(width = 180.dp, height = 52.dp),

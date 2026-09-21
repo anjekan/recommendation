@@ -51,7 +51,7 @@ class RuntimeSettingsStore(context: Context) {
         const val KIOSK_ID = "kiosk-id"
         const val KIOSK_KEY = "kiosk-key"
         const val DEMO_MODE = "demo-mode"
-        const val DEFAULT_PROJECT_ASSET = "taean-flower-project-config.json"
+        const val DEFAULT_PROJECT_ASSET = "uiryeong-richrich-test-config.json"
         const val DEFAULT_KIOSK_ID = "LOCAL-KIOSK"
     }
 }
