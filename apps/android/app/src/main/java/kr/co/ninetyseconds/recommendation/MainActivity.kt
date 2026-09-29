@@ -353,7 +353,7 @@ private fun HomeScreen(
         )
         Image(
             painter = painterResource(R.drawable.richrich_home_logo),
-            contentDescription = "AI가 깨우는 부자의 감각",
+            contentDescription = "AI가 찾아낸 부자의 감각, 내가 가진 부자의 감각은 무엇일까?",
             contentScale = ContentScale.Fit,
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 22.dp).fillMaxWidth(.57f),
         )
