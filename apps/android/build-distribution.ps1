@@ -47,4 +47,15 @@ try {
 $apk = Join-Path $androidRoot 'app\build\outputs\apk\release\app-release.apk'
 if (-not (Test-Path -LiteralPath $apk)) { throw "Release APK missing: $apk" }
 Write-Host "Signed APK: $apk"
-Get-FileHash -LiteralPath $apk -Algorithm SHA256 | Select-Object Algorithm,Hash,Path | Format-List
+$stream = [IO.File]::OpenRead($apk)
+try {
+    $sha256 = [Security.Cryptography.SHA256]::Create()
+    try {
+        $hash = ([BitConverter]::ToString($sha256.ComputeHash($stream))).Replace('-', '')
+    } finally {
+        $sha256.Dispose()
+    }
+} finally {
+    $stream.Dispose()
+}
+Write-Host "SHA256: $hash"
