@@ -74,6 +74,10 @@ fun interface RecentRecommendationLoad {
     fun countByLocation(projectCode: String, locationIds: Set<UUID>, since: Instant): Map<UUID, Long>
 }
 
+fun interface RecentSenseRecommendationLoad {
+    fun countBySense(projectCode: String, senseCodes: Set<String>, since: Instant): Map<String, Long>
+}
+
 @Service
 class CreateRecommendation(
     private val projects: ProjectConfigurationStore,
@@ -81,6 +85,7 @@ class CreateRecommendation(
     private val events: RecommendationEventStore,
     private val clock: Clock,
     private val recentLoad: RecentRecommendationLoad,
+    private val recentSenseLoad: RecentSenseRecommendationLoad,
     private val operationalStatus: OperationalLocationStatusLoad,
     @Value("\${recommendation.policy.recent-window:PT15M}")
     private val recentWindow: Duration,
@@ -212,7 +217,7 @@ class CreateRecommendation(
     private fun selectRichJourney(root: JsonNode, request: RecommendationRequest): List<RichJourneySelection> {
         val richFlow = root.path("rich_flow")
         if (richFlow.isMissingNode || richFlow.isNull) return emptyList()
-        val requestedSenses: List<String> = if (request.journeySenseCodes.isNotEmpty()) {
+        val preferredSenses: List<String> = if (request.journeySenseCodes.isNotEmpty()) {
             request.journeySenseCodes.take(3)
         } else {
             val mapping = richFlow.path("journey_mappings").firstOrNull {
@@ -224,7 +229,7 @@ class CreateRecommendation(
             }
             mappedSenses
         }
-        if (requestedSenses.isEmpty()) return emptyList()
+        if (preferredSenses.isEmpty()) return emptyList()
 
         val usedCodes = mutableSetOf<String>()
         val venues = richFlow.path("venue_operations").toList()
@@ -241,7 +246,44 @@ class CreateRecommendation(
             locationIds.values.toSet(),
             Instant.now(clock).minus(recentWindow),
         )
-        return requestedSenses.mapIndexedNotNull { index, senseCode ->
+        val configuredSenses = richFlow.path("senses")
+            .filter { it.path("active").asBoolean(true) }
+            .map { it.path("code").stringValue() }
+            .filter { it.isNotBlank() && it != "REST" }
+            .distinct()
+        val candidateSenses = configuredSenses.ifEmpty {
+            venues.flatMap { venue -> venue.path("sense_codes").toList().map { it.stringValue() } }
+                .filter { it.isNotBlank() && it != "REST" }
+                .distinct()
+        }
+        val senseCounts = recentSenseLoad.countBySense(
+            request.projectCode,
+            candidateSenses.toSet(),
+            Instant.now(clock).minus(recentWindow),
+        )
+        val configuredOrder = candidateSenses.withIndex().associate { it.value to it.index }
+        val targetStopCount = preferredSenses.size.coerceIn(1, 3)
+        val prioritySenseCodes = venues.filter { venue ->
+            val code = venue.path("code").stringValue()
+            val policy = operationalPolicies[code]
+            val enabledByConfiguration = venue.path("active").asBoolean(false) &&
+                venue.path("confirmation_status").stringValue() == "CONFIRMED"
+            val capacity = venue.path("capacity").takeUnless { it.isMissingNode || it.isNull }?.asLong()
+            val recentCount = recentCounts[locationIds.getValue(code)] ?: 0L
+            (policy?.enabled ?: enabledByConfiguration) &&
+                (capacity == null || capacity <= 0 || recentCount < capacity) &&
+                (!request.operationContext?.raining.orFalse() || venue.path("indoor").asBoolean(false)) &&
+                (!isFamily(request.operationContext?.companionType) || !venue.path("alcohol").asBoolean(false)) &&
+                isPrioritySelected(request.requestId, code, policy)
+        }.flatMap { venue -> venue.path("sense_codes").toList().map { it.stringValue() } }.toSet()
+        val rankedSenses = candidateSenses.sortedWith(
+            compareBy<String> { senseCode -> if (senseCode in prioritySenseCodes) 0 else 1 }
+                .thenBy { senseCode -> senseCounts[senseCode] ?: 0L }
+                .thenBy { senseCode -> Math.floorMod("${request.requestId}:$senseCode".hashCode(), Int.MAX_VALUE) }
+                .thenBy { senseCode -> configuredOrder.getValue(senseCode) },
+        )
+        val selections = mutableListOf<RichJourneySelection>()
+        for (senseCode in rankedSenses) {
             val candidates = venues.filter { venue ->
                 val code = venue.path("code").stringValue()
                 val policy = operationalPolicies[code]
@@ -257,7 +299,7 @@ class CreateRecommendation(
                     (!request.operationContext?.raining.orFalse() || venue.path("indoor").asBoolean(false)) &&
                     (!isFamily(request.operationContext?.companionType) || !venue.path("alcohol").asBoolean(false))
             }.sortedBy { it.path("code").stringValue() }
-            if (candidates.isEmpty()) return@mapIndexedNotNull null
+            if (candidates.isEmpty()) continue
             val prioritized = candidates.filter { venue ->
                 val code = venue.path("code").stringValue()
                 isPrioritySelected(request.requestId, code, operationalPolicies[code])
@@ -269,11 +311,13 @@ class CreateRecommendation(
             val leastLoaded = selectionPool.filter { venue ->
                 (recentCounts[locationIds.getValue(venue.path("code").stringValue())] ?: 0L) == minimumCount
             }
-            val position = Math.floorMod("${request.requestId}:$senseCode:$index".hashCode(), leastLoaded.size)
+            val position = Math.floorMod("${request.requestId}:$senseCode:${selections.size}".hashCode(), leastLoaded.size)
             val venue = leastLoaded[position]
             usedCodes += venue.path("code").stringValue()
-            RichJourneySelection(index + 1, senseCode, venue, venue in prioritized)
-        }.mapIndexed { index, selection -> selection.copy(order = index + 1) }
+            selections += RichJourneySelection(selections.size + 1, senseCode, venue, venue in prioritized)
+            if (selections.size == targetStopCount) break
+        }
+        return selections
     }
 
     private fun createRichJourneyResult(
@@ -313,11 +357,11 @@ class CreateRecommendation(
             item = primary.item,
             location = primary.location,
             display = RecommendationDisplay(names.mapValues { (_, name) -> "지금의 당신에게 $name 추천합니다." }),
-            policyVersion = "rich-journey-v1",
+            policyVersion = "rich-journey-v2",
             reasons = buildList {
-                add("SENSE_SEQUENCE_MATCHED")
                 add("OPERATION_FILTERED")
                 if (selections.any { it.prioritySelected }) add("OPERATOR_PRIORITY_APPLIED")
+                add("SENSE_LOAD_BALANCED")
                 add("RECENT_LOAD_BALANCED")
                 add("DETERMINISTIC")
             },

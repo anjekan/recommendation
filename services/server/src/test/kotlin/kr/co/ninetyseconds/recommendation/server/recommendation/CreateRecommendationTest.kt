@@ -42,6 +42,7 @@ class CreateRecommendationTest {
         RecommendationEventStore { true },
         Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
         RecentRecommendationLoad { _, _, _ -> emptyMap() },
+        RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
         OperationalLocationStatusLoad { _, _ -> emptyMap() },
         Duration.ofMinutes(15),
         RecommendationJourneyStore { _, _ -> },
@@ -77,6 +78,7 @@ class CreateRecommendationTest {
                 assertEquals(Instant.parse("2026-08-26T23:45:00Z"), since)
                 mapOf(locationA to 9L, locationB to 2L)
             },
+            RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
             OperationalLocationStatusLoad { _, _ -> emptyMap() },
             Duration.ofMinutes(15),
             RecommendationJourneyStore { _, _ -> },
@@ -126,6 +128,7 @@ class CreateRecommendationTest {
             JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
             RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
             OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
             RecommendationJourneyStore { _, stops -> persistedJourneyStopCount = stops.size },
         )
@@ -135,11 +138,57 @@ class CreateRecommendationTest {
                 .copy(conditionCode = "JOY"),
         )
 
-        assertEquals("rich-journey-v1", result.policyVersion)
-        assertEquals(listOf("INSIGHT", "ACTION", "TASTE"), result.journey.map { it.senseCode })
-        assertEquals(listOf("HALL", "PLAY", "FOOD"), result.journey.map { it.location.path("code").stringValue() })
+        assertEquals("rich-journey-v2", result.policyVersion)
+        assertEquals(setOf("INSIGHT", "ACTION", "TASTE"), result.journey.map { it.senseCode }.toSet())
+        assertEquals(setOf("HALL", "PLAY", "FOOD"), result.journey.map { it.location.path("code").stringValue() }.toSet())
         assertEquals(listOf(1, 2, 3), result.journey.map { it.order })
         assertEquals(3, persistedJourneyStopCount)
+    }
+
+    @Test
+    fun `rich flow replaces an overexposed sense with less exposed senses`() {
+        val richConfig = """
+            {
+              "emotion_profiles":[{"code":"VITALITY","active":true}],
+              "locations":[], "items":[], "rules":[],
+              "rich_flow": {
+                "senses":[
+                  {"code":"INSIGHT","active":true},{"code":"SCENT","active":true},
+                  {"code":"TASTE","active":true},{"code":"LISTENING","active":true},
+                  {"code":"ACTION","active":true},{"code":"INTUITION","active":true}
+                ],
+                "venue_operations":[
+                  {"code":"V1","name":{"ko":"안목"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["INSIGHT"]},
+                  {"code":"V2","name":{"ko":"향기"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["SCENT"]},
+                  {"code":"V3","name":{"ko":"미식"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["TASTE"]},
+                  {"code":"V4","name":{"ko":"경청"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["LISTENING"]},
+                  {"code":"V5","name":{"ko":"실천"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["ACTION"]},
+                  {"code":"V6","name":{"ko":"통찰"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["INTUITION"]}
+                ]
+              }
+            }
+        """.trimIndent()
+        val richService = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { projectCode, senseCodes, since ->
+                assertEquals("EXPO", projectCode)
+                assertEquals(setOf("INSIGHT", "SCENT", "TASTE", "LISTENING", "ACTION", "INTUITION"), senseCodes)
+                assertEquals(Instant.parse("2026-08-26T23:45:00Z"), since)
+                mapOf("TASTE" to 20L, "INSIGHT" to 8L, "ACTION" to 5L)
+            },
+            OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
+        )
+
+        val result = richService(
+            request(schemaVersion = 2, journeySenseCodes = listOf("TASTE", "INSIGHT", "ACTION")),
+        )
+
+        assertEquals(setOf("SCENT", "LISTENING", "INTUITION"), result.journey.map { it.senseCode }.toSet())
+        assertEquals(true, "SENSE_LOAD_BALANCED" in result.reasons)
     }
 
     @Test
@@ -159,6 +208,7 @@ class CreateRecommendationTest {
             JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
             RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
             OperationalLocationStatusLoad { _, _ ->
                 mapOf(
                     "ACTIVE" to OperationalLocationPolicy(false, null, null),
@@ -191,6 +241,7 @@ class CreateRecommendationTest {
             JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
             RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
             OperationalLocationStatusLoad { _, _ ->
                 mapOf(
                     "PRIORITY" to OperationalLocationPolicy(
@@ -226,6 +277,7 @@ class CreateRecommendationTest {
             JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
             Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
             RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
             OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
             RecommendationJourneyStore { _, _ -> },
         )

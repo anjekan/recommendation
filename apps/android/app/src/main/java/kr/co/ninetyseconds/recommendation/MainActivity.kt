@@ -210,7 +210,10 @@ fun RecommendationApp(container: AppContainer) {
                         } else {
                             container.recommend(emotion, stress, current.consentStatus, current.participant)
                         }
-                        val balancedDecision = if (current.config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true)) {
+                        val balancedDecision = if (
+                            current.config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true) &&
+                            decision.source != DecisionSource.REMOTE
+                        ) {
                             balanceRichJourney(decision, recentPrimarySenses)
                         } else {
                             decision
