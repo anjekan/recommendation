@@ -491,13 +491,13 @@ private fun RuntimeSettingsScreen(
         if (installationPoints.isNotEmpty()) {
             Text("설치 위치", style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                installationPoints.forEachIndexed { index, point ->
+                installationPoints.forEach { point ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
                             selected = installationPointCode == point.code,
                             onClick = { installationPointCode = point.code },
                         )
-                        Text("${index + 1}번 · ${point.title}")
+                        Text(point.title)
                     }
                 }
             }

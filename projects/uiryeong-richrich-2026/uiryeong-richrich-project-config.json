@@ -119,8 +119,8 @@
       {"code":"CAULDRON_RIVERSIDE_REST","name":{"ko":"솥바위 강변 휴식"},"sense_codes":["REST"],"zone_code":null,"marker":null,"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"PENDING_CONFIRMATION","active":false}
     ],
     "kiosks": [
-      {"code":"CONDITION_A","installation_group":"테이스티존 옆 리치 컨디션존","zone_code":"6","marker":{"x_percent":39.5,"y_percent":51.5},"quantity":6,"confirmation_status":"PENDING_CONFIRMATION","active":false},
-      {"code":"CONDITION_B","installation_group":"종합안내센터 옆 리치 컨디션존","zone_code":"6","marker":{"x_percent":64.5,"y_percent":38.0},"quantity":6,"confirmation_status":"PENDING_CONFIRMATION","active":false},
+      {"code":"CONDITION_A","installation_group":"A","zone_code":"6","marker":{"x_percent":22.1,"y_percent":38.1},"quantity":6,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"CONDITION_B","installation_group":"B","zone_code":"6","marker":{"x_percent":70.0,"y_percent":37.2},"quantity":6,"confirmation_status":"CONFIRMED","active":true},
       {"code":"GATE_1","installation_group":"제1출입구","zone_code":null,"marker":null,"quantity":3,"confirmation_status":"PENDING_CONFIRMATION","active":false},
       {"code":"GATE_2","installation_group":"제2출입구","zone_code":null,"marker":null,"quantity":3,"confirmation_status":"PENDING_CONFIRMATION","active":false},
       {"code":"GATE_3","installation_group":"제3출입구","zone_code":null,"marker":null,"quantity":3,"confirmation_status":"PENDING_CONFIRMATION","active":false},
