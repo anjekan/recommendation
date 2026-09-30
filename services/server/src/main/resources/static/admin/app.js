@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 const labels = {CONSENTED: '동의', DECLINED: '미동의', NOT_ASKED: '미선택'};
 const statusLabels = {NORMAL: '정상', PRIORITY: '우선 추천', CONGESTED: '혼잡', PAUSED: '추천 중지'};
-const senseLabels = {INSIGHT: '통찰', SCENT: '향기', TASTE: '미식', LISTENING: '경청', ACTION: '실천', INTUITION: '직관'};
+const senseLabels = {INSIGHT: '통찰', SCENT: '향기', TASTE: '미식', LISTENING: '경청', ACTION: '실천', INTUITION: '안목'};
 let stopImpactByCode = new Map();
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[char]));
 const localized = (value, language = 'ko') => value?.[language] || Object.values(value || {})[0] || '이름 없음';
