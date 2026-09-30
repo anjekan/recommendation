@@ -1,6 +1,7 @@
 package kr.co.ninetyseconds.recommendation.data.config
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
 import kr.co.ninetyseconds.recommendation.domain.EmotionCode
 import kr.co.ninetyseconds.recommendation.domain.EmotionDefinition
 import kr.co.ninetyseconds.recommendation.domain.Location
@@ -12,6 +13,7 @@ import kr.co.ninetyseconds.recommendation.domain.ProjectTheme
 import kr.co.ninetyseconds.recommendation.domain.ProjectContent
 import kr.co.ninetyseconds.recommendation.domain.ProjectNavigation
 import kr.co.ninetyseconds.recommendation.domain.MapPoint
+import kr.co.ninetyseconds.recommendation.domain.InstallationPoint
 import kr.co.ninetyseconds.recommendation.domain.RecommendationItem
 import kr.co.ninetyseconds.recommendation.domain.RecommendationItemId
 
@@ -44,6 +46,19 @@ class ProjectConfigImporter(
             .filter { it.active }
             .groupBy(RuleDto::itemId)
         val activeItems = dto.items.filter { it.active && it.locationId in activeLocationIds }
+        val installationPoints = dto.richFlow
+            ?.get("kiosks")
+            ?.let { json.decodeFromJsonElement<List<KioskDto>>(it) }
+            .orEmpty()
+            .mapNotNull { kiosk ->
+                kiosk.marker?.let { marker ->
+                    InstallationPoint(
+                        code = kiosk.code,
+                        title = kiosk.installationGroup,
+                        marker = MapPoint(marker.xPercent, marker.yPercent),
+                    )
+                }
+            }
 
         val catalog = ProjectCatalogSnapshot(
             projectId = ProjectId(dto.projectCode),
@@ -96,6 +111,7 @@ class ProjectConfigImporter(
                 routesByLocationCode = dto.navigation.routesByLocationCode.mapValues { (_, points) ->
                     points.map { MapPoint(it.xPercent, it.yPercent) }
                 },
+                installationPoints = installationPoints,
             ),
             emotions = dto.emotionProfiles.filter(EmotionDto::active).map { emotion ->
                 EmotionDefinition(

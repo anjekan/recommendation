@@ -18,10 +18,22 @@ data class ProjectContent(
 
 data class MapPoint(val xPercent: Double, val yPercent: Double)
 
+data class InstallationPoint(
+    val code: String,
+    val title: String,
+    val marker: MapPoint,
+)
+
 data class ProjectNavigation(
     val origin: MapPoint,
     val routesByLocationCode: Map<String, List<MapPoint>>,
-)
+    val installationPoints: List<InstallationPoint> = emptyList(),
+) {
+    fun originFor(installationPointCode: String?): MapPoint = installationPoints
+        .firstOrNull { it.code == installationPointCode }
+        ?.marker
+        ?: origin
+}
 
 data class EmotionDefinition(
     val code: EmotionCode,

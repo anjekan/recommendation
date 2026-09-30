@@ -54,6 +54,28 @@ class ProjectConfigImporterTest {
     }
 
     @Test
+    fun `imports selectable kiosk installation points from rich flow`() {
+        val versionTwo = validJson()
+            .replace("\"schema_version\": 1", "\"schema_version\": 2")
+            .dropLast(1) + """, "rich_flow": {"kiosks": [{
+              "code": "CONDITION_A",
+              "installation_group": "첫 번째 설치 장소",
+              "zone_code": "6",
+              "marker": {"x_percent": 39.5, "y_percent": 51.5},
+              "quantity": 6,
+              "confirmation_status": "PENDING_CONFIRMATION",
+              "active": false
+            }]} }"""
+
+        val config = ProjectConfigImporter(currentAppVersion = 1).import(versionTwo)
+
+        assertEquals(listOf("CONDITION_A"), config.navigation.installationPoints.map { it.code })
+        assertEquals("첫 번째 설치 장소", config.navigation.installationPoints.single().title)
+        assertEquals(39.5, config.navigation.originFor("CONDITION_A").xPercent, 0.0)
+        assertEquals(config.navigation.origin, config.navigation.originFor("UNKNOWN"))
+    }
+
+    @Test
     fun `schema version two requires rich flow extension`() {
         val missingExtension = validJson().replace("\"schema_version\": 1", "\"schema_version\": 2")
 

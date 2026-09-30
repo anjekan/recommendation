@@ -70,6 +70,17 @@ internal data class MarkerDto(
 )
 
 @Serializable
+internal data class KioskDto(
+    val code: String,
+    @SerialName("installation_group") val installationGroup: String,
+    @SerialName("zone_code") val zoneCode: String? = null,
+    val marker: MarkerDto? = null,
+    val quantity: Int? = null,
+    @SerialName("confirmation_status") val confirmationStatus: String? = null,
+    val active: Boolean = false,
+)
+
+@Serializable
 internal data class LocationDto(
     val id: String,
     val code: String,

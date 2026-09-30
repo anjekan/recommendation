@@ -104,7 +104,12 @@ class MainActivity : ComponentActivity() {
                             DisplayMapStop(2, "PREVIEW_DREAM", "리치 드림존", 72.8, 27.6),
                             DisplayMapStop(3, "PREVIEW_LIFE", "리치 라이프존", 48.0, 58.0),
                         ) }
-                        MapPresentation(config, stops, expectedStopCount = 3) { finish() }
+                        MapPresentation(
+                            config,
+                            config.navigation.originFor(container.settings().installationPointCode),
+                            stops,
+                            expectedStopCount = 3,
+                        ) { finish() }
                     }
                 }
             } else RecommendationApp(container)
@@ -138,7 +143,11 @@ private sealed interface AppState {
     ) : AppState
     data class Analyzing(val config: ProjectConfiguration) : AppState
     data class Result(val config: ProjectConfiguration, val condition: EmotionCode, val heartRate: Int, val respiration: Int, val decision: RecommendationDecision) : AppState
-    data class MapGuide(val config: ProjectConfiguration, val decision: RecommendationDecision) : AppState
+    data class MapGuide(
+        val config: ProjectConfiguration,
+        val decision: RecommendationDecision,
+        val installationPointCode: String,
+    ) : AppState
     data class Failed(val message: String, val config: ProjectConfiguration? = null) : AppState
 }
 
@@ -172,6 +181,7 @@ fun RecommendationApp(container: AppContainer) {
             )
             is AppState.Settings -> RuntimeSettingsScreen(
                 initial = current.settings,
+                installationPoints = current.config.navigation.installationPoints,
                 onChangePassword = credentials::changePassword,
                 onSave = { settings -> scope.launch {
                     state = runCatching { AppState.Home(container.updateSettings(settings)) }
@@ -219,7 +229,13 @@ fun RecommendationApp(container: AppContainer) {
             }
             is AppState.Result -> ResultScreen(
                 current,
-                onShowMap = { state = AppState.MapGuide(current.config, current.decision) },
+                onShowMap = {
+                    state = AppState.MapGuide(
+                        current.config,
+                        current.decision,
+                        container.settings().installationPointCode,
+                    )
+                },
             )
             is AppState.MapGuide -> MapGuideScreen(current) { state = AppState.Home(current.config) }
             is AppState.Failed -> Centered {
@@ -449,6 +465,7 @@ private fun OperatorLoginScreen(
 @Composable
 private fun RuntimeSettingsScreen(
     initial: RuntimeSettings,
+    installationPoints: List<InstallationPoint>,
     onChangePassword: (String, String) -> Boolean,
     onSave: (RuntimeSettings) -> Unit,
     onCancel: () -> Unit,
@@ -459,6 +476,7 @@ private fun RuntimeSettingsScreen(
     var kioskId by remember { mutableStateOf(initial.kioskId) }
     var kioskKey by remember { mutableStateOf(initial.kioskKey) }
     var demoMode by remember { mutableStateOf(initial.demoMode) }
+    var installationPointCode by remember { mutableStateOf(initial.installationPointCode) }
     var error by remember { mutableStateOf<String?>(null) }
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
@@ -470,6 +488,20 @@ private fun RuntimeSettingsScreen(
         verticalArrangement = Arrangement.Center,
     ) {
         Text("운영 설정", style = MaterialTheme.typography.headlineMedium)
+        if (installationPoints.isNotEmpty()) {
+            Text("설치 위치", style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+                installationPoints.forEachIndexed { index, point ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = installationPointCode == point.code,
+                            onClick = { installationPointCode = point.code },
+                        )
+                        Text("${index + 1}번 · ${point.title}")
+                    }
+                }
+            }
+        }
         OutlinedTextField(projectAsset, { projectAsset = it }, label = { Text("프로젝트 설정 파일") }, singleLine = true)
         Row(verticalAlignment = Alignment.CenterVertically) {
             RuntimeMode.entries.forEach { value ->
@@ -521,7 +553,15 @@ private fun RuntimeSettingsScreen(
         Spacer(Modifier.height(12.dp))
         Button(onClick = {
             runCatching {
-                RuntimeSettings(projectAsset.trim(), mode, serverBaseUrl.trim(), kioskId.trim(), kioskKey.trim(), demoMode)
+                RuntimeSettings(
+                    projectAsset.trim(),
+                    mode,
+                    serverBaseUrl.trim(),
+                    kioskId.trim(),
+                    kioskKey.trim(),
+                    demoMode,
+                    installationPointCode,
+                )
             }.onSuccess(onSave).onFailure { error = it.message }
         }) { Text("저장 후 적용") }
         TextButton(onClick = onCancel) { Text("취소") }
@@ -1264,11 +1304,23 @@ private fun MapGuideScreen(result: AppState.MapGuide, onFinish: () -> Unit) {
     val destinations = journeyLocations.ifEmpty {
         legacyLocation?.let { listOf(DisplayMapStop(1, it.code, it.title, it.markerXPercent, it.markerYPercent)) }.orEmpty()
     }
-    MapPresentation(result.config, destinations, result.decision.expectedJourneyStopCount, onFinish)
+    MapPresentation(
+        result.config,
+        result.config.navigation.originFor(result.installationPointCode),
+        destinations,
+        result.decision.expectedJourneyStopCount,
+        onFinish,
+    )
 }
 
 @Composable
-private fun MapPresentation(config: ProjectConfiguration, destinations: List<DisplayMapStop>, expectedStopCount: Int, onFinish: () -> Unit) {
+private fun MapPresentation(
+    config: ProjectConfiguration,
+    origin: MapPoint,
+    destinations: List<DisplayMapStop>,
+    expectedStopCount: Int,
+    onFinish: () -> Unit,
+) {
     val font = remember { FontFamily(Font(R.font.sb_aggro_medium, FontWeight.Normal), Font(R.font.sb_aggro_bold, FontWeight.Bold)) }
     val base = MaterialTheme.typography
     MaterialTheme(typography = base.copy(
@@ -1278,13 +1330,19 @@ private fun MapPresentation(config: ProjectConfiguration, destinations: List<Dis
         headlineSmall = base.headlineSmall.copy(fontFamily = font),
     )) {
         ProvideTextStyle(LocalTextStyle.current.copy(fontFamily = font)) {
-            MapPresentationContent(config, destinations, expectedStopCount, onFinish)
+            MapPresentationContent(config, origin, destinations, expectedStopCount, onFinish)
         }
     }
 }
 
 @Composable
-private fun MapPresentationContent(config: ProjectConfiguration, destinations: List<DisplayMapStop>, expectedStopCount: Int, onFinish: () -> Unit) {
+private fun MapPresentationContent(
+    config: ProjectConfiguration,
+    origin: MapPoint,
+    destinations: List<DisplayMapStop>,
+    expectedStopCount: Int,
+    onFinish: () -> Unit,
+) {
     if (destinations.isEmpty()) {
         Centered {
             Text(uiText(config.selectedLanguage, "표시할 지도 위치가 없습니다.", "No map location is available.", "没有可显示的地图位置。", "表示できる地図位置がありません。"))
@@ -1361,7 +1419,7 @@ private fun MapPresentationContent(config: ProjectConfiguration, destinations: L
                 )
                 Canvas(Modifier.fillMaxSize()) {
                     val route = buildList {
-                        add(config.navigation.origin)
+                        add(origin)
                         destinations.forEach { destination ->
                             addAll(config.navigation.routesByLocationCode[destination.code].orEmpty())
                             add(MapPoint(destination.xPercent, destination.yPercent))
@@ -1393,8 +1451,8 @@ private fun MapPresentationContent(config: ProjectConfiguration, destinations: L
                 }
                 MapMarker(
                     mapWidth, mapHeight,
-                    config.navigation.origin.xPercent,
-                    config.navigation.origin.yPercent,
+                    origin.xPercent,
+                    origin.yPercent,
                     config.content.currentLocationLabel,
                     Color(0xFF00A8D9),
                 )

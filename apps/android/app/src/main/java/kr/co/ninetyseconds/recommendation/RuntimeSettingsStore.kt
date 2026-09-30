@@ -10,6 +10,7 @@ data class RuntimeSettings(
     val kioskId: String,
     val kioskKey: String,
     val demoMode: Boolean = false,
+    val installationPointCode: String = "CONDITION_A",
 ) {
     init {
         require(projectConfigAsset.isNotBlank()) { "Project configuration asset cannot be blank" }
@@ -18,6 +19,7 @@ data class RuntimeSettings(
         }
         require(kioskId.isNotBlank()) { "Kiosk id cannot be blank" }
         require(kioskKey.isNotBlank()) { "Kiosk key cannot be blank" }
+        require(installationPointCode.isNotBlank()) { "Installation point code cannot be blank" }
     }
 }
 
@@ -31,6 +33,8 @@ class RuntimeSettingsStore(context: Context) {
         kioskId = preferences.getString(KIOSK_ID, null) ?: DEFAULT_KIOSK_ID,
         kioskKey = preferences.getString(KIOSK_KEY, null) ?: BuildConfig.KIOSK_KEY,
         demoMode = preferences.getBoolean(DEMO_MODE, false),
+        installationPointCode = preferences.getString(INSTALLATION_POINT_CODE, null)
+            ?: DEFAULT_INSTALLATION_POINT_CODE,
     )
 
     fun save(settings: RuntimeSettings) {
@@ -41,6 +45,7 @@ class RuntimeSettingsStore(context: Context) {
             .putString(KIOSK_ID, settings.kioskId)
             .putString(KIOSK_KEY, settings.kioskKey)
             .putBoolean(DEMO_MODE, settings.demoMode)
+            .putString(INSTALLATION_POINT_CODE, settings.installationPointCode)
             .apply()
     }
 
@@ -51,7 +56,9 @@ class RuntimeSettingsStore(context: Context) {
         const val KIOSK_ID = "kiosk-id"
         const val KIOSK_KEY = "kiosk-key"
         const val DEMO_MODE = "demo-mode"
+        const val INSTALLATION_POINT_CODE = "installation-point-code"
         const val DEFAULT_PROJECT_ASSET = "uiryeong-richrich-test-config.json"
         const val DEFAULT_KIOSK_ID = "LOCAL-KIOSK"
+        const val DEFAULT_INSTALLATION_POINT_CODE = "CONDITION_A"
     }
 }
