@@ -233,6 +233,10 @@ class CreateRecommendation(
 
         val usedCodes = mutableSetOf<String>()
         val venues = richFlow.path("venue_operations").toList()
+        fun zoneCode(venue: JsonNode): String = venue.path("zone_code")
+            .takeUnless { it.isMissingNode || it.isNull }
+            ?.stringValue()
+            .orEmpty()
         val operationalPolicies = operationalStatus.policiesByCode(
             request.projectCode,
             venues.map { it.path("code").stringValue() }.filter { it.isNotBlank() }.toSet(),
@@ -284,9 +288,11 @@ class CreateRecommendation(
                 .thenBy { senseCode -> configuredOrder.getValue(senseCode) },
         )
         val selections = mutableListOf<RichJourneySelection>()
+        val usedZoneCodes = mutableSetOf<String>()
         for (senseCode in rankedSenses) {
             val candidates = venues.filter { venue ->
                 val code = venue.path("code").stringValue()
+                val zoneCode = zoneCode(venue)
                 val policy = operationalPolicies[code]
                 val enabledByConfiguration = venue.path("active").asBoolean(false) &&
                     venue.path("confirmation_status").stringValue() == "CONFIRMED"
@@ -295,6 +301,7 @@ class CreateRecommendation(
                 venue.path("recommendation_eligible").asBoolean(true) &&
                     (policy?.enabled ?: enabledByConfiguration) &&
                     code !in usedCodes &&
+                    (zoneCode.isBlank() || zoneCode !in usedZoneCodes) &&
                     (request.previousLocationId == null || locationIds.getValue(code) != request.previousLocationId) &&
                     (capacity == null || capacity <= 0 || recentCount < capacity) &&
                     venue.path("sense_codes").any { it.stringValue() == senseCode } &&
@@ -316,6 +323,7 @@ class CreateRecommendation(
             val position = Math.floorMod("${request.requestId}:$senseCode:${selections.size}".hashCode(), leastLoaded.size)
             val venue = leastLoaded[position]
             usedCodes += venue.path("code").stringValue()
+            zoneCode(venue).takeIf { it.isNotBlank() }?.let(usedZoneCodes::add)
             selections += RichJourneySelection(selections.size + 1, senseCode, venue, venue in prioritized)
             if (selections.size == targetStopCount) break
         }
@@ -326,6 +334,7 @@ class CreateRecommendation(
         if (selections.size < targetStopCount) {
             val fallbackVenues = venues.filter { venue ->
                 val code = venue.path("code").stringValue()
+                val zoneCode = zoneCode(venue)
                 val policy = operationalPolicies[code]
                 val enabledByConfiguration = venue.path("active").asBoolean(false) &&
                     venue.path("confirmation_status").stringValue() == "CONFIRMED"
@@ -337,6 +346,7 @@ class CreateRecommendation(
                 venue.path("recommendation_eligible").asBoolean(true) &&
                     (policy?.enabled ?: enabledByConfiguration) &&
                     code !in usedCodes &&
+                    (zoneCode.isBlank() || zoneCode !in usedZoneCodes) &&
                     (request.previousLocationId == null || locationIds.getValue(code) != request.previousLocationId) &&
                     (capacity == null || capacity <= 0 || recentCount < capacity) &&
                     selectableSenses.isNotEmpty() &&
@@ -359,6 +369,7 @@ class CreateRecommendation(
                             .thenBy { Math.floorMod("${request.requestId}:$it:fallback".hashCode(), Int.MAX_VALUE) },
                     ) ?: continue
                 usedCodes += code
+                zoneCode(venue).takeIf { it.isNotBlank() }?.let(usedZoneCodes::add)
                 selections += RichJourneySelection(
                     selections.size + 1,
                     senseCode,

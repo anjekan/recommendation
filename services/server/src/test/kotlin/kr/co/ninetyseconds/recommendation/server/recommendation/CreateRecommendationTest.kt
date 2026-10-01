@@ -229,6 +229,42 @@ class CreateRecommendationTest {
     }
 
     @Test
+    fun `rich flow prefers three different physical zones`() {
+        val richConfig = """
+            {
+              "emotion_profiles":[{"code":"VITALITY","active":true}],
+              "locations":[], "items":[], "rules":[],
+              "rich_flow": {
+                "senses":[
+                  {"code":"INSIGHT","active":true},{"code":"SCENT","active":true},{"code":"ACTION","active":true}
+                ],
+                "venue_operations":[
+                  {"code":"VIEW","zone_code":"1","name":{"ko":"볼거리"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["INSIGHT"]},
+                  {"code":"SCENT_SAME","zone_code":"1","name":{"ko":"같은 존 향기"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["SCENT"]},
+                  {"code":"SCENT_OTHER","zone_code":"2","name":{"ko":"다른 존 향기"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["SCENT"]},
+                  {"code":"PLAY","zone_code":"3","name":{"ko":"체험"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["ACTION"]}
+                ]
+              }
+            }
+        """.trimIndent()
+        val richService = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { _, _, _ -> mapOf("INSIGHT" to 0L, "SCENT" to 1L, "ACTION" to 2L) },
+            OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
+        )
+
+        val result = richService(
+            request(schemaVersion = 2, journeySenseCodes = listOf("INSIGHT", "SCENT", "ACTION")),
+        )
+
+        assertEquals(setOf("VIEW", "SCENT_OTHER", "PLAY"), result.journey.map { it.location.path("code").stringValue() }.toSet())
+    }
+
+    @Test
     fun `operational override can stop an active venue and enable a draft venue`() {
         val richConfig = """
             {
