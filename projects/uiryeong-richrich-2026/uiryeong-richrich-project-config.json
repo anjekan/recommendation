@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "config_version": 5,
+  "config_version": 6,
   "minimum_app_version": 1,
   "project_code": "UIRYEONG_RICHRICH_2026",
   "default_language": "ko",
@@ -122,9 +122,10 @@
       {"code":"RICH_LOTTERY","name":{"ko":"리치 복권"},"sense_codes":["ACTION","INTUITION"],"zone_code":"LUCKY","marker":{"x_percent":66.0,"y_percent":57.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
       {"code":"RICH_GATE","name":{"ko":"달아달아 리치문"},"sense_codes":["INSIGHT","INTUITION"],"zone_code":"THEME_HALL","marker":{"x_percent":89.0,"y_percent":62.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":true,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
       {"code":"AI_RICH_CONDITION","name":{"ko":"AI 리치 컨디션"},"sense_codes":["INTUITION"],"zone_code":"6","marker":{"x_percent":46.0,"y_percent":45.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
-      {"code":"JEONGAM_MARKET","name":{"ko":"정드는 정암 마켓"},"sense_codes":["TASTE"],"zone_code":"WISH","marker":null,"capacity":null,"recommendation_ttl_minutes":60,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"recommendation_eligible":false,"confirmation_status":"CONFIRMED","active":false},
-      {"code":"CAULDRON_BRIDGE","name":{"ko":"부자 솥바위 하트부교"},"sense_codes":["INTUITION"],"zone_code":"WISH","marker":null,"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"recommendation_eligible":false,"confirmation_status":"CONFIRMED","active":false},
-      {"code":"BOAT_TOUR","name":{"ko":"리치 뱃길투어·뱃놀이"},"sense_codes":["INTUITION"],"zone_code":"WISH","marker":null,"capacity":null,"recommendation_ttl_minutes":90,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"recommendation_eligible":false,"confirmation_status":"CONFIRMED","active":false},
+      {"code":"JEONGAM_MARKET","name":{"ko":"정드는 정암 마켓·리치 소원나무 달기"},"sense_codes":["TASTE","INTUITION"],"zone_code":"WISH","marker":{"x_percent":83.0,"y_percent":82.0},"capacity":null,"recommendation_ttl_minutes":60,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"CAULDRON_BRIDGE","name":{"ko":"부자 솥바위 하트부교"},"sense_codes":["INTUITION","INSIGHT"],"zone_code":"WISH","marker":{"x_percent":90.0,"y_percent":90.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"BOAT_TOUR","name":{"ko":"리치 뱃길투어·리치 뱃놀이"},"sense_codes":["INTUITION","ACTION"],"zone_code":"WISH","marker":{"x_percent":90.0,"y_percent":90.0},"capacity":null,"recommendation_ttl_minutes":90,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"WISH_LETTER","name":{"ko":"리치 소원편지·소원나무 쓰기"},"sense_codes":["INTUITION","ACTION"],"zone_code":"WISH","marker":{"x_percent":75.0,"y_percent":82.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":true,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
       {"code":"RICH_ROAD_REST","name":{"ko":"부자로드 산책"},"sense_codes":["REST"],"zone_code":"7","marker":{"x_percent":12.0,"y_percent":42.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
       {"code":"CAULDRON_RIVERSIDE_REST","name":{"ko":"솥바위 강변 휴식"},"sense_codes":["REST"],"zone_code":"WISH","marker":null,"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":false,"high_stimulation":false,"alcohol":false,"recommendation_eligible":false,"confirmation_status":"CONFIRMED","active":false}
     ],
