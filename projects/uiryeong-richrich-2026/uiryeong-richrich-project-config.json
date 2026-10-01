@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "config_version": 8,
+  "config_version": 9,
   "minimum_app_version": 1,
   "project_code": "UIRYEONG_RICHRICH_2026",
   "default_language": "ko",
@@ -101,7 +101,7 @@
       {"condition_code":"LEISURE","sense_sequence":["ACTION","LISTENING","TASTE"],"exception_code":"E7"}
     ],
     "venue_operations": [
-      {"code":"RICH_THEME_HALL","name":{"ko":"부자1번지 상설 주제관"},"sense_codes":["INSIGHT"],"zone_code":"THEME_HALL","marker":{"x_percent":89.0,"y_percent":62.0},"capacity":80,"recommendation_ttl_minutes":60,"indoor":true,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
+      {"code":"RICH_THEME_HALL","name":{"ko":"부자1번지 상설 주제관"},"sense_codes":["INSIGHT"],"zone_code":"THEME_HALL","marker":{"x_percent":82.0,"y_percent":45.0},"capacity":80,"recommendation_ttl_minutes":60,"indoor":true,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
       {"code":"HAPPY_TINIPING_PHOTO","name":{"ko":"리치 해피&티니핑 포토존"},"sense_codes":["INSIGHT"],"zone_code":"3","marker":{"x_percent":50.0,"y_percent":25.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":true,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
       {"code":"PARTY_ZONE","name":{"ko":"리치 파티존"},"sense_codes":["INSIGHT","LISTENING"],"zone_code":"1","marker":{"x_percent":51.0,"y_percent":66.0},"capacity":2000,"recommendation_ttl_minutes":90,"indoor":false,"family_priority":false,"high_stimulation":true,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
       {"code":"RICH_FRINGE_SHOW","name":{"ko":"리치 프린지쇼"},"sense_codes":["INSIGHT","LISTENING"],"zone_code":"7","marker":{"x_percent":12.0,"y_percent":42.0},"capacity":null,"recommendation_ttl_minutes":60,"indoor":false,"family_priority":false,"high_stimulation":true,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
