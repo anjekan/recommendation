@@ -138,7 +138,7 @@ class CreateRecommendationTest {
                 .copy(conditionCode = "JOY"),
         )
 
-        assertEquals("rich-journey-v2", result.policyVersion)
+        assertEquals("rich-journey-v3", result.policyVersion)
         assertEquals(setOf("INSIGHT", "ACTION", "TASTE"), result.journey.map { it.senseCode }.toSet())
         assertEquals(setOf("HALL", "PLAY", "FOOD"), result.journey.map { it.location.path("code").stringValue() }.toSet())
         assertEquals(listOf(1, 2, 3), result.journey.map { it.order })
@@ -192,6 +192,43 @@ class CreateRecommendationTest {
     }
 
     @Test
+    fun `rich flow fills three unique stops when a requested sense has no eligible venue`() {
+        val richConfig = """
+            {
+              "emotion_profiles":[{"code":"VITALITY","active":true}],
+              "locations":[], "items":[], "rules":[],
+              "rich_flow": {
+                "senses":[
+                  {"code":"INSIGHT","active":true},{"code":"ACTION","active":true}
+                ],
+                "venue_operations":[
+                  {"code":"VIEW","name":{"ko":"볼거리"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["INSIGHT"]},
+                  {"code":"PHOTO","name":{"ko":"사진 명소"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["INSIGHT"]},
+                  {"code":"PLAY","name":{"ko":"체험"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["ACTION"]}
+                ]
+              }
+            }
+        """.trimIndent()
+        val richService = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
+            OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
+        )
+
+        val result = richService(
+            request(schemaVersion = 2, journeySenseCodes = listOf("SCENT", "INSIGHT", "ACTION")),
+        )
+
+        assertEquals(3, result.journey.size)
+        assertEquals(3, result.journey.map { it.location.path("code").stringValue() }.distinct().size)
+        assertEquals(true, "JOURNEY_SIZE_FILLED" in result.reasons)
+    }
+
+    @Test
     fun `operational override can stop an active venue and enable a draft venue`() {
         val richConfig = """
             {
@@ -199,7 +236,8 @@ class CreateRecommendationTest {
               "locations":[], "items":[], "rules":[],
               "rich_flow":{"venue_operations":[
                 {"code":"ACTIVE","name":{"ko":"운영 장소"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["ACTION"]},
-                {"code":"DRAFT","name":{"ko":"시험 장소"},"active":false,"confirmation_status":"PENDING_CONFIRMATION","indoor":true,"alcohol":false,"sense_codes":["ACTION"]}
+                {"code":"DRAFT","name":{"ko":"시험 장소"},"active":false,"confirmation_status":"PENDING_CONFIRMATION","indoor":true,"alcohol":false,"sense_codes":["ACTION"]},
+                {"code":"BLOCKED","name":{"ko":"영구 제외 장소"},"active":false,"recommendation_eligible":false,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["ACTION"]}
               ]}
             }
         """.trimIndent()
@@ -213,6 +251,7 @@ class CreateRecommendationTest {
                 mapOf(
                     "ACTIVE" to OperationalLocationPolicy(false, null, null),
                     "DRAFT" to OperationalLocationPolicy(true, null, null),
+                    "BLOCKED" to OperationalLocationPolicy(true, null, null),
                 )
             },
             Duration.ofMinutes(15),

@@ -19,7 +19,9 @@ function renderLocations(config, counts, selectedTotal, operationalStatuses) {
   const countById = new Map(counts.map(item => [item.location_id, Number(item.count)]));
   const countByCode = new Map(counts.filter(item => item.location_code).map(item => [item.location_code, Number(item.count)]));
   const policyByCode = new Map(operationalStatuses.map(item => [item.location_code, item]));
-  const configured = (config.locations || []).length ? config.locations : (config.rich_flow?.venue_operations || []).map(venue => ({
+  const configured = (config.locations || []).length ? config.locations : (config.rich_flow?.venue_operations || [])
+    .filter(venue => venue.recommendation_eligible !== false)
+    .map(venue => ({
     ...venue,
     status: venue.active && venue.confirmation_status === 'CONFIRMED' ? 'NORMAL' : 'PAUSED',
   }));

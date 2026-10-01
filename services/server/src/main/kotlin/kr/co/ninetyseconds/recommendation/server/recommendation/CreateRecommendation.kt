@@ -270,7 +270,8 @@ class CreateRecommendation(
                 venue.path("confirmation_status").stringValue() == "CONFIRMED"
             val capacity = venue.path("capacity").takeUnless { it.isMissingNode || it.isNull }?.asLong()
             val recentCount = recentCounts[locationIds.getValue(code)] ?: 0L
-            (policy?.enabled ?: enabledByConfiguration) &&
+            venue.path("recommendation_eligible").asBoolean(true) &&
+                (policy?.enabled ?: enabledByConfiguration) &&
                 (capacity == null || capacity <= 0 || recentCount < capacity) &&
                 (!request.operationContext?.raining.orFalse() || venue.path("indoor").asBoolean(false)) &&
                 (!isFamily(request.operationContext?.companionType) || !venue.path("alcohol").asBoolean(false)) &&
@@ -291,7 +292,8 @@ class CreateRecommendation(
                     venue.path("confirmation_status").stringValue() == "CONFIRMED"
                 val capacity = venue.path("capacity").takeUnless { it.isMissingNode || it.isNull }?.asLong()
                 val recentCount = recentCounts[locationIds.getValue(code)] ?: 0L
-                (policy?.enabled ?: enabledByConfiguration) &&
+                venue.path("recommendation_eligible").asBoolean(true) &&
+                    (policy?.enabled ?: enabledByConfiguration) &&
                     code !in usedCodes &&
                     (request.previousLocationId == null || locationIds.getValue(code) != request.previousLocationId) &&
                     (capacity == null || capacity <= 0 || recentCount < capacity) &&
@@ -316,6 +318,56 @@ class CreateRecommendation(
             usedCodes += venue.path("code").stringValue()
             selections += RichJourneySelection(selections.size + 1, senseCode, venue, venue in prioritized)
             if (selections.size == targetStopCount) break
+        }
+
+        // A journey is more useful than a perfect sense match. If an individual sense has
+        // temporarily run out of capacity, fill the remaining stops from other safe,
+        // operational venues while keeping every physical destination unique.
+        if (selections.size < targetStopCount) {
+            val fallbackVenues = venues.filter { venue ->
+                val code = venue.path("code").stringValue()
+                val policy = operationalPolicies[code]
+                val enabledByConfiguration = venue.path("active").asBoolean(false) &&
+                    venue.path("confirmation_status").stringValue() == "CONFIRMED"
+                val capacity = venue.path("capacity").takeUnless { it.isMissingNode || it.isNull }?.asLong()
+                val recentCount = recentCounts[locationIds.getValue(code)] ?: 0L
+                val selectableSenses = venue.path("sense_codes").toList()
+                    .map { it.stringValue() }
+                    .filter { it in candidateSenses && it != "REST" }
+                venue.path("recommendation_eligible").asBoolean(true) &&
+                    (policy?.enabled ?: enabledByConfiguration) &&
+                    code !in usedCodes &&
+                    (request.previousLocationId == null || locationIds.getValue(code) != request.previousLocationId) &&
+                    (capacity == null || capacity <= 0 || recentCount < capacity) &&
+                    selectableSenses.isNotEmpty() &&
+                    (!request.operationContext?.raining.orFalse() || venue.path("indoor").asBoolean(false)) &&
+                    (!isFamily(request.operationContext?.companionType) || !venue.path("alcohol").asBoolean(false))
+            }.sortedWith(
+                compareBy<JsonNode> { venue ->
+                    recentCounts[locationIds.getValue(venue.path("code").stringValue())] ?: 0L
+                }.thenBy { venue ->
+                    Math.floorMod("${request.requestId}:${venue.path("code").stringValue()}:fallback".hashCode(), Int.MAX_VALUE)
+                },
+            )
+            for (venue in fallbackVenues) {
+                val code = venue.path("code").stringValue()
+                val senseCode = venue.path("sense_codes").toList()
+                    .map { it.stringValue() }
+                    .filter { it in candidateSenses && it != "REST" }
+                    .minWithOrNull(
+                        compareBy<String> { senseCounts[it] ?: 0L }
+                            .thenBy { Math.floorMod("${request.requestId}:$it:fallback".hashCode(), Int.MAX_VALUE) },
+                    ) ?: continue
+                usedCodes += code
+                selections += RichJourneySelection(
+                    selections.size + 1,
+                    senseCode,
+                    venue,
+                    isPrioritySelected(request.requestId, code, operationalPolicies[code]),
+                    fallbackSelected = true,
+                )
+                if (selections.size == targetStopCount) break
+            }
         }
         return selections
     }
@@ -357,10 +409,11 @@ class CreateRecommendation(
             item = primary.item,
             location = primary.location,
             display = RecommendationDisplay(names.mapValues { (_, name) -> "지금의 당신에게 $name 추천합니다." }),
-            policyVersion = "rich-journey-v2",
+            policyVersion = "rich-journey-v3",
             reasons = buildList {
                 add("OPERATION_FILTERED")
                 if (selections.any { it.prioritySelected }) add("OPERATOR_PRIORITY_APPLIED")
+                if (selections.any { it.fallbackSelected }) add("JOURNEY_SIZE_FILLED")
                 add("SENSE_LOAD_BALANCED")
                 add("RECENT_LOAD_BALANCED")
                 add("DETERMINISTIC")
@@ -418,5 +471,6 @@ class CreateRecommendation(
         val senseCode: String,
         val venue: JsonNode,
         val prioritySelected: Boolean,
+        val fallbackSelected: Boolean = false,
     )
 }
