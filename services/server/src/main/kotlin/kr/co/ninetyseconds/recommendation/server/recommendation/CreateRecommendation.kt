@@ -237,6 +237,11 @@ class CreateRecommendation(
             .takeUnless { it.isMissingNode || it.isNull }
             ?.stringValue()
             .orEmpty()
+        fun installationGroup(venue: JsonNode): String = venue.path("installation_group")
+            .takeUnless { it.isMissingNode || it.isNull }
+            ?.stringValue()
+            .orEmpty()
+        val currentInstallationGroup = kioskInstallationGroup(request.kioskId)
         val operationalPolicies = operationalStatus.policiesByCode(
             request.projectCode,
             venues.map { it.path("code").stringValue() }.filter { it.isNotBlank() }.toSet(),
@@ -276,6 +281,7 @@ class CreateRecommendation(
             val recentCount = recentCounts[locationIds.getValue(code)] ?: 0L
             venue.path("recommendation_eligible").asBoolean(true) &&
                 (policy?.enabled ?: enabledByConfiguration) &&
+                (currentInstallationGroup == null || installationGroup(venue) != currentInstallationGroup) &&
                 (capacity == null || capacity <= 0 || recentCount < capacity) &&
                 (!request.operationContext?.raining.orFalse() || venue.path("indoor").asBoolean(false)) &&
                 (!isFamily(request.operationContext?.companionType) || !venue.path("alcohol").asBoolean(false)) &&
@@ -300,6 +306,7 @@ class CreateRecommendation(
                 val recentCount = recentCounts[locationIds.getValue(code)] ?: 0L
                 venue.path("recommendation_eligible").asBoolean(true) &&
                     (policy?.enabled ?: enabledByConfiguration) &&
+                    (currentInstallationGroup == null || installationGroup(venue) != currentInstallationGroup) &&
                     code !in usedCodes &&
                     (zoneCode.isBlank() || zoneCode !in usedZoneCodes) &&
                     (request.previousLocationId == null || locationIds.getValue(code) != request.previousLocationId) &&
@@ -345,6 +352,7 @@ class CreateRecommendation(
                     .filter { it in candidateSenses && it != "REST" }
                 venue.path("recommendation_eligible").asBoolean(true) &&
                     (policy?.enabled ?: enabledByConfiguration) &&
+                    (currentInstallationGroup == null || installationGroup(venue) != currentInstallationGroup) &&
                     code !in usedCodes &&
                     (zoneCode.isBlank() || zoneCode !in usedZoneCodes) &&
                     (request.previousLocationId == null || locationIds.getValue(code) != request.previousLocationId) &&
@@ -464,6 +472,13 @@ class CreateRecommendation(
         companionType.equals("FAMILY", ignoreCase = true) || companionType.equals("CHILD", ignoreCase = true)
     private fun stableUuid(projectCode: String, value: String): UUID =
         UUID.nameUUIDFromBytes("$projectCode:$value".toByteArray())
+
+    private fun kioskInstallationGroup(kioskId: String): String? =
+        Regex("(^|[-_])(A|B)([-_]|$)", RegexOption.IGNORE_CASE)
+            .find(kioskId)
+            ?.groupValues
+            ?.get(2)
+            ?.uppercase()
 
     private fun isPrioritySelected(
         requestId: UUID,

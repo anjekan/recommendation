@@ -265,6 +265,42 @@ class CreateRecommendationTest {
     }
 
     @Test
+    fun `rich flow excludes the kiosk own measurement installation`() {
+        val richConfig = """
+            {
+              "emotion_profiles":[{"code":"VITALITY","active":true}],
+              "locations":[], "items":[], "rules":[],
+              "rich_flow": {
+                "senses":[{"code":"INTUITION","active":true}],
+                "venue_operations":[
+                  {"code":"AI_A","installation_group":"A","name":{"ko":"A 측정소"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["INTUITION"]},
+                  {"code":"AI_B","installation_group":"B","name":{"ko":"B 측정소"},"active":true,"confirmation_status":"CONFIRMED","indoor":true,"alcohol":false,"sense_codes":["INTUITION"]}
+                ]
+              }
+            }
+        """.trimIndent()
+        val richService = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, richConfig) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
+            OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
+        )
+
+        val fromA = richService(
+            request(schemaVersion = 2, journeySenseCodes = listOf("INTUITION")).copy(kioskId = "LOCAL-KIOSK-A-3"),
+        )
+        val fromB = richService(
+            request(schemaVersion = 2, journeySenseCodes = listOf("INTUITION")).copy(kioskId = "LOCAL-KIOSK-B-13"),
+        )
+
+        assertEquals("AI_B", fromA.location.path("code").stringValue())
+        assertEquals("AI_A", fromB.location.path("code").stringValue())
+    }
+
+    @Test
     fun `operational override can stop an active venue and enable a draft venue`() {
         val richConfig = """
             {
