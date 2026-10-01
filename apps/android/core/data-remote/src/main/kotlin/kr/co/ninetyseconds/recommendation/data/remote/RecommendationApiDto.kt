@@ -21,6 +21,7 @@ internal data class ApiRecommendationRequest(
     @SerialName("journey_sense_codes") val journeySenseCodes: List<String> = emptyList(),
     @SerialName("operation_context") val operationContext: ApiOperationContext? = null,
     @SerialName("requested_at") val requestedAt: String,
+    @SerialName("map_layout_id") val mapLayoutId: String? = null,
 )
 
 @Serializable

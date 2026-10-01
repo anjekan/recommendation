@@ -1,6 +1,7 @@
 package kr.co.ninetyseconds.recommendation.data.config
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kr.co.ninetyseconds.recommendation.domain.EmotionCode
 import kr.co.ninetyseconds.recommendation.domain.EmotionDefinition
@@ -23,6 +24,7 @@ class IncompatibleProjectConfig(message: String) : IllegalStateException(message
 class ProjectConfigImporter(
     private val currentAppVersion: Int,
     private val json: Json = Json { ignoreUnknownKeys = false },
+    private val mapLayoutId: String? = null,
 ) {
     init {
         require(currentAppVersion >= 1) { "Current app version must be positive" }
@@ -46,12 +48,16 @@ class ProjectConfigImporter(
             .filter { it.active }
             .groupBy(RuleDto::itemId)
         val activeItems = dto.items.filter { it.active && it.locationId in activeLocationIds }
+        val layoutMarkers = mapLayoutId?.let { id ->
+            dto.richFlow?.get("map_layouts")?.jsonObject?.get(id)?.jsonObject?.get("markers")?.jsonObject
+        }
         val installationPoints = dto.richFlow
             ?.get("kiosks")
             ?.let { json.decodeFromJsonElement<List<KioskDto>>(it) }
             .orEmpty()
             .mapNotNull { kiosk ->
-                kiosk.marker?.let { marker ->
+                (layoutMarkers?.get(kiosk.code)?.let { json.decodeFromJsonElement<MarkerDto>(it) }
+                    ?: kiosk.marker)?.let { marker ->
                     InstallationPoint(
                         code = kiosk.code,
                         title = kiosk.installationGroup,

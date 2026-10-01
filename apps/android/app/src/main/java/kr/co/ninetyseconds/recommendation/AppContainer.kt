@@ -36,7 +36,7 @@ class AppContainer(
 ) {
     private val localData = LocalDataStore.create(context)
     private val runtimeSettings = RuntimeSettingsStore(context)
-    private val importer = ProjectConfigImporter(BuildConfig.VERSION_CODE)
+    private val importer = ProjectConfigImporter(BuildConfig.VERSION_CODE, mapLayoutId = RICH_MAP_LAYOUT_ID)
     private val localEngine = LocalRecommendationEngine(localData.projectCatalog, localData.recommendationEvents, clock)
     private val remoteEngine = RecommendationEngine { request ->
         val settings = runtimeSettings.load()
@@ -99,6 +99,9 @@ class AppContainer(
                 participant = participant,
                 conditionCode = emotion.value,
                 journeySenseCodes = journeySenseCodes,
+                mapLayoutId = RICH_MAP_LAYOUT_ID.takeIf {
+                    config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true)
+                },
             ),
         )
         syncPendingEvents()
@@ -124,9 +127,9 @@ class AppContainer(
                 source = DecisionSource.LOCAL,
                 decidedAt = Instant.now(clock),
                 journey = listOf(
-                    JourneyStop(1, "INSIGHT", themeHall, JourneyLocation("RICH_THEME_HALL", themeHall.title, 83.8, 41.2)),
-                    JourneyStop(2, "ACTION", kidzania, JourneyLocation("RICH_KIDZANIA", kidzania.title, 51.1, 27.4)),
-                    JourneyStop(3, "TASTE", snackZone, JourneyLocation("SNACK_ZONE", snackZone.title, 37.5, 42.7)),
+                    JourneyStop(1, "INSIGHT", themeHall, JourneyLocation("RICH_THEME_HALL", themeHall.title, 91.0, 57.0)),
+                    JourneyStop(2, "ACTION", kidzania, JourneyLocation("RICH_KIDZANIA", kidzania.title, 58.0, 40.0)),
+                    JourneyStop(3, "TASTE", snackZone, JourneyLocation("SNACK_ZONE", snackZone.title, 58.0, 40.0)),
                 ),
                 expectedJourneyStopCount = 3,
             )

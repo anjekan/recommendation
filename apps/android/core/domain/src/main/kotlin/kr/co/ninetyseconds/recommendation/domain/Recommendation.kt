@@ -32,6 +32,7 @@ data class RecommendationRequest(
     val conditionCode: String? = null,
     val journeySenseCodes: List<String> = emptyList(),
     val operationContext: RecommendationOperationContext? = null,
+    val mapLayoutId: String? = null,
 ) {
     init {
         require(requestId.isNotBlank()) { "Request id cannot be blank" }

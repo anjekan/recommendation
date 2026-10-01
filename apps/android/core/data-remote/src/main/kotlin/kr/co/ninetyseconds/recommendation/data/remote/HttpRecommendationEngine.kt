@@ -55,6 +55,7 @@ class HttpRecommendationEngine(
                 ApiOperationContext(it.raining, it.companionType, it.performanceWindowOpen)
             },
             requestedAt = request.requestedAt.toString(),
+            mapLayoutId = request.mapLayoutId,
         )
         val httpRequest = Request.Builder()
             .url(endpoint)

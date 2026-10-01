@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "config_version": 9,
+  "config_version": 10,
   "minimum_app_version": 1,
   "project_code": "UIRYEONG_RICHRICH_2026",
   "default_language": "ko",
@@ -53,7 +53,7 @@
   "rich_flow": {
     "measurement_policy": {
       "measurement_seconds": 10,
-      "result_display_seconds": 5,
+      "result_display_seconds": 20,
       "idle_return_seconds": 5,
       "max_attempts": 2,
       "heart_rate_range": {"min":55,"max":170},
@@ -100,6 +100,42 @@
       {"condition_code":"STABLE","sense_sequence":["INSIGHT","LISTENING","TASTE"],"exception_code":"E7"},
       {"condition_code":"LEISURE","sense_sequence":["ACTION","LISTENING","TASTE"],"exception_code":"E7"}
     ],
+    "map_layouts": {
+      "sotbawi-top-left-v2": {
+        "image_resource": "richrich_map_sotbawi_top_left",
+        "markers": {
+          "RICH_THEME_HALL": {"x_percent": 91, "y_percent": 57},
+          "HAPPY_TINIPING_PHOTO": {"x_percent": 58, "y_percent": 40},
+          "PARTY_ZONE": {"x_percent": 60.5, "y_percent": 78},
+          "RICH_FRINGE_SHOW": {"x_percent": 19, "y_percent": 55},
+          "AROMA_CLASS": {"x_percent": 39, "y_percent": 41},
+          "SHARING_MARKET": {"x_percent": 58, "y_percent": 40},
+          "SNACK_COLLAGE": {"x_percent": 39, "y_percent": 41},
+          "FOOD_COURT": {"x_percent": 78, "y_percent": 82},
+          "SNACK_ZONE": {"x_percent": 58, "y_percent": 40},
+          "FOOD_PLAY": {"x_percent": 73, "y_percent": 46},
+          "TOYOAE_MARKET": {"x_percent": 52, "y_percent": 56},
+          "RICE_CAKE_SHARING": {"x_percent": 46, "y_percent": 73},
+          "RICH_DISCO": {"x_percent": 58, "y_percent": 40},
+          "RICH_SPORTS_DAY": {"x_percent": 58, "y_percent": 40},
+          "RICH_KIDZANIA": {"x_percent": 58, "y_percent": 40},
+          "MONEY_PLAY": {"x_percent": 73, "y_percent": 46},
+          "RICH_ARCADE": {"x_percent": 41, "y_percent": 68},
+          "RICH_STARTUP": {"x_percent": 73, "y_percent": 46},
+          "RICH_LOTTERY": {"x_percent": 65, "y_percent": 48},
+          "RICH_GATE": {"x_percent": 73.5, "y_percent": 70},
+          "AI_RICH_CONDITION_A": {"x_percent": 30, "y_percent": 50.5},
+          "AI_RICH_CONDITION_B": {"x_percent": 78, "y_percent": 50},
+          "JEONGAM_MARKET": {"x_percent": 17, "y_percent": 14.5},
+          "CAULDRON_BRIDGE": {"x_percent": 23, "y_percent": 22},
+          "BOAT_TOUR": {"x_percent": 28, "y_percent": 16},
+          "WISH_LETTER": {"x_percent": 8, "y_percent": 15.5},
+          "RICH_ROAD_REST": {"x_percent": 19, "y_percent": 55},
+          "CONDITION_A": {"x_percent": 30, "y_percent": 50.5},
+          "CONDITION_B": {"x_percent": 78, "y_percent": 50}
+        }
+      }
+    },
     "venue_operations": [
       {"code":"RICH_THEME_HALL","name":{"ko":"부자1번지 상설 주제관"},"sense_codes":["INSIGHT"],"zone_code":"THEME_HALL","marker":{"x_percent":82.0,"y_percent":45.0},"capacity":80,"recommendation_ttl_minutes":60,"indoor":true,"family_priority":false,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},
       {"code":"HAPPY_TINIPING_PHOTO","name":{"ko":"리치 해피&티니핑 포토존"},"sense_codes":["INSIGHT"],"zone_code":"3","marker":{"x_percent":50.0,"y_percent":25.0},"capacity":null,"recommendation_ttl_minutes":40,"indoor":false,"family_priority":true,"high_stimulation":false,"alcohol":false,"confirmation_status":"CONFIRMED","active":true},

@@ -35,6 +35,7 @@ data class RecommendationRequest(
     val journeySenseCodes: List<String> = emptyList(),
     val operationContext: OperationContextRequest? = null,
     val requestedAt: OffsetDateTime,
+    val mapLayoutId: String? = null,
 )
 
 data class OperationContextRequest(
@@ -107,7 +108,7 @@ class CreateRecommendation(
         } ?: throw NoEligibleRecommendationException(request.requestId)
 
         val richJourney = selectRichJourney(root, request)
-        if (richJourney.isNotEmpty()) return createRichJourneyResult(request, emotion, richJourney)
+        if (richJourney.isNotEmpty()) return createRichJourneyResult(request, emotion, richJourney, root)
 
         val locations = root.path("locations").associateBy { it.path("id").stringValue() }
         val operationalPolicies = operationalStatus.policiesByCode(
@@ -395,7 +396,11 @@ class CreateRecommendation(
         request: RecommendationRequest,
         emotion: JsonNode,
         selections: List<RichJourneySelection>,
+        root: JsonNode,
     ): RecommendationResult {
+        val layoutMarkers = request.mapLayoutId?.let {
+            root.path("rich_flow").path("map_layouts").path(it).path("markers")
+        }
         val stops = selections.map { selection ->
             val code = selection.venue.path("code").stringValue()
             val locationId = stableUuid(request.projectCode, "location:$code")
@@ -405,7 +410,8 @@ class CreateRecommendation(
                 put("code", code)
                 set("name", selection.venue.path("name"))
                 put("status", "NORMAL")
-                set("marker", selection.venue.path("marker"))
+                set("marker", layoutMarkers?.path(code)?.takeUnless { it.isMissingNode || it.isNull }
+                    ?: selection.venue.path("marker"))
                 put("active", true)
             }
             val item = objectMapper.createObjectNode().apply {

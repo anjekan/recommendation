@@ -73,6 +73,14 @@ class HttpRecommendationEngineTest {
     }
 
     @Test
+    fun `sends the map layout selected by the client`() = runBlocking {
+        val captured = AtomicReference<Request>()
+        engine(200, successBody(), captured).recommend(request().copy(mapLayoutId = "sotbawi-top-left-v2"))
+        val body = Buffer().also { requireNotNull(captured.get().body).writeTo(it) }.readUtf8()
+        assertTrue(body.contains("\"map_layout_id\":\"sotbawi-top-left-v2\""))
+    }
+
+    @Test
     fun `client and business error is classified as rejected`() {
         assertThrows(RecommendationRejected::class.java) {
             runBlocking { engine(409, """{"message":"no candidate"}""").recommend(request()) }

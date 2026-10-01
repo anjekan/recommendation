@@ -202,6 +202,10 @@ components:
           description: 추천할 1·2·3정거장의 감각 코드 순서
         operation_context:
           $ref: '#/components/schemas/OperationContext'
+        map_layout_id:
+          type: string
+          maxLength: 80
+          description: Bundled client map layout identifier. Omission uses legacy coordinates; matching rich_flow.map_layouts entries override location markers only.
         requested_at:
           type: string
           format: date-time

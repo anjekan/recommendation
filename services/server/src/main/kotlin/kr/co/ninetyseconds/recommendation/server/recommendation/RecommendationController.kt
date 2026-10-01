@@ -42,6 +42,7 @@ data class RecommendationRequestBody(
     @field:Size(max = 3) val journeySenseCodes: List<String> = emptyList(),
     @field:Valid val operationContext: OperationContextRequest? = null,
     val requestedAt: OffsetDateTime,
+    @field:Size(max = 80) val mapLayoutId: String? = null,
 ) {
     fun toCommand() = RecommendationRequest(
         schemaVersion = schemaVersion,
@@ -59,6 +60,7 @@ data class RecommendationRequestBody(
         journeySenseCodes = journeySenseCodes,
         operationContext = operationContext,
         requestedAt = requestedAt,
+        mapLayoutId = mapLayoutId,
     )
 }
 

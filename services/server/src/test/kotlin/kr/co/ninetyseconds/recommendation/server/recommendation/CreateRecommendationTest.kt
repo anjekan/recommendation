@@ -402,6 +402,33 @@ class CreateRecommendationTest {
         assertEquals("SAFE", result.location.path("code").stringValue())
     }
 
+    @Test
+    fun `new map requests use new coordinates while old and unknown layouts retain legacy coordinates`() {
+        val config = """{
+          "emotion_profiles":[{"code":"VITALITY","active":true}],"locations":[],"items":[],"rules":[],
+          "rich_flow": {
+            "map_layouts":{"new-map":{"markers":{"ROCK":{"x_percent":23,"y_percent":22}}}},
+            "venue_operations":[{"code":"ROCK","name":{"ko":"솥바위"},"sense_codes":["INTUITION"],
+              "active":true,"confirmation_status":"CONFIRMED","marker":{"x_percent":90,"y_percent":90}}]
+          }
+        }"""
+        val service = CreateRecommendation(
+            ProjectConfigurationStore { ProjectConfiguration("EXPO", 1, config) },
+            JsonMapper.builder().addModule(kotlinModule()).build(), RecommendationEventStore { true },
+            Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC),
+            RecentRecommendationLoad { _, _, _ -> emptyMap() },
+            RecentSenseRecommendationLoad { _, _, _ -> emptyMap() },
+            OperationalLocationStatusLoad { _, _ -> emptyMap() }, Duration.ofMinutes(15),
+            RecommendationJourneyStore { _, _ -> },
+        )
+        val req = request(schemaVersion = 2, journeySenseCodes = listOf("INTUITION"))
+        assertEquals(90, service(req).journey.single().location.path("marker").path("x_percent").asInt())
+        val updated = service(req.copy(mapLayoutId = "new-map"))
+        assertEquals(23, updated.journey.single().location.path("marker").path("x_percent").asInt())
+        assertEquals(22, updated.location.path("marker").path("y_percent").asInt())
+        assertEquals(90, service(req.copy(mapLayoutId = "unknown")).location.path("marker").path("x_percent").asInt())
+    }
+
     private fun request(
         emotionCode: String = "VITALITY",
         previousLocationId: UUID? = null,

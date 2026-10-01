@@ -84,6 +84,19 @@ class ProjectConfigImporterTest {
         }
     }
 
+    @Test
+    fun `map layout updates current position without changing legacy installation coordinates`() {
+        val configJson = validJson().dropLast(1) + """, "rich_flow": {
+          "kiosks": [{"code":"CONDITION_A","installation_group":"A","marker":{"x_percent":22.1,"y_percent":38.1}}],
+          "map_layouts": {"new-map":{"markers":{"CONDITION_A":{"x_percent":30,"y_percent":50.5}}}}
+        }}"""
+        val legacy = ProjectConfigImporter(1).import(configJson)
+        val updated = ProjectConfigImporter(1, mapLayoutId = "new-map").import(configJson)
+        assertEquals(22.1, legacy.navigation.originFor("CONDITION_A").xPercent, 0.0)
+        assertEquals(30.0, updated.navigation.originFor("CONDITION_A").xPercent, 0.0)
+        assertEquals(50.5, updated.navigation.originFor("CONDITION_A").yPercent, 0.0)
+    }
+
     private fun validJson() =
         """
         {

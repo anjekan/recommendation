@@ -88,9 +88,18 @@ class MainActivity : ComponentActivity() {
                 }
             } else if (BuildConfig.DEBUG && intent.getBooleanExtra("result_design_preview", false)) {
                 RecommendationTheme {
-                    ResultPresentation("무언가에 흥미가 생긴 듯 보여요", listOf("INSIGHT", "TASTE", "ACTION"),
-                        listOf("1. 부자1번지 상설 주제관", "2. 리치 키자니아 직업체험", "3. 리치 스낵존"),
-                        null, 72, 15, "감각 여정 지도 보기", { finish() })
+                    var previewResult by remember { mutableStateOf<AppState.Result?>(null) }
+                    var showMap by remember { mutableStateOf(false) }
+                    LaunchedEffect(Unit) {
+                        val config = container.start()
+                        val emotion = EmotionCode("INTEREST")
+                        previewResult = AppState.Result(config, emotion, 72, 15, container.demoRecommend(emotion))
+                    }
+                    previewResult?.let { result ->
+                        if (showMap) MapGuideScreen(AppState.MapGuide(result.config, result.decision,
+                            container.settings().installationPointCode)) { finish() }
+                        else ResultScreen(result) { showMap = true }
+                    }
                 }
             } else if (BuildConfig.DEBUG && intent.getBooleanExtra("map_design_preview", false)) {
                 RecommendationTheme {
@@ -100,9 +109,9 @@ class MainActivity : ComponentActivity() {
                         val stops = config.catalog.locations.take(3).mapIndexed { i, location ->
                             DisplayMapStop(i + 1, location.code, location.title, location.markerXPercent, location.markerYPercent)
                         }.ifEmpty { listOf(
-                            DisplayMapStop(1, "PREVIEW_PLAY", "리치 플레이존", 51.1, 27.4),
-                            DisplayMapStop(2, "PREVIEW_DREAM", "리치 드림존", 72.8, 27.6),
-                            DisplayMapStop(3, "PREVIEW_LIFE", "리치 라이프존", 48.0, 58.0),
+                            DisplayMapStop(1, "CAULDRON_BRIDGE", "부자 솥바위 하트부교", 23.0, 22.0),
+                            DisplayMapStop(2, "RICH_GATE", "달아달아 리치문", 73.5, 70.0),
+                            DisplayMapStop(3, "RICH_THEME_HALL", "부자1번지 상설 주제관", 91.0, 57.0),
                         ) }
                         MapPresentation(
                             config,
@@ -983,6 +992,18 @@ private fun CameraMeasurementPreview(
 
 @Composable
 private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit) {
+    val latestOnShowMap by rememberUpdatedState(onShowMap)
+    var navigated by remember(result.decision.requestId) { mutableStateOf(false) }
+    val showMapOnce: () -> Unit = {
+        if (!navigated) {
+            navigated = true
+            latestOnShowMap()
+        }
+    }
+    LaunchedEffect(result.decision.requestId) {
+        delay(20_000)
+        showMapOnce()
+    }
     val emotionDefinition = result.config.emotions.firstOrNull { it.code == result.condition }
     val journey = result.decision.toJourneyPresentation()
     val knownSenses = setOf("INSIGHT", "SCENT", "TASTE", "LISTENING", "ACTION", "INTUITION")
@@ -998,7 +1019,7 @@ private fun ResultScreen(result: AppState.Result, onShowMap: () -> Unit) {
         senseCodes,
         journey.stopLabels,
         journey.operationNotice(result.config.selectedLanguage),
-        result.heartRate, result.respiration, result.config.content.mapButtonLabel, onShowMap)
+        result.heartRate, result.respiration, result.config.content.mapButtonLabel, showMapOnce)
 }
 
 @Composable
@@ -1402,7 +1423,7 @@ private fun MapPresentationContent(
                     },
                     update = {
                         if (config.catalog.projectId.value.contains("UIRYEONG", ignoreCase = true)) {
-                            it.setImageResource(R.drawable.richrich_map_sotbawi_integrated)
+                            it.setImageResource(R.drawable.richrich_map_sotbawi_top_left)
                             // Recede the artwork with a light veil and softer contrast;
                             // keep colored UI and route overlays unaffected.
                             val mapColors = android.graphics.ColorMatrix().apply { setSaturation(.78f) }
@@ -1468,11 +1489,12 @@ private fun MapPresentationContent(
                 painter = painterResource(R.drawable.richrich_festival_logo),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.align(Alignment.TopStart).padding(14.dp).width(190.dp).height(76.dp),
+                modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).width(120.dp).height(52.dp),
             )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.align(Alignment.TopCenter)
+                modifier = Modifier.align(Alignment.TopCenter).widthIn(max = maxWidth * .48f)
+                    .offset(x = maxWidth * .10f)
                     .padding(top = 12.dp)
                     .border(3.dp, Color(0xFF10213A), RoundedCornerShape(26.dp))
                     .background(Brush.verticalGradient(listOf(Color(0xFF1169D9), Color(0xFF073C9A))), RoundedCornerShape(26.dp))
